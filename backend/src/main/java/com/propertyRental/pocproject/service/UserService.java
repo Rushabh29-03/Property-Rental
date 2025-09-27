@@ -1,66 +1,90 @@
 package com.propertyRental.pocproject.service;
 
-import com.propertyRental.pocproject.dao.AppDAO;
-import com.propertyRental.pocproject.entity.Property;
-import com.propertyRental.pocproject.entity.RentedProperty;
+import com.propertyRental.pocproject.config.AppConfig;
+import com.propertyRental.pocproject.entity.Admin;
 import com.propertyRental.pocproject.entity.User;
-import com.propertyRental.pocproject.entity.WishListedProperty;
+import com.propertyRental.pocproject.repository.AdminRepository;
+import com.propertyRental.pocproject.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
-public class UserService {
-    private final AppDAO appDAO;
+public class UserService implements UserDetailsService {
 
-    public UserService(AppDAO appDAO) {
-        this.appDAO = appDAO;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private AppConfig appConfig;
+
+    // Method to register a new regular user
+    @Transactional
+    public User registerUser(User user) {
+        // Encode the password before saving it to the database
+        user.setPassword(appConfig.passwordEncoder().encode(user.getPassword()));
+        user.setRegistrationDate(LocalDateTime.now());
+        // Set isOwner to false by default for a standard user registration
+        System.out.println(user.isOwner()+"*********************");
+//        user.setOwner(false);
+        return userRepository.save(user);
     }
 
-    public void saveUser(User user){
-        appDAO.save(user);
-    }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-    public void saveUserWithProperties(User user){
-        if(user.getProperties()!=null){
-            user.getProperties().forEach(property -> property.setOwner(user));
+        // 1. Attempt to find the user in the ADMIN table
+        Optional<Admin> adminOptional = adminRepository.findByUserName(username);
+
+        if (adminOptional.isPresent()) {
+            Admin admin = adminOptional.get();
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+            // Return UserDetails for the Admin
+            return new org.springframework.security.core.userdetails.User(
+                    admin.getUserName(),
+                    admin.getPassword(), // The encoded password
+                    authorities
+            );
         }
-        appDAO.save(user);
-    }
 
-    public User getUserByid(int id){
-        return appDAO.findUserById(id);
-    }
+        // 2. If not found as an Admin, attempt to find the user in the USERS table
+        Optional<User> userOptional = userRepository.findByUserName(username);
 
-    public void rentProperty(int user_id, int pr_id){
-        User user=appDAO.findUserById(user_id);
-        Property property=appDAO.findPropertyById(pr_id);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            List<GrantedAuthority> authorities = new ArrayList<>();
 
-        RentedProperty rentedProperties =
-                new RentedProperty(LocalDate.parse("2025-01-01"), LocalDate.parse("2025-05-20"), 15000, 10000);
+            // Assign roles based on the 'isOwner' flag
+            if (user.isOwner()) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_OWNER"));
+            } else {
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            }
 
-        RentedProperty rentedProperties1=
-                new RentedProperty(LocalDate.parse("2025-06-01"), LocalDate.parse("2025-07-01"), 10000, 5000);
+            // Return UserDetails for the regular User (or Owner)
+            return new org.springframework.security.core.userdetails.User(
+                    user.getUserName(),
+                    user.getPassword(), // The encoded password
+                    authorities
+            );
+        }
 
-        rentedProperties1.setUser(user);
-        rentedProperties1.setProperty(property);
-
-        appDAO.rentProperty(rentedProperties1);
-    }
-
-    public void markPropertyAsWishList(int user_id, int pr_id){
-        User user=appDAO.findUserById(user_id);
-        Property property=appDAO.findPropertyById(pr_id);
-
-        WishListedProperty wishListedProperty=
-                new WishListedProperty("nearby area");
-
-        wishListedProperty.setUser(user);
-        wishListedProperty.setProperty(property);
-        wishListedProperty.setStatus("jakas bhai");
-
-        appDAO.markAsWishList(wishListedProperty);
+        // 3. If the username is not found in either table, throw an exception
+        throw new UsernameNotFoundException("User '" + username + "' not found in either User or Admin table.");
     }
 }

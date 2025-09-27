@@ -53,8 +53,8 @@ public class User {
     @Column(name = "phone_no")
     private String phoneNo;
 
-    @Column(name = "is_owner", columnDefinition = "BOOLEAN DEFAULT false")
-    private boolean isOwner; //DEFAULT false
+    @Column(name = "is_owner")
+    private boolean isOwner=false; //DEFAULT false
 
     @Setter
     @Getter
@@ -102,7 +102,7 @@ public class User {
         return isOwner;
     }
 
-    public void setOwner(boolean owner) {
+    public void setIsOwner(boolean owner) {
         isOwner = owner;
     }
 

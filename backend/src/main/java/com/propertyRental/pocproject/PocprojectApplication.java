@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class PocprojectApplication {
+public class
+PocprojectApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PocprojectApplication.class, args);
