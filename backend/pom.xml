@@ -8,11 +8,11 @@
 		<version>3.5.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.propertyRental</groupId>
-	<artifactId>pocproject</artifactId>
+	<groupId>com.property-rental</groupId>
+	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>pocproject</name>
-	<description>Demo project for Spring Boot</description>
+	<name>backend</name>
+	<description>Property rental project POC</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -74,7 +74,7 @@
 			<scope>test</scope>
 		</dependency>
 
-<!--		JWT API-->
+		<!--		JWT API-->
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -82,7 +82,7 @@
 			<version>0.12.6</version>
 		</dependency>
 
-<!--		JWT IMPLEMENTATION-->
+		<!--		JWT IMPLEMENTATION-->
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -91,7 +91,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-<!--		JWT JACKSON-->
+		<!--		JWT JACKSON-->
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
