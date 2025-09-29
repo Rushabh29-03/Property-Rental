@@ -35,8 +35,8 @@ public class Property {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "is_verified", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
-    private Boolean isVerified; //DEFAULT false
+    @Column(name = "is_verified", nullable = false)
+    private Boolean isVerified=false; //DEFAULT false
 
     @Setter
     @Getter

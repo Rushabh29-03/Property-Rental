@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { environment } from '../environments/GlobalVariables';
-import { useNavigate } from 'react-router';
+import { Environment } from '../environments/GlobalVariables';
 
-const API_URL = environment.apiUrl + "/auth"
+const API_URL = Environment.apiUrl + "/auth"
 
-const authService = {    
+const AuthService = {    
 
     logout: ()=>{
         localStorage.removeItem('user');
@@ -38,7 +37,7 @@ const authService = {
             }
 
             else if (response.data.jwtToken) { 
-                authService.setCurrentUser(response.data);
+                AuthService.setCurrentUser(response.data);
                 
             }
             console.log(response.data);
@@ -63,7 +62,7 @@ const authService = {
             }
             else{
                 console.log("Sing-up response data: ", response.data);
-                await authService.signIn(userData.userName, userData.password);
+                await AuthService.signIn(userData.userName, userData.password);
                 await navigate("/");
             }
         } catch (error) {
@@ -73,4 +72,4 @@ const authService = {
     }
 }
 
-export default authService;
+export default AuthService;

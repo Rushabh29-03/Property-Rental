@@ -7,7 +7,7 @@ function App() {
   return (
     <>
       {/* <Link to="/" className="text-2xl bg-fuchsia-500 decoration-none">Jordan</Link> */}
-      <Header />
+      {/* <Header /> */}
       <AppRoutes />
     </>
   )

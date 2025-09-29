@@ -62,7 +62,9 @@ public class UserService implements UserDetailsService {
         }
 
         // 2. If not found as an Admin, attempt to find the user in the USERS table
-        Optional<User> userOptional = userRepository.findByUserName(username);
+        User getUser = userRepository.findByUserName(username);
+
+        Optional<User> userOptional= Optional.ofNullable(getUser);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();

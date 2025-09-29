@@ -1,17 +1,17 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router'
-import authService from '../../services/authService'
+import AuthService from '../../services/AuthService';
 import './Header.css'
 
 function Header() {
-  const currentUser = authService.getCurrentUser();
+  const currentUser = AuthService.getCurrentUser();
   const isOwner = currentUser && currentUser.role === 'ROLE_OWNER'
   const isLoggedIn = !!currentUser
 
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    authService.logout();
+    AuthService.logout();
     navigate('/login'); // Redirect to the login page after logout
     // Force a page reload or state update if necessary (depending on your setup)
     // window.location.reload(); 

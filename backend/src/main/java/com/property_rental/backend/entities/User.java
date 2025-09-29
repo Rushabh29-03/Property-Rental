@@ -1,5 +1,6 @@
 package com.property_rental.backend.entities;
 
+import com.property_rental.backend.dtos.PropertyDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -62,8 +63,6 @@ public class User {
     private LocalDateTime registrationDate; //DEFAULT current_timestamp
 
     //    OWNER TO PROPERTY
-    @Setter
-    @Getter
     @OneToMany(mappedBy = "owner",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
@@ -104,6 +103,27 @@ public class User {
 
     public void setIsOwner(boolean owner) {
         isOwner = owner;
+    }
+
+    public List<PropertyDto> getProperties() {
+
+        List<PropertyDto> propertyDtoList = new ArrayList<>();
+        for (int i = 0; i < properties.size(); i++) {
+            PropertyDto propertyDto = PropertyDto.builder()
+                    .id(properties.get(i).getId())
+                    .description(properties.get(i).getDescription())
+                    .address(properties.get(i).getAddress())
+                    .isVerified(properties.get(i).isVerified())
+                    .area(properties.get(i).getArea())
+                    .areaUnit(properties.get(i).getAreaUnit())
+                    .monthlyRent(properties.get(i).getMonthlyRent())
+                    .noOfBedrooms(properties.get(i).getNoOfBedrooms())
+                    .securityDepositAmount(properties.get(i).getSecurityDepositAmount())
+                    .build();
+
+            propertyDtoList.add(propertyDto);
+        }
+        return propertyDtoList;
     }
 
     @Override
