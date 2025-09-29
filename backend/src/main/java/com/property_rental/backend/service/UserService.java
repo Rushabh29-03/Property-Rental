@@ -38,8 +38,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(appConfig.passwordEncoder().encode(user.getPassword()));
         user.setRegistrationDate(LocalDateTime.now());
         // Set isOwner to false by default for a standard user registration
-        System.out.println(user.isOwner()+"*********************");
-//        user.setOwner(false);
+//        System.out.println(user.isOwner()+"*********************");
         return userRepository.save(user);
     }
 

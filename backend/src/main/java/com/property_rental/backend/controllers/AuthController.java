@@ -18,6 +18,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -47,6 +52,8 @@ public class AuthController {
         // Load the user details to generate a token.
         UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
 
+//        System.out.println((userDetails.getAuthorities().toArray()[0]).toString());
+
         // Generate the JWT token.
         String token = this.helper.generateToken(userDetails);
 
@@ -54,6 +61,7 @@ public class AuthController {
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
                 .username(userDetails.getUsername())
+                .role((userDetails.getAuthorities().toArray()[0]).toString())
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -62,17 +70,14 @@ public class AuthController {
     private void doAuthenticate(String username, String password) {
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
-        try {
-            manager.authenticate(authentication);
-
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(" Invalid Username or Password !!");
-        }
+        manager.authenticate(authentication);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public String exceptionHandler() {
-        return "Invalid Username or Password !!";
+    @ResponseBody // <-- 1. Tells Spring to serialize the return value (Map) into JSON
+    public Map<String, String> exceptionHandler() {
+        // 2. Return a Map with the desired key-value pair
+        return Collections.singletonMap("errMessage", "invalid credentials");
     }
 
     @PostMapping("/register/admin")
@@ -86,13 +91,23 @@ public class AuthController {
     }
 
     @PostMapping("/register/user")
-    public ResponseEntity<String> registerUser(@RequestBody User user){
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user){
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "");
+        response.put("canProceed", false);
         try {
-            System.out.println("******************"+user);
             User registeredUser = userService.registerUser(user);
-            return new ResponseEntity<>("User registered successfully with username: " + registeredUser.getUserName(), HttpStatus.CREATED);
+
+            response.replace("message", "User registered successfully!!!");
+            response.replace("canProceed", true);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+//            return new ResponseEntity<>("User registered successfully with username: " + registeredUser.getUserName(), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("User registration failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            response.remove("message");
+            response.put("errMessage", "User Registration failed!!");
+            response.put("detailError", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.MULTI_STATUS);
         }
     }
 }

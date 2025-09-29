@@ -1,0 +1,57 @@
+@import "tailwindcss";
+/* Header.css */
+
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Space out the logo and the links */
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #333; /* Dark background */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Spacing between links */
+}
+
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 5px 10px;
+    transition: color 0.3s;
+}
+
+.navbar-links a:hover {
+    color: #ffd700; /* Gold color on hover */
+}
+
+.navbar-user {
+    color: #ccc;
+    font-size: 1rem;
+}
+
+.navbar-logout-btn {
+    background-color: #e74c3c; /* Red button */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.navbar-logout-btn:hover {
+    background-color: #c0392b;
+}
