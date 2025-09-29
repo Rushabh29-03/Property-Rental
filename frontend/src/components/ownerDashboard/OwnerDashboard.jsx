@@ -69,7 +69,7 @@ function OwnerDashboard() {
         <div className='property-wrap flex flex-wrap gap-5'>
 
           {properties.length === 0
-            ? (<p className='w-full text-center'>Click "Get Property" to load your listings.</p>)
+            ? (<p className='w-full text-white text-center'>No properties added yet.</p>)
             : (
               // Use the map() function to iterate over the properties array
               properties.map((property) => (

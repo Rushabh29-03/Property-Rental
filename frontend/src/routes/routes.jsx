@@ -3,6 +3,8 @@ import LoginPage from '../components/loginPage/LoginPage';
 import SignUp from '../components/signUpPage/SignUp';
 import Home from '../components/homePage/Home';
 import OwnerDashboard from '../components/ownerDashboard/OwnerDashboard';
+import AllProperties from '../components/allProperties/AllProperties';
+
 
 const AppRoutes = () => {
   return (
@@ -16,6 +18,9 @@ const AppRoutes = () => {
 
       {/* Route for owner Dashboard */}
       <Route path='/owner-dashboard' element={<OwnerDashboard />} />
+
+      {/* testing */}
+      <Route path='/api/allProperties' element={<AllProperties />}/>
     </Routes>
   );
 };

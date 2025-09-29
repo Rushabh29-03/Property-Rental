@@ -30,11 +30,16 @@ function Header() {
         <nav className="navbar-links">
           {/* Public Links */}
           <Link to="/">Home</Link>
-          <Link to="/">Browse Rentals</Link>
+
+          {/* user specific link */}
+          {isLoggedIn && !isOwner &&(
+            <Link to="/">Browse Rentals</Link>
+          )}
 
           {/* Owner-Specific Links (Visible only to logged-in owners) */}
           {isLoggedIn && isOwner && (
-            <Link to="/owner-dashboard">Owner Dashboard</Link>
+            // <Link to="/owner-dashboard">Owner Dashboard</Link>
+            <a href="owner-dashboard">Owner Dashboard</a>
           )}
 
           {/* Authentication Links (Conditional Rendering) */}

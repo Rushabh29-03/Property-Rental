@@ -1,9 +1,13 @@
 package com.property_rental.backend.controllers;
 
+import com.property_rental.backend.dtos.PropertyDto;
 import com.property_rental.backend.entities.Admin;
+import com.property_rental.backend.entities.Property;
 import com.property_rental.backend.entities.User;
 import com.property_rental.backend.models.JwtRequest;
 import com.property_rental.backend.models.JwtResponse;
+import com.property_rental.backend.repositories.AdminRepository;
+import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.security.JwtHelper;
 import com.property_rental.backend.service.AdminService;
 import com.property_rental.backend.service.UserService;
@@ -12,16 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.Principal;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,7 +40,13 @@ public class AuthController {
     private AdminService adminService;
 
     @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
     private UserService userService;
+
+    @Autowired
+    private PropertyRepository propertyRepository;
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -109,5 +118,28 @@ public class AuthController {
             response.put("detailError", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.MULTI_STATUS);
         }
+    }
+
+    @GetMapping("/allProperties")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<List<PropertyDto>> getAllProperties(Principal principal){
+
+        UserDetails user=userService.loadUserByUsername(principal.getName());
+
+        if(user!=null){
+            System.out.println(user.getAuthorities());
+            List<Property> propertyList=propertyRepository.allProperties();
+
+//            convert property list to p. dto list
+            List<PropertyDto> propertyDtoList = new ArrayList<>(List.of());
+            propertyList.stream().map(PropertyDto::new).forEach(propertyDtoList::add);
+
+            String role = user.getAuthorities().toArray()[0].toString();
+
+//            return all properties to user or admin
+            if(role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
+                return new ResponseEntity<>(propertyDtoList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }

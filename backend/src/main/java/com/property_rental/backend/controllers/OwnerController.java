@@ -79,9 +79,7 @@ public class OwnerController {
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<List<PropertyDto>> getProperties(Principal principal) {
 
-        System.out.println("*************"+principal);
         User user=userRepository.findByUserName(principal.getName());
-        System.out.println("*************"+user);
 
        try {
            List<PropertyDto> properties=user.getProperties();

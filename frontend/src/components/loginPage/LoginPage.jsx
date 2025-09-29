@@ -7,8 +7,8 @@ import Header from '../header/Header';
 
 function LoginPage() {
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("jordan2903");
+  const [password, setPassword] = useState("1234");
   const navigate=useNavigate();
 
   const handleSignIn = async(e) => {

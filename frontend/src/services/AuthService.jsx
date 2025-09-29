@@ -69,6 +69,23 @@ const AuthService = {
             console.error("Sign-up error: ", response.data.errMessage);
             throw error;
         }
+    },
+
+    getAllProperties: async()=>{
+        console.log("fetching all properties");
+        
+        const response = await axios.get(API_URL+"/allProperties", {
+            headers: {
+                'Authorization': `Bearer ${AuthService.getCurrentUser().jwtToken}`
+            }
+        });
+
+        try {
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching all properties");
+            throw new error;
+        }
     }
 }
 
