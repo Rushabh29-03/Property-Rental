@@ -4,6 +4,7 @@ import AuthService from '../../services/AuthService';
 import { useState, useEffect } from 'react';
 import OwnerService from '../../services/OwnerService';
 import AllProperties from '../allProperties/AllProperties'
+import { useProperty } from '../customHooks/PropertyContext';
 
 function OwnerDashboard() {
 
@@ -36,6 +37,9 @@ function OwnerDashboard() {
   }
 
   let inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+
+  // !HANDLE PROPERTY CLICK
+  const { handlePropertyClick } = useProperty();
 
   // !ADD PROPERTY
   const handleAddProperty = async (e) => {
@@ -86,7 +90,7 @@ function OwnerDashboard() {
               properties.map((property) => (
 
                 <div
-                  onClick={()=>handleNavigate(property.id)}
+                  onClick={()=>handlePropertyClick(property)}
                   key={property.id}
                   className={`property-box bg-gray-100 p-5 rounded-xl shadow-2xl outline-2 w-lg min-w-3xs transition duration-300 ease-in-out 
                     hover:scale-103
@@ -197,6 +201,11 @@ function OwnerDashboard() {
           </form>
         </div>
       </div>
+
+      <AllProperties 
+        properties={properties}
+        onPropertySelect={handlePropertyClick}
+      />
     </>
   )
 }

@@ -6,19 +6,14 @@ import com.property_rental.backend.entities.User;
 import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.repositories.UserRepository;
 import com.property_rental.backend.service.OwnerService;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/owner")
@@ -92,6 +87,28 @@ public class OwnerController {
            System.err.println("Internal server error while fetching property: "+e.getMessage());
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
+    }
+
+    @GetMapping("/properties/{propertyId}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable int propertyId) {
+        try {
+            // 1. Service layer handles finding the property by ID
+//            Property property = propertyService.findById(propertyId);
+            Property property=propertyRepository.getReferenceById(propertyId);
+            PropertyDto propertyDto = new PropertyDto(property);
+
+            if (property == null) {
+                // 2. Return 404 Not Found if property doesn't exist
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // 3. Return the property data with HTTP 200 OK
+            return new ResponseEntity<>(propertyDto, HttpStatus.OK);
+        } catch (Exception e) {
+            // 4. Handle exceptions (e.g., database error)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 

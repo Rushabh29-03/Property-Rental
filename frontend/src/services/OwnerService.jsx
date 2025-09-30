@@ -29,6 +29,30 @@ const OwnerService = {
         }
     },
 
+    getPropertyById: async(propertyId)=>{
+        const currentUser=AuthService.getCurrentUser();
+        if(!currentUser || !currentUser.jwtToken){
+            console.error("Authentication error: missing jwt token");
+            throw new Error("User not authenticated.");
+        }
+
+        console.log("Fetching property with ID: ", propertyId);
+
+        const response = await axios.get(`${API_URL}/properties/${propertyId}`, {
+            headers:{
+                'Authorization':`Bearer ${currentUser.jwtToken}`
+            }
+        });
+
+        try {
+            return response.data;
+        } catch (error) {
+            console.error(`Error getting property with ID ${propertyId}: `, error);
+            throw error;
+        }
+
+    },
+
     addProperty: async(propertyData)=>{
 
         const currentUser=AuthService.getCurrentUser();
