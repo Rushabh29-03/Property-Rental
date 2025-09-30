@@ -6,8 +6,6 @@ import OwnerService from '../../services/OwnerService';
 
 function AllProperties() {
 
-  const currentUser = AuthService.getCurrentUser();
-
   // response of getProperties is stored here
   const [properties, setProperties] = useState([]);
 

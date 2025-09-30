@@ -6,8 +6,6 @@ import OwnerService from '../../services/OwnerService';
 
 function OwnerDashboard() {
 
-  const currentUser = AuthService.getCurrentUser();
-
   // response of getProperties is stored here
   const [properties, setProperties] = useState([]);
 
@@ -51,7 +49,7 @@ function OwnerDashboard() {
   const handleGetProperty = async () => {
 
     //response is array of properties
-    const response = await OwnerService.getProperties(currentUser);
+    const response = await OwnerService.getProperties();
 
     setProperties(response);
   }

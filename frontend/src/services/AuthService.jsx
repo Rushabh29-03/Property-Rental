@@ -53,6 +53,7 @@ const AuthService = {
 
     signUp: async (userData, navigate)=>{
         console.log("Attempting sign-up...");
+        AuthService.setCurrentUser(null);
 
         const response=await axios.post(API_URL+"/register/user", userData);
 
@@ -63,6 +64,7 @@ const AuthService = {
             }
             else{
                 console.log("Sing-up response data: ", response.data);
+                AuthService.setCurrentUser()
                 await AuthService.signIn(userData.userName, userData.password);
                 await navigate("/");
             }
