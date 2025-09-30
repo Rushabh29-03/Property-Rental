@@ -10,6 +10,7 @@ function PreviewProperty() {
 
   return (
     <>
+    
       <div>
           {pr_id}        
       </div>

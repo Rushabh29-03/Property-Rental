@@ -24,7 +24,7 @@ function LoginPage() {
 
   return (
     <>
-      <span className='sticky top-0 z-100 w-full'><Header /></span>
+      {/* <span className='sticky top-0 z-100 w-full'><Header /></span> */}
       {/* // Outer Container */}
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
 

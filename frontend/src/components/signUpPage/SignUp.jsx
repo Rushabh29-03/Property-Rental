@@ -32,7 +32,7 @@ function SignUp() {
 
   return (
     <>
-      <span className='sticky top-0 z-100 w-full'><Header /></span>
+      {/* <span className='sticky top-0 z-100 w-full'><Header /></span> */}
       {/* // Outer container: Centers the form on a light gray background */}
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         {/* Form Card: Defines the white, shadowed box for the form */}

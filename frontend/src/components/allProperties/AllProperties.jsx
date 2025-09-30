@@ -61,7 +61,7 @@ function AllProperties() {
 
   return (
     <>
-      <span className='sticky top-0 z-100 w-full'><Header /></span>
+      {/* <span className='sticky top-0 z-100 w-full'><Header /></span> */}
       <div className='dashboard-container min-h-screen p-4 bg-gray-500'>
         <div className='property-wrap flex flex-wrap gap-5'>
 
@@ -91,8 +91,8 @@ function AllProperties() {
               ))
             )
           } 
-          </div>
         </div>
+      </div>
     </>
   )
 }

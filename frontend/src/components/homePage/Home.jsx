@@ -5,7 +5,7 @@ import Header from '../header/Header'
 function Home() {
   return (
     <>
-      <span className='sticky top-0 z-100 w-full'><Header /></span>
+      {/* <span className='sticky top-0 z-100 w-full'><Header /></span> */}
       <div className="select-none relative min-h-screen bg-cover bg-center items-center justify-center" style={{ backgroundImage: `url(${mainImage})` }}>
         {/* Overlay to darken image slightly and make text pop */}
         <div className="absolute inset-0 bg-black opacity-30"></div>

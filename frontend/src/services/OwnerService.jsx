@@ -5,7 +5,7 @@ import AuthService from "./AuthService";
 const API_URL = Environment.apiUrl + "/owner"
 
 const OwnerService = {
-    getProperties: async (owner)=>{
+    getProperties: async ()=>{
 
         const currentUser = AuthService.getCurrentUser();
         if(!currentUser || !currentUser.jwtToken){
@@ -25,7 +25,7 @@ const OwnerService = {
             return response.data;
         } catch (error) {
             console.error("Error getting property: ", error);
-            throw error;            
+            return [];
         }
     },
 
