@@ -6,9 +6,9 @@ import Header from '../header/Header';
 function SignUp() {
 
   const [username, setUsername] = useState("new")
-  const [password, setPassword] = useState("123")
+  const [password, setPassword] = useState("1234")
   const [email, setEmail] = useState("new@gmail.com")
-  const [firstname, setFirstname] = useState("rbshah")
+  const [firstname, setFirstname] = useState("new")
   const [lastname, setLastname] = useState("shah")
   const [phoneNo, setPhoneNo] = useState("")
   const [isOwner, setIsOwner] = useState(false)

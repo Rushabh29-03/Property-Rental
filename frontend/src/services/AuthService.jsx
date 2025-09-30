@@ -15,8 +15,10 @@ const AuthService = {
     },
 
     setCurrentUser: (data)=>{
-        localStorage.setItem('user', JSON.stringify(data));
-        localStorage.setItem('role', JSON.stringify(data.role));
+        if(data!=null){
+            localStorage.setItem('user', JSON.stringify(data));
+            localStorage.setItem('role', JSON.stringify(data.role));
+        }
     },
 
     signIn: async (username, password)=>{
@@ -64,7 +66,7 @@ const AuthService = {
             }
             else{
                 console.log("Sing-up response data: ", response.data);
-                AuthService.setCurrentUser()
+                AuthService.setCurrentUser(response.data)
                 await AuthService.signIn(userData.userName, userData.password);
                 await navigate("/");
             }
