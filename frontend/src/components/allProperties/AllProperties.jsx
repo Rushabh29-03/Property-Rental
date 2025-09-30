@@ -3,6 +3,8 @@ import Header from '../header/Header'
 import AuthService from '../../services/AuthService';
 import { useState, useEffect } from 'react';
 import OwnerService from '../../services/OwnerService';
+import PreviewProperty from '../previewProperty/PreviewProperty';
+import { useNavigate } from 'react-router';
 
 function AllProperties() {
 
@@ -19,7 +21,11 @@ function AllProperties() {
   const [noOfBedrooms, setNoOfBedrooms] = useState(2)
   const [securityDeposit, setSecurityDeposit] = useState(20000)
 
-  // setProperties(OwnerService.getProperties(currentUser));
+  // flag for specific property visibility
+  const [isVisible, setIsVisible] = useState(false)
+  const [clickedProperty, setClickedProperty] = useState()
+
+  const navigate=useNavigate();
 
   let propertyData = {
     "description": description,
@@ -49,10 +55,14 @@ function AllProperties() {
     handleGetProperty();
   }, []);
 
+  const handleNavigate = (pr_id)=>{
+    navigate(`/property/${pr_id}`);
+  }
+
   return (
     <>
       <span className='sticky top-0 z-100 w-full'><Header /></span>
-      <div className="dashboard-container min-h-screen p-4 bg-gray-500">
+      <div className='dashboard-container min-h-screen p-4 bg-gray-500'>
         <div className='property-wrap flex flex-wrap gap-5'>
 
           {properties.length === 0
@@ -62,6 +72,7 @@ function AllProperties() {
               properties.map((property) => (
 
                 <div
+                  onClick={()=>handleNavigate(property.id)}
                   key={property.id}
                   className={`property-box bg-gray-100 p-5 rounded-xl shadow-2xl outline-2 w-lg min-w-3xs transition duration-300 ease-in-out 
                     hover:scale-103
@@ -80,10 +91,8 @@ function AllProperties() {
               ))
             )
           } 
+          </div>
         </div>
-        
-      </div>
-      
     </>
   )
 }

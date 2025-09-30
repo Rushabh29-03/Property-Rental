@@ -4,6 +4,7 @@ import SignUp from '../components/signUpPage/SignUp';
 import Home from '../components/homePage/Home';
 import OwnerDashboard from '../components/ownerDashboard/OwnerDashboard';
 import AllProperties from '../components/allProperties/AllProperties';
+import PreviewProperty from '../components/previewProperty/PreviewProperty';
 
 
 const AppRoutes = () => {
@@ -18,6 +19,9 @@ const AppRoutes = () => {
 
       {/* Route for owner Dashboard */}
       <Route path='/owner-dashboard' element={<OwnerDashboard />} />
+
+      {/* preview specific property */}
+      <Route path='/property/:pr_id' element={<PreviewProperty />} />
 
       {/* testing */}
       <Route path='/properties' element={<AllProperties />}/>

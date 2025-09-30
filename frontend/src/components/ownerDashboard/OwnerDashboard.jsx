@@ -55,7 +55,7 @@ function OwnerDashboard() {
     setProperties(response);
   }
 
-  // runs when property gets changed
+  // runs when page is mounted/rendered
   useEffect(() => {
 
     handleGetProperty();
