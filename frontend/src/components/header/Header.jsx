@@ -38,8 +38,8 @@ function Header() {
 
           {/* Owner-Specific Links (Visible only to logged-in owners) */}
           {isLoggedIn && isOwner && (
-            // <Link to="/owner-dashboard">Owner Dashboard</Link>
-            <a href="owner-dashboard">Owner Dashboard</a>
+            <Link to="/owner-dashboard">Owner Dashboard</Link>
+            // <a href="owner-dashboard">Owner Dashboard</a>
           )}
 
           {/* Authentication Links (Conditional Rendering) */}

@@ -44,8 +44,9 @@ const AuthService = {
             return response.data; // Return the data
             
         } catch (error) {
+            alert(error);
             console.error("Sign-in error:", error);
-            // Re-throw the error so the calling component can handle it (e.g., display error message)
+            
             throw error;
         }
     },

@@ -11,6 +11,7 @@ import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.security.JwtHelper;
 import com.property_rental.backend.service.AdminService;
 import com.property_rental.backend.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,9 @@ public class AuthController {
 
     @Autowired
     private PropertyRepository propertyRepository;
+
+    @Autowired
+    private OwnerController ownerController;
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -121,7 +125,6 @@ public class AuthController {
     }
 
     @GetMapping("/allProperties")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<PropertyDto>> getAllProperties(Principal principal){
 
         UserDetails user=userService.loadUserByUsername(principal.getName());
@@ -139,6 +142,9 @@ public class AuthController {
 //            return all properties to user or admin
             if(role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
                 return new ResponseEntity<>(propertyDtoList, HttpStatus.OK);
+            else if (role.equals("ROLE_OWNER")) {
+                return ownerController.getProperties(principal);
+            }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }

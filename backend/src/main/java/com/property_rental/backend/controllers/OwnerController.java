@@ -6,6 +6,7 @@ import com.property_rental.backend.entities.User;
 import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.repositories.UserRepository;
 import com.property_rental.backend.service.OwnerService;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

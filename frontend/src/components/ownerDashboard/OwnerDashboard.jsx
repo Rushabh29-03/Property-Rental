@@ -19,7 +19,7 @@ function OwnerDashboard() {
   const [areaUnit, setAreaUnit] = useState("sq_feet")
   const [monthlyRent, setMonthlyRent] = useState(25000)
   const [noOfBedrooms, setNoOfBedrooms] = useState(2)
-  const [securityDeposit, setSecurityDeposit] = useState(20000)
+  const [securityDeposit, setSecurityDeposit] = useState(20000) 
 
   // setProperties(OwnerService.getProperties(currentUser));
 
@@ -31,7 +31,7 @@ function OwnerDashboard() {
     "areaUnit": areaUnit,
     "noOfBedrooms": noOfBedrooms,
     "monthlyRent": monthlyRent,
-    "setSecurityDeposit": setSecurityDeposit
+    "securityDepositAmount": securityDeposit 
   }
 
   let inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
