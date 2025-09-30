@@ -20,7 +20,7 @@ const AppRoutes = () => {
       <Route path='/owner-dashboard' element={<OwnerDashboard />} />
 
       {/* testing */}
-      <Route path='/api/allProperties' element={<AllProperties />}/>
+      <Route path='/properties' element={<AllProperties />}/>
     </Routes>
   );
 };

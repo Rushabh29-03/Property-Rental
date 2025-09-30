@@ -33,7 +33,7 @@ function Header() {
 
           {/* user specific link */}
           {isLoggedIn && !isOwner &&(
-            <Link to="/">Browse Rentals</Link>
+            <Link to="/properties">Browse Rentals</Link>
           )}
 
           {/* Owner-Specific Links (Visible only to logged-in owners) */}

@@ -3,6 +3,7 @@ import Header from '../header/Header'
 import AuthService from '../../services/AuthService';
 import { useState, useEffect } from 'react';
 import OwnerService from '../../services/OwnerService';
+import AllProperties from '../allProperties/AllProperties'
 
 function OwnerDashboard() {
 
@@ -62,38 +63,8 @@ function OwnerDashboard() {
 
   return (
     <>
-      <span className='sticky top-0 z-100 w-full'><Header /></span>
-      <div className="dashboard-container min-h-screen p-4 bg-gray-500">
-        <div className='property-wrap flex flex-wrap gap-5'>
-
-          {properties.length === 0
-            ? (<p className='w-full text-white text-center'>No properties added yet.</p>)
-            : (
-              // Use the map() function to iterate over the properties array
-              properties.map((property) => (
-
-                <div
-                  key={property.id}
-                  className={`property-box bg-gray-100 p-5 rounded-xl shadow-2xl outline-2 w-lg min-w-3xs transition duration-300 ease-in-out 
-                    hover:scale-103
-                    hover:rounded-2xl
-                    ${property.isVerified ? 'hover:bg-green-100' : 'hover:bg-red-100'}`}
-                  >
-                  <h3 className='text-xl font-bold'>{property.address}</h3>
-                  <p><strong>Rent:</strong> ₹{property.monthlyRent}</p>
-                  <p><strong>Bedrooms:</strong> {property.noOfBedrooms}</p>
-                  <p><strong>Area:</strong> {property.area} {property.areaUnit}</p>
-                  <p className={`text-sm ${property.isVerified ? 'text-green-600' : 'text-red-600'}`}>
-                    {property.isVerified ? 'Verified Listing' : 'Verification Pending'}
-                  </p>
-                  <p className='text-sm mt-2 text-gray-600 truncate'>{property.description}</p>
-                </div>
-              ))
-            )
-          } 
-        </div>
-        
-      </div>
+      {/* RENDERING ALL PROPERTIES */}
+      <AllProperties />
       
       <div className="flex items-center justify-center bg-gray-500 p-4">
         <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-xl shadow-2xl">
