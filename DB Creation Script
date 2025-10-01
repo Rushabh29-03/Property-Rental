@@ -144,3 +144,15 @@ create table if not exists property_rules(
 		references rules(rule_id)
 		on delete restrict
 );
+
+create table if not exists photos(
+	id serial primary key,
+	pr_id int not null, --FK
+	path text not null,
+	is_main boolean not null,
+
+	CONSTRAINT fk_photo_property
+		foreign key (pr_id)
+		references property(property_id)
+		on delete cascade
+);

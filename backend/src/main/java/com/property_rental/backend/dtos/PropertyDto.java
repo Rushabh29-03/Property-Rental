@@ -1,6 +1,7 @@
 package com.property_rental.backend.dtos;
 
 import com.property_rental.backend.entities.Property;
+import com.property_rental.backend.entities.RentedProperty;
 import lombok.*;
 
 import java.util.List;
@@ -21,16 +22,17 @@ public class PropertyDto {
     private Double monthlyRent;
     private int noOfBedrooms;
     private Double securityDepositAmount;
+    private List<RentedProperty> rentedPropertyList;
 
     public PropertyDto(Property property){
-        this.id=property.getId();
+        this.id= property.getId();
         this.description= property.getDescription();;
         this.address= property.getAddress();;
-        this.isVerified=property.isVerified();
-        this.area=property.getArea();
+        this.isVerified= property.getIsVerified();
+        this.area= property.getArea();
         this.areaUnit= property.getAreaUnit();;
-        this.monthlyRent=property.getMonthlyRent();
+        this.monthlyRent= property.getMonthlyRent();
         this.noOfBedrooms= property.getNoOfBedrooms();
-        this.securityDepositAmount=property.getSecurityDepositAmount();
+        this.securityDepositAmount= property.getSecurityDepositAmount();
     }
 }

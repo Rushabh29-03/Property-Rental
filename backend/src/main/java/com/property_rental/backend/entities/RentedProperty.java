@@ -6,8 +6,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Setter
-@Getter
 @Entity
 @Table(name = "rented_property")
 public class RentedProperty {
@@ -25,22 +23,32 @@ public class RentedProperty {
 //    @Column(name = "user_id")
 //    private int userId; //FOREIGN KEY
 
+    @Setter
+    @Getter
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
+    @Setter
+    @Getter
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @Setter
+    @Getter
     @Column(name = "final_monthly_rent", nullable = false)
     private double finalMonthlyRent;
 
+    @Setter
+    @Getter
     @Column(name = "final_security_deposit", nullable = false)
     private double finalSecurityDeposit;
 
+    @Setter
+    @Getter
     @Column(name = "duration")
     private int duration; //in months
 
-    //    RENTED TO USERS
+//        RENTED TO USERS
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "user_id", nullable = false)

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import OwnerService from '../../services/OwnerService';
 import AllProperties from '../allProperties/AllProperties'
 import { useProperty } from '../customHooks/PropertyContext';
+import PropertyService from '../../services/PropertyService';
 
 function OwnerDashboard() {
 
@@ -46,13 +47,13 @@ function OwnerDashboard() {
     e.preventDefault();
 
     try {
-        const response = await OwnerService.addProperty(propertyData);
+        const response = await PropertyService.addProperty(propertyData);
 
         if (response) { 
             console.log("Property added successfully:", response);
 
             await handleGetProperty(); 
-            // window.location.reload();
+            window.scrollTo(0, 0);
         }
     } catch (error) {
         console.error("Failed to add property:", error);
@@ -194,6 +195,16 @@ function OwnerDashboard() {
                 className={`${inputClassName}`}
                 />
             </div>
+            
+            {/* PHOTOS */}
+            <div>
+              <label htmlFor="photos" className="block text-sm font-medium text-gray-700">Photos (Max 5)</label>
+              <input 
+                type="image"
+                id='photo'
+                />
+            </div>
+
             <button 
               type="submit"
               className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150"

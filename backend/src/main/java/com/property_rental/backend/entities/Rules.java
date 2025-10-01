@@ -34,8 +34,6 @@ public class Rules {
     private boolean isSmokingAllowed;
 
     //    RULES TO PROPERTY-RULES
-    @Setter
-    @Getter
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.PERSIST, CascadeType.REFRESH})

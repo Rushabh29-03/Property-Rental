@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,6 +36,8 @@ public class Property {
     @Column(name = "address", nullable = false)
     private String address;
 
+    @Setter
+    @Getter
     @Column(name = "is_verified", nullable = false)
     private Boolean isVerified=false; //DEFAULT false
 
@@ -63,26 +66,26 @@ public class Property {
     @Column(name = "security_deposit_amount")
     private Double securityDepositAmount;
 
-    //    PROPERTY TO OWNER
+//        PROPERTY TO OWNER
     @Setter
     @Getter
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
-    //    PROPERTY TO RENTED_PROPERTY
+//        PROPERTY TO RENTED_PROPERTY
     @Setter
     @Getter
     @OneToMany(mappedBy = "property")
     private List<RentedProperty> rentedProperties;
 
-    //    PROPERTY TO WISHLIST
+//        PROPERTY TO WISHLIST
     @Setter
     @Getter
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<WishListedProperty> wishListedProperties;
 
-    //    PROPERTY TO RULES
+//        PROPERTY TO RULES
     @Setter
     @Getter
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -91,7 +94,7 @@ public class Property {
             inverseJoinColumns = @JoinColumn(name = "rule_id"))
     private List<Rules> rules;
 
-    //    PROPERTY TO FACILITIES
+//        PROPERTY TO FACILITIES
     @Setter
     @Getter
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE,
@@ -101,11 +104,16 @@ public class Property {
             inverseJoinColumns = @JoinColumn(name = "fac_id"))
     private List<Facility> facilities;
 
-    //    empty constructor
+//        PROPERTY TO PHOTOS
+    @Setter
+    @Getter
+    @OneToMany(mappedBy = "property")
+    private List<Photo> photos;
+
+//        empty constructor
     public Property (){}
 
 //    constructor
-
     public Property(String description, String address, double area, double monthlyRent, int noOfBedrooms, double securityDepositAmount) {
         this.description = description;
         this.address = address;
@@ -118,13 +126,6 @@ public class Property {
     //    getters and setters
 //    most of the getters and setters are handled by lombok.Getter and lombok.Setter
 //    take a note of it if getter/setter doesn't work
-    public boolean isVerified() {
-        return isVerified;
-    }
-
-    public void setVerified(boolean verified) {
-        isVerified = verified;
-    }
 
     @Override
     public String toString() {
@@ -139,5 +140,14 @@ public class Property {
                 ", noOfBedrooms='" + noOfBedrooms + '\'' +
                 ", securityDepositAmount='" + securityDepositAmount + '\'' +
                 '}';
+    }
+
+//    convenience method to add photos
+    public void add(Photo photo){
+        if(photos==null)
+            photos = new ArrayList<>();
+
+        photos.add(photo);
+        photo.setProperty(this);
     }
 }

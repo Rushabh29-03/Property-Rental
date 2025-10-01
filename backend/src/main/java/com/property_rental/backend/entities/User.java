@@ -69,14 +69,10 @@ public class User {
     private List<Property> properties;
 
     //    USER TO RENTED PROPERTY
-    @Setter
-    @Getter
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<RentedProperty> rentedProperties;
 
     //    USER TO WISHLIST PROPERTY
-    @Setter
-    @Getter
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<WishListedProperty> wishListedProperties;
 
@@ -113,7 +109,7 @@ public class User {
                     .id(properties.get(i).getId())
                     .description(properties.get(i).getDescription())
                     .address(properties.get(i).getAddress())
-                    .isVerified(properties.get(i).isVerified())
+                    .isVerified(properties.get(i).getIsVerified())
                     .area(properties.get(i).getArea())
                     .areaUnit(properties.get(i).getAreaUnit())
                     .monthlyRent(properties.get(i).getMonthlyRent())

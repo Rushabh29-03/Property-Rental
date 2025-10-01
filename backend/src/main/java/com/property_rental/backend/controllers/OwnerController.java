@@ -6,11 +6,14 @@ import com.property_rental.backend.entities.User;
 import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.repositories.UserRepository;
 import com.property_rental.backend.service.OwnerService;
+import com.property_rental.backend.service.PropertyService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -29,37 +32,10 @@ public class OwnerController {
     @Autowired
     private PropertyRepository propertyRepository;
 
-    @PostMapping("/addProperty")
-    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<PropertyDto> createProperty(@RequestBody Property property,
-                                                      Principal principal){
-        String username=principal.getName();
-        User owner = userRepository.findByUserName(username);
-        try {
-            owner.add(property);
-            Property newProperty=propertyRepository.save(property);
+    @Autowired
+    private PropertyService propertyService;
 
-            PropertyDto propertyDto=PropertyDto.builder()
-                    .id(newProperty.getId())
-                    .description(newProperty.getDescription())
-                    .address(newProperty.getAddress())
-                    .isVerified(newProperty.isVerified())
-                    .area(newProperty.getArea())
-                    .areaUnit(newProperty.getAreaUnit())
-                    .monthlyRent(newProperty.getMonthlyRent())
-                    .noOfBedrooms(newProperty.getNoOfBedrooms())
-                    .securityDepositAmount(newProperty.getSecurityDepositAmount())
-                    .build();
 
-            return new ResponseEntity<>(propertyDto, HttpStatus.CREATED);
-        } catch(IllegalArgumentException e){
-            System.err.println("Property creation failed: "+e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            System.err.println("Internal server error while creating property: "+e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
 
 
@@ -74,9 +50,11 @@ public class OwnerController {
     // This endpoint is only accessible to users with either OWNER or ADMIN roles.
     @GetMapping("/properties")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<List<PropertyDto>> getProperties(Principal principal) {
+    public ResponseEntity<List<PropertyDto>> getProperties() {
 
-        User user=userRepository.findByUserName(principal.getName());
+//        get signed-in username
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user=userRepository.findByUserName(authentication.getName());
 
        try {
            List<PropertyDto> properties=user.getProperties();
@@ -90,21 +68,6 @@ public class OwnerController {
        }
     }
 
-    @GetMapping("/properties/{propertyId}")
-    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable int propertyId) {
-        try {
-            // 1. Service layer handles finding the property by ID
-//            Property property = propertyService.findById(propertyId);
-            Property property=propertyRepository.findById(propertyId).orElseThrow(EntityNotFoundException::new);
-            PropertyDto propertyDto = new PropertyDto(property);
 
-            // 3. Return the property data with HTTP 200 OK
-            return new ResponseEntity<>(propertyDto, HttpStatus.OK);
-        } catch (Exception e) {
-            // 4. Handle exceptions (e.g., database error)
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }
 

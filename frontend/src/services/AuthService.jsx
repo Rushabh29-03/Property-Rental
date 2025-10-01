@@ -71,7 +71,7 @@ const AuthService = {
                 await navigate("/");
             }
         } catch (error) {
-            console.error("Sign-up error: ", response.data.errMessage);
+            console.error("Sign-up error: ", error);
             throw error;
         }
     },

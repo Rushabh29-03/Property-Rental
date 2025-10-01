@@ -24,4 +24,9 @@ public class OwnerService {
 
         return propertyRepository.save(property);
     }
+
+    @Transactional
+    public void deleteById(int propertyId){
+        propertyRepository.deleteById(propertyId);
+    }
 }

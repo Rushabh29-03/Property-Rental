@@ -54,6 +54,18 @@ public class AuthController {
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+
+    // =================================================================
+    // -----------------------API TESTING URLS--------------------------
+    // =================================================================
+//    @GetMapping("/api/getAllPropertiesWithRentedOnes")
+//    public ResponseEntity<PropertyDto>
+
+
+    // =================================================================
+    // -----------------------API TESTING URLS--------------------------
+    // =================================================================
+
     // This endpoint handles the user login and issues a JWT token.
     // It is public, as configured in SecurityConfig.
     @PostMapping("/login")
@@ -143,7 +155,7 @@ public class AuthController {
             if(role.equals("ROLE_ADMIN") || role.equals("ROLE_USER"))
                 return new ResponseEntity<>(propertyDtoList, HttpStatus.OK);
             else if (role.equals("ROLE_OWNER")) {
-                return ownerController.getProperties(principal);
+                return ownerController.getProperties();
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
