@@ -6,6 +6,7 @@ import OwnerService from '../../services/OwnerService';
 import AllProperties from '../allProperties/AllProperties'
 import { useProperty } from '../customHooks/PropertyContext';
 import PropertyService from '../../services/PropertyService';
+import './OwnerDashboard.css'
 
 function OwnerDashboard() {
 
@@ -22,7 +23,8 @@ function OwnerDashboard() {
   const [areaUnit, setAreaUnit] = useState("sq_feet")
   const [monthlyRent, setMonthlyRent] = useState(25000)
   const [noOfBedrooms, setNoOfBedrooms] = useState(2)
-  const [securityDeposit, setSecurityDeposit] = useState(20000) 
+  const [securityDeposit, setSecurityDeposit] = useState(20000)
+  const [photoFile, setPhotoFile] = useState([])
 
   // setProperties(OwnerService.getProperties(currentUser));
 
@@ -46,6 +48,9 @@ function OwnerDashboard() {
   const handleAddProperty = async (e) => {
     e.preventDefault();
 
+    console.log("selected photos: ", photoFile);
+    
+
     try {
         const response = await PropertyService.addProperty(propertyData);
 
@@ -67,7 +72,26 @@ function OwnerDashboard() {
     const response = await OwnerService.getProperties();
 
     setProperties(response);
-  }
+  };
+
+  // !GET PHOTOS HANDLER
+  const handleInputPhotos = (e) => {
+
+    if(e.target.files && e.target.files.length>5){
+      alert("You cannot upload files more than 5");
+      e.target.value = null;
+      setPhotoFile([]);
+    }
+
+    if(e.target.files ){
+      // console.log(e.target.files);
+      // console.log(typeof(e.target.files));
+      setPhotoFile(Array.from(e.target.files))
+    }else{
+      setPhotoFile([])
+      console.log("Undergone in else part");
+    }
+  };
 
   // runs when page is mounted/rendered
   useEffect(() => {
@@ -198,11 +222,34 @@ function OwnerDashboard() {
             
             {/* PHOTOS */}
             <div>
-              <label htmlFor="photos" className="block text-sm font-medium text-gray-700">Photos (Max 5)</label>
+              <label htmlFor="photos" className="block text-sm font-medium text-gray-700">
+                Property Photo (max 5 files: .jpg, .jpeg, .png)
+              </label>
               <input 
-                type="image"
-                id='photo'
+                type="file" 
+                id='photos'
+                onChange={handleInputPhotos}
+                multiple
+                accept=".jpg, .jpeg, .png"
+                className="mt-1 block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                max={2}
                 />
+
+              {/* Display the name of the selected file */}
+              {photoFile && photoFile.length>0 && (
+                <p className='mt-2 text-sm text-gray-500'>
+                    Selected file(s): 
+                    <br />
+                    {
+                      photoFile.map((photo, index) =>(
+                        <span key={index}>
+                          <strong className='text-gray-700'>{photo.name}</strong>
+                          <br />
+                        </span>
+                      ))
+                    }
+                </p>
+              )}
             </div>
 
             <button 

@@ -4,6 +4,7 @@ import { useProperty } from '../customHooks/PropertyContext'
 import OwnerService from '../../services/OwnerService';
 import AuthService from '../../services/AuthService';
 import PropertyService from '../../services/PropertyService';
+import { Link } from 'react-router';
 
 function PreviewProperty() {
 
@@ -82,29 +83,35 @@ function PreviewProperty() {
   // Use selectedProperty to display all data
   return (
     <div className="p-6 min-h-screen bg-gray-100">
-        <h1 className="text-3xl font-bold mb-4">{selectedProperty.address}</h1>
-        
-        <p className="mb-2"><strong>Description:</strong> {selectedProperty.description}</p>
-        <p className="mb-2"><strong>Area:</strong> {selectedProperty.area} {selectedProperty.areaUnit}</p>
-        <p className="mb-2"><strong>Bedrooms:</strong> {selectedProperty.noOfBedrooms}</p>
-        <p className="mb-2"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
-        <p className='mb-2'><strong>Security deposit:</strong> ₹{selectedProperty.securityDepositAmount}</p>
+      {
+        (role==='ROLE_OWNER'
+          ? (<Link to='/owner-dashboard'>Go Back</Link>)
+          : (<Link to='/properties'>Go Back to properties</Link>)
+        )
+      }
+      <h1 className="text-3xl font-bold mb-4">{selectedProperty.address}</h1>
+      
+      <p className="mb-2"><strong>Description:</strong> {selectedProperty.description}</p>
+      <p className="mb-2"><strong>Area:</strong> {selectedProperty.area} {selectedProperty.areaUnit}</p>
+      <p className="mb-2"><strong>Bedrooms:</strong> {selectedProperty.noOfBedrooms}</p>
+      <p className="mb-2"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
+      <p className='mb-2'><strong>Security deposit:</strong> ₹{selectedProperty.securityDepositAmount}</p>
 
 
-        {/* Action Buttons */}
-        {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
-          <div className="flex space-x-4 mt-6">
-              <button className="outline-2 p-2 rounded">
-                Edit Property
-              </button>
-              <button onClick={handleDeleteProperty} className="outline-2 p-2 rounded ">
-                Delete Property
-              </button>
-              <button className="outline-2 p-2 rounded ">
-                Add Facilities & Rules
-              </button>
-          </div>
-        )}
+      {/* Action Buttons */}
+      {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
+        <div className="flex space-x-4 mt-6">
+          <button className="outline-2 p-2 rounded">
+            Edit Property
+          </button>
+          <button onClick={handleDeleteProperty} className="outline-2 p-2 rounded ">
+            Delete Property
+          </button>
+          <button className="outline-2 p-2 rounded ">
+            Add Facilities & Rules
+          </button>
+        </div>
+      )}
     </div>
   )
 }
