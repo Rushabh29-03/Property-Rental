@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -35,7 +36,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
 
 //        Allow common methods
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
 
 //        Allow necessary headers (especially Authorization for JWTs)
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
@@ -53,14 +54,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 //        disable csrf
-        http.csrf(csrf-> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         http.cors(Customizer.withDefaults());
 
         // The authorization block is updated to reflect role-based access control.
         http.authorizeHttpRequests(auth -> auth
                         // Public endpoint for login. No authentication required.
-                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
 
                         // Only ADMIN can access endpoints under /admin/**.
                         .requestMatchers("/admin/**").hasRole("ADMIN")

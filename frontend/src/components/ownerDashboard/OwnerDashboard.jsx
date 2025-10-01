@@ -201,11 +201,6 @@ function OwnerDashboard() {
           </form>
         </div>
       </div>
-
-      <AllProperties 
-        properties={properties}
-        onPropertySelect={handlePropertyClick}
-      />
     </>
   )
 }

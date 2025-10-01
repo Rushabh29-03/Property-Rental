@@ -6,6 +6,7 @@ import com.property_rental.backend.entities.User;
 import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.repositories.UserRepository;
 import com.property_rental.backend.service.OwnerService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,13 +96,8 @@ public class OwnerController {
         try {
             // 1. Service layer handles finding the property by ID
 //            Property property = propertyService.findById(propertyId);
-            Property property=propertyRepository.getReferenceById(propertyId);
+            Property property=propertyRepository.findById(propertyId).orElseThrow(EntityNotFoundException::new);
             PropertyDto propertyDto = new PropertyDto(property);
-
-            if (property == null) {
-                // 2. Return 404 Not Found if property doesn't exist
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
 
             // 3. Return the property data with HTTP 200 OK
             return new ResponseEntity<>(propertyDto, HttpStatus.OK);

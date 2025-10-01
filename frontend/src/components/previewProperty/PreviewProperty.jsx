@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { useProperty } from '../customHooks/PropertyContext'
 import OwnerService from '../../services/OwnerService';
+import AuthService from '../../services/AuthService';
 
 function PreviewProperty() {
 
   const { selectedProperty, setSelectedProperty } = useProperty();
   const { pr_id } = useParams();
+  const role = AuthService.getCurrentUser().role;
 
   // New local state to manage loading/error during fallback fetch
   const [loading, setLoading] = useState(false);
@@ -59,27 +61,30 @@ function PreviewProperty() {
 
   // Use selectedProperty to display all data
   return (
-    <div className="p-6">
+    <div className="p-6 min-h-screen bg-gray-100">
         <h1 className="text-3xl font-bold mb-4">{selectedProperty.address}</h1>
         
         <p className="mb-2"><strong>Description:</strong> {selectedProperty.description}</p>
         <p className="mb-2"><strong>Area:</strong> {selectedProperty.area} {selectedProperty.areaUnit}</p>
-        <p className="mb-4"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
-        <p className="mb-4"><strong>Bedrooms:</strong> {selectedProperty.noOfBedrooms}</p>
+        <p className="mb-2"><strong>Bedrooms:</strong> {selectedProperty.noOfBedrooms}</p>
+        <p className="mb-2"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
+        <p className='mb-2'><strong>Security deposit:</strong> ₹{selectedProperty.securityDepositAmount}</p>
 
 
         {/* Action Buttons */}
-        <div className="flex space-x-4 mt-6">
-            <button className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                Edit Property
-            </button>
-            <button className="bg-red-500 text-white p-2 rounded hover:bg-red-600">
-                Delete Property
-            </button>
-            <button className="bg-green-500 text-white p-2 rounded hover:bg-green-600">
-                Add Facilities & Rules
-            </button>
-        </div>
+        {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
+          <div className="flex space-x-4 mt-6">
+              <button className="outline-2 p-2 rounded">
+                  Edit Property
+              </button>
+              <button className="outline-2 p-2 rounded ">
+                  Delete Property
+              </button>
+              <button className="outline-2 p-2 rounded ">
+                  Add Facilities & Rules
+              </button>
+          </div>
+        )}
     </div>
   )
 }
