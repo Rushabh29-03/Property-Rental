@@ -4,9 +4,9 @@ import AuthService from '../../services/AuthService';
 import { useState, useEffect } from 'react';
 import OwnerService from '../../services/OwnerService';
 import AllProperties from '../allProperties/AllProperties'
-import { useProperty } from '../customHooks/PropertyContext';
 import PropertyService from '../../services/PropertyService';
 import './OwnerDashboard.css'
+import { useNavigate } from 'react-router';
 
 function OwnerDashboard() {
 
@@ -23,10 +23,11 @@ function OwnerDashboard() {
   const [areaUnit, setAreaUnit] = useState("sq_feet")
   const [monthlyRent, setMonthlyRent] = useState(25000)
   const [noOfBedrooms, setNoOfBedrooms] = useState(2)
-  const [securityDeposit, setSecurityDeposit] = useState(20000)
+  const [securityDepositAmount, setSecurityDepositAmount] = useState(20000)
   const [photoFile, setPhotoFile] = useState([])
 
-  // setProperties(OwnerService.getProperties(currentUser));
+  // navigate hook
+  const navigate=useNavigate();
 
   let propertyData = {
     "description": description,
@@ -36,13 +37,15 @@ function OwnerDashboard() {
     "areaUnit": areaUnit,
     "noOfBedrooms": noOfBedrooms,
     "monthlyRent": monthlyRent,
-    "securityDepositAmount": securityDeposit 
+    "securityDepositAmount": securityDepositAmount
   }
 
   let inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 
   // !HANDLE PROPERTY CLICK
-  const { handlePropertyClick } = useProperty();
+  const handleNavigate = (prId)=>{
+    navigate(`/property/${prId}`)
+  }
 
   // !ADD PROPERTY
   const handleAddProperty = async (e) => {
@@ -93,6 +96,7 @@ function OwnerDashboard() {
     }
   };
 
+  // !USE-EFFECT
   // runs when page is mounted/rendered
   useEffect(() => {
     const userId=currentUser?.username;
@@ -115,7 +119,7 @@ function OwnerDashboard() {
               properties.map((property) => (
 
                 <div
-                  onClick={()=>handlePropertyClick(property)}
+                  onClick={()=>handleNavigate(property.id)}
                   key={property.id}
                   className={`property-box bg-gray-100 p-5 rounded-xl shadow-2xl outline-2 w-lg min-w-3xs transition duration-300 ease-in-out 
                     hover:scale-103
@@ -218,12 +222,12 @@ function OwnerDashboard() {
 
             {/* SECURITY DEPOSIT */}
             <div>
-              <label htmlFor="securityDeposit" className="block text-sm font-medium text-gray-700">Security Deposit</label>
+              <label htmlFor="securityDepositAmount" className="block text-sm font-medium text-gray-700">Security Deposit</label>
               <input 
                 type="number" 
-                id='securityDeposit'
-                value={securityDeposit}
-                onChange={(e) => setSecurityDeposit(e.target.value)}
+                id='securityDepositAmount'
+                value={securityDepositAmount}
+                onChange={(e) => setSecurityDepositAmount(e.target.value)}
                 className={`${inputClassName}`}
                 />
             </div>
