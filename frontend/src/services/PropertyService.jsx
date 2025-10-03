@@ -65,13 +65,13 @@ const PropertyService = {
         }
         console.log("Attempting to edit property: ", prId);
 
-        const response=await axios.put(`${API_URL}/edit_property/${prId}`, propertyDto, {
-            headers:{
-                'Authorization':`Bearer ${currentUser.jwtToken}`
-            }
-        });
-
         try {
+            const response=await axios.put(`${API_URL}/edit_property/${prId}`, propertyDto, {
+                headers:{
+                    'Authorization':`Bearer ${currentUser.jwtToken}`
+                }
+            });
+
             if(response.data.message){
                 console.log("Response data: ", response.data);
                 return response.data;
@@ -81,6 +81,7 @@ const PropertyService = {
             }
         } catch (error) {
             console.log("React error editing property: ", error);
+            alert(error.response.data.errMessage)
             throw error;
         }
     },
@@ -94,13 +95,13 @@ const PropertyService = {
         }
         console.log("Attempting to delete property: ", prId);
 
-        const response=await axios.delete(`${API_URL}/delete_property/${prId}`, {
-            headers:{
-                'Authorization':`Bearer ${currentUser.jwtToken}`
-            }
-        });
-
         try {
+            const response=await axios.delete(`${API_URL}/delete_property/${prId}`, {
+                headers:{
+                    'Authorization':`Bearer ${currentUser.jwtToken}`
+                }
+            });
+        
             if(response.data.message){
                 console.log(response.data);
                 return response.data;
@@ -111,6 +112,7 @@ const PropertyService = {
             
         } catch (error) {
             console.log("React Error deleting property: ", error);
+            alert(error.response.data.errMessage);
             throw error;
         }
     }
