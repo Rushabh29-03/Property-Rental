@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -62,8 +63,11 @@ public class PropertyController {
         try {
             owner.add(property);
             Property newProperty=propertyRepository.save(property);
+            System.out.println("*********************");
+            System.out.println(newProperty.getIsSmokingAllowed());
+            System.out.println("*********************");
 
-            PropertyDto propertyDto= new PropertyDto(property);
+            PropertyDto propertyDto= new PropertyDto(newProperty);
 
             return new ResponseEntity<>(propertyDto, HttpStatus.CREATED);
         } catch(IllegalArgumentException e){

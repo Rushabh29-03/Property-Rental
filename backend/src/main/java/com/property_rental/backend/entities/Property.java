@@ -1,7 +1,6 @@
 package com.property_rental.backend.entities;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
@@ -67,6 +66,24 @@ public class Property {
     @Column(name = "security_deposit_amount")
     private Double securityDepositAmount;
 
+    @Setter
+    @Getter
+    @Column(name = "min_stay")
+    private int minStay=0;
+
+    @Setter
+    @Getter
+    @Column(name = "pets_policy")
+    private String petsPolicy;
+
+    @Column(name = "smoking_allowed")
+    private boolean isSmokingAllowed=false;
+
+    @Setter
+    @Getter
+    @Column(name = "other_rules")
+    private String otherRules;
+
 //        PROPERTY TO OWNER
     @Setter
     @Getter
@@ -85,15 +102,6 @@ public class Property {
     @Getter
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<WishListedProperty> wishListedProperties;
-
-//        PROPERTY TO RULES
-    @Setter
-    @Getter
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "property_rules",
-            joinColumns = @JoinColumn(name = "property_id"),
-            inverseJoinColumns = @JoinColumn(name = "rule_id"))
-    private List<Rules> rules;
 
 //        PROPERTY TO FACILITIES
     @Setter
@@ -127,6 +135,13 @@ public class Property {
     //    getters and setters
 //    most of the getters and setters are handled by lombok.Getter and lombok.Setter
 //    take a note of it if getter/setter doesn't work
+    public void setIsSmokingAllowed(boolean isSmokingAllowed){
+        this.isSmokingAllowed=isSmokingAllowed;
+    }
+
+    public boolean getIsSmokingAllowed(){
+        return this.isSmokingAllowed;
+    }
 
     @Override
     public String toString() {
@@ -140,11 +155,15 @@ public class Property {
                 ", monthlyRent='" + monthlyRent + '\'' +
                 ", noOfBedrooms='" + noOfBedrooms + '\'' +
                 ", securityDepositAmount='" + securityDepositAmount + '\'' +
+                ", minStay='" + minStay + '\'' +
+                ", petsPolicy='" + petsPolicy + '\'' +
+                ", isSmokingAllowed='" + isSmokingAllowed + '\'' +
+                ", otherRules='" + otherRules + '\'' +
                 '}';
     }
 
 //    convenience method to add photos
-    public void add(Photo photo){
+    public void addPhoto(Photo photo){
         if(photoList==null)
             photoList = new ArrayList<>();
 

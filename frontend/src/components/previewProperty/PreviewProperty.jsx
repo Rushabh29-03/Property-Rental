@@ -16,16 +16,64 @@ function PreviewProperty() {
   const [error, setError] = useState(null);
   const [isVisible, setIsVisible] = useState(false)
 
+  // rules data state
+  const [address, setAddress] = useState("")
+  const [area, setArea] = useState(0.0)
+  const [monthlyRent, setMonthlyRent] = useState(0.0)
+  const [minStay, setMinStay] = useState(0)
+  const [petsPolicy, setPetsPolicy] = useState(null)
+  const [isSmokingAllowed, setIsSmokingAllowed] = useState(false)
+  const [otherRules, setOtherRules] = useState(null)
+
   // navigate hook
   const navigate = useNavigate();
+
+  // html classes
+  let inputClassName='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+
+  // property rule data to send
+  let propertyRulesData = {
+    "address": address,
+    "area": area,
+    "monthlyRent": monthlyRent,
+    "minStay": minStay,
+    "petsPolicy": petsPolicy,
+    "smokingAllowed": isSmokingAllowed,
+    "otherRules": otherRules
+  }
 
   // !GET PROPERTY BY ID
   const handleGetPropertyById = async(prId)=>{
 
     const response = await PropertyService.getPropertyById(prId);
-    // console.log("response from PropertyService.getPropertyById(prId);")
-    // console.log(response);
-    setSelectedProperty(response);
+    
+    if(response){
+      setSelectedProperty(response);
+    }
+
+    console.log("response: ", response);
+  }
+
+  // !EDIT PROPERTY RULES
+  const handleEditPropertyRules = async(e)=>{
+    e.preventDefault();
+
+    console.log("Sending data: ", propertyRulesData);
+    
+    const resposne = await PropertyService.editProperty(propertyRulesData, pr_id);
+
+    if(resposne){
+      alert('Property updated');
+      switch (AuthService.getCurrentUser().role) {
+        case 'ROLE_OWNER':
+          navigate('/owner-dashboard')
+          break;
+      
+        default:
+          navigate('/properties')
+          break;
+      }
+    }
   }
 
   // !DELETE PROPERTY
@@ -49,7 +97,6 @@ function PreviewProperty() {
   useEffect(() => {
 
     const userId = AuthService.getCurrentUser()?.username;
-
     if(userId){
       handleGetPropertyById(pr_id);
     } else{
@@ -89,6 +136,29 @@ function PreviewProperty() {
     };
   }, [isVisible]);
 
+  // !USE-EFFECT - update states
+  useEffect(() => {
+      if (selectedProperty) {
+          // Use property data to set the local state for editing
+          setAddress(selectedProperty.address || '')
+          setArea(selectedProperty.area || 0.0)
+          setMonthlyRent(selectedProperty.monthlyRent || 0.0)
+          setMinStay(selectedProperty.minStay || 0)
+          setPetsPolicy(selectedProperty.petsPolicy || null)
+          setIsSmokingAllowed(selectedProperty.smokingAllowed || false) 
+          setOtherRules(selectedProperty.otherRules || null)
+
+          // setAddress(selectedProperty.address);
+          // setArea(selectedProperty.area);
+          // setMonthlyRent(selectedProperty.monthlyRent);
+          // setMinStay(selectedProperty.minStay);
+          // setPetsPolicy(selectedProperty.petsPolicy);
+          // setIsSmokingAllowed(selectedProperty.smokingAllowed);
+          // setOtherRules(selectedProperty.otherRules);
+          console.log("smoking : ", selectedProperty.smokingAllowed);
+      }
+  }, [selectedProperty]);
+
   
   // Handle loading state
   if (loading) {
@@ -125,22 +195,79 @@ function PreviewProperty() {
         <p className="mb-2"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
         <p className='mb-2'><strong>Security deposit:</strong> ₹{selectedProperty.securityDepositAmount}</p>
 
+        <br />
+        <br />
+
+        <h1 className='text-xl font-bold mb-4'>Rules</h1>
+        <div>
+          <p className="mb-2">
+            <strong>Minimum stay (months): </strong> 
+            <input 
+              type='number' 
+              min={0} max={36} 
+              value={minStay}
+              onChange={(e)=>setMinStay(e.target.value)}
+              className={`${inputClassName}`}
+              required
+            />
+          </p>
+        </div>
+        <div>
+          <p className="mb-2">
+            <strong>Pets policy: </strong> 
+            <input 
+              type='text' 
+              value={petsPolicy || ''} 
+              onChange={(e)=>setPetsPolicy(e.target.value)}
+              className={`${inputClassName}`}
+            />
+          </p>
+        </div>
+        <div>
+          <p className="mb-2">
+            <label htmlFor="isSmokingAllowed"><strong>Smoking allowed: </strong></label> 
+            <input 
+              type='checkbox' 
+              checked={isSmokingAllowed}
+              onChange={(e) => setIsSmokingAllowed(e.target.checked)}
+              id='isSmokingAllowed' 
+              className={`${inputClassName}`}
+            />
+          </p>
+        </div>
+        <div>
+          <p className="mb-2">
+            <strong>Other Rules: </strong> 
+            <input 
+              type='text' 
+              value={otherRules || ''} 
+              onChange={(e)=>setOtherRules(e.target.value)}
+              className={`${inputClassName}`}
+            />
+          </p>
+        </div>
+        <button onClick={handleEditPropertyRules}
+          className="outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600"
+        >
+          Update property rules
+        </button>
+
         {/* Action Buttons */}
-        {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
-          <div className="flex space-x-4 mt-6">
-            <button className="outline-2 p-2 rounded cursor-pointer"
-              onClick={()=>setIsVisible(true)}
-            >
-              Edit Property
-            </button>
-            <button onClick={handleDeleteProperty} className="outline-2 p-2 rounded cursor-pointer">
-              Delete Property
-            </button>
-            <button className="outline-2 p-2 rounded cursor-pointer">
-              Add Facilities & Rules
-            </button>
-          </div>
-        )}
+        <div className='fixed top-9/10 left-17/20'>
+          {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
+            <div className="flex space-x-4 mt-6">
+              <button onClick={()=>setIsVisible(true)}
+              className="outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600"
+              >
+                Edit Property
+              </button>
+              <button onClick={handleDeleteProperty} 
+              className="outline-2 outline-black p-2 rounded cursor-pointer bg-red-500 shadow-gray-500 shadow-2xl hover:bg-red-600 text-white">
+                Delete Property
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       {/* EDIT PROPERTY */}
       {isVisible && (

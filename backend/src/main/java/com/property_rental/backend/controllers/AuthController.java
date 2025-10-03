@@ -21,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -137,9 +139,11 @@ public class AuthController {
     }
 
     @GetMapping("/allProperties")
-    public ResponseEntity<List<PropertyDto>> getAllProperties(Principal principal){
+    public ResponseEntity<List<PropertyDto>> getAllProperties(){
 
-        UserDetails user=userService.loadUserByUsername(principal.getName());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        UserDetails user=userService.loadUserByUsername(username);
 
         if(user!=null){
             System.out.println(user.getAuthorities());

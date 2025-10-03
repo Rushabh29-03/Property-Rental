@@ -24,6 +24,10 @@ function OwnerDashboard() {
   const [monthlyRent, setMonthlyRent] = useState(25000)
   const [noOfBedrooms, setNoOfBedrooms] = useState(2)
   const [securityDepositAmount, setSecurityDepositAmount] = useState(20000)
+  const [minStay, setMinStay] = useState(0)
+  const [petsPolicy, setPetsPolicy] = useState('')
+  const [isSmokingAllowed, setIsSmokingAllowed] = useState(false)
+  const [otherRules, setOtherRules] = useState('')
   const [photoFile, setPhotoFile] = useState([])
 
   // navigate hook
@@ -37,7 +41,11 @@ function OwnerDashboard() {
     "areaUnit": areaUnit,
     "noOfBedrooms": noOfBedrooms,
     "monthlyRent": monthlyRent,
-    "securityDepositAmount": securityDepositAmount
+    "securityDepositAmount": securityDepositAmount,
+    "minStay": minStay,
+    "petsPolicy": petsPolicy,
+    "isSmokingAllowed": isSmokingAllowed,
+    "otherRules": otherRules
   }
 
   let inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -52,8 +60,8 @@ function OwnerDashboard() {
     e.preventDefault();
 
     console.log("selected photos: ", photoFile);
-    
-
+    console.log("sending data: ", propertyData);
+  
     try {
         const response = await PropertyService.addProperty(propertyData);
 
@@ -228,6 +236,54 @@ function OwnerDashboard() {
                 id='securityDepositAmount'
                 value={securityDepositAmount}
                 onChange={(e) => setSecurityDepositAmount(e.target.value)}
+                className={`${inputClassName}`}
+                />
+            </div>
+
+            {/* MINIMUM STAY */}
+            <div>
+              <label htmlFor="minStay" className="block text-sm font-medium text-gray-700">Minimum stay (in months)</label>
+              <input 
+                type="number" 
+                id='minStay'
+                value={minStay}
+                onChange={(e) => setMinStay(e.target.value)}
+                className={`${inputClassName}`}
+                />
+            </div>
+
+            {/* PETS POLICY */}
+            <div>
+              <label htmlFor="petsPolicy" className="block text-sm font-medium text-gray-700">Pets Policy</label>
+              <input 
+                type="text" 
+                id='petsPolicy'
+                value={petsPolicy}
+                onChange={(e) => setPetsPolicy(e.target.value)}
+                className={`${inputClassName}`}
+                />
+            </div>
+
+            {/* SMOKING ALLOWED FLAG */}
+            <div>
+              <label htmlFor="isSmokingAllowed" className="text-sm font-medium text-gray-700">Is smoking allowed?</label>
+              <input 
+                type="checkbox" 
+                id='isSmokingAllowed'
+                checked={isSmokingAllowed}
+                onChange={(e) => setIsSmokingAllowed(e.target.value==='on' ? true : false)}
+                className='ml-2'
+                />
+            </div>
+
+            {/* OTHER RULES */}
+            <div>
+              <label htmlFor="otherRules" className="block text-sm font-medium text-gray-700">Other Rules (if any)</label>
+              <input 
+                type="text" 
+                id='otherRules'
+                value={otherRules}
+                onChange={(e) => setOtherRules(e.target.value)}
                 className={`${inputClassName}`}
                 />
             </div>

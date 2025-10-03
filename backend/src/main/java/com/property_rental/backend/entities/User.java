@@ -115,6 +115,10 @@ public class User {
                     .monthlyRent(properties.get(i).getMonthlyRent())
                     .noOfBedrooms(properties.get(i).getNoOfBedrooms())
                     .securityDepositAmount(properties.get(i).getSecurityDepositAmount())
+                    .minStay(properties.get(i).getMinStay())
+                    .petsPolicy(properties.get(i).getPetsPolicy())
+                    .isSmokingAllowed(properties.get(i).getIsSmokingAllowed())
+                    .otherRules(properties.get(i).getOtherRules())
                     .build();
 
             propertyDtoList.add(propertyDto);

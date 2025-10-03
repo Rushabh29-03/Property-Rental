@@ -22,6 +22,10 @@ public class PropertyDto {
     private Double monthlyRent;
     private int noOfBedrooms;
     private Double securityDepositAmount;
+    private int minStay;
+    private String petsPolicy;
+    private boolean isSmokingAllowed;
+    private String otherRules;
     private List<Photo> photoList;
 
     public PropertyDto(Property property){
@@ -34,6 +38,10 @@ public class PropertyDto {
         this.monthlyRent= property.getMonthlyRent();
         this.noOfBedrooms= property.getNoOfBedrooms();
         this.securityDepositAmount= property.getSecurityDepositAmount();
+        this.minStay= property.getMinStay();
+        this.petsPolicy= property.getPetsPolicy();
+        this.isSmokingAllowed= property.getIsSmokingAllowed();
+        this.otherRules= property.getOtherRules();
         this.photoList= property.getPhotoList();
     }
 }

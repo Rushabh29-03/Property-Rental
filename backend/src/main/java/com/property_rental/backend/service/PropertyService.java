@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class PropertyService {
@@ -45,6 +44,10 @@ public class PropertyService {
         property.setNoOfBedrooms(propertyDto.getNoOfBedrooms());
         property.setSecurityDepositAmount(propertyDto.getSecurityDepositAmount());
         property.setPhotoList(propertyDto.getPhotoList()!=null ? propertyDto.getPhotoList() : property.getPhotoList());
+        property.setMinStay(propertyDto.getMinStay());
+        property.setPetsPolicy(propertyDto.getPetsPolicy());
+        property.setIsSmokingAllowed(propertyDto.isSmokingAllowed());
+        property.setOtherRules(propertyDto.getOtherRules());
 
         Property updatedProperty = propertyRepository.save(property);
         return new PropertyDto(updatedProperty);

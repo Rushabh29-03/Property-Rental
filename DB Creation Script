@@ -37,7 +37,7 @@ create table if not exists property(
 );
 
 -- alter table property
--- alter column area_unit set default 'sq_fet';
+-- alter column area_unit set default 'sq_feet';
 
 create table if not exists rented_property(
 	rented_pr_id serial primary key,
