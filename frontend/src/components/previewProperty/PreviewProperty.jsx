@@ -5,6 +5,7 @@ import OwnerService from '../../services/OwnerService';
 import AuthService from '../../services/AuthService';
 import PropertyService from '../../services/PropertyService';
 import { Link } from 'react-router';
+import EditProperty from '../editProperty/EditProperty';
 
 function PreviewProperty() {
 
@@ -15,6 +16,7 @@ function PreviewProperty() {
   // manage loading/error during fallback fetch
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isVisible, setIsVisible] = useState(false)
 
   // navigate hook
   const navigate = useNavigate()
@@ -48,6 +50,7 @@ function PreviewProperty() {
           
           // 2. Set the fetched data back into the context
           setSelectedProperty(data); 
+          console.log(data);
           
           setLoading(false);
           
@@ -60,7 +63,19 @@ function PreviewProperty() {
 
       fetchProperty();
     }
-  }, [selectedProperty, pr_id, setSelectedProperty]); 
+
+    if(document.getElementById('preview-property-body')){
+      if(isVisible){
+        document.body.style.overflow='hidden'
+        document.getElementById('preview-property-body').style.pointerEvents='none'
+        document.getElementById('preview-property-body').style.userSelect='none'
+      } 
+      else{
+        document.body.style.overflow='unset'
+        document.getElementById('preview-property-body').style.pointerEvents='unset'
+      }
+    }
+  }, [selectedProperty, pr_id, setSelectedProperty, isVisible]); 
 
   
   // Handle loading state
@@ -82,37 +97,45 @@ function PreviewProperty() {
 
   // Use selectedProperty to display all data
   return (
-    <div className="p-6 min-h-screen bg-gray-100">
-      {
-        (role==='ROLE_OWNER'
-          ? (<Link to='/owner-dashboard'>Go Back</Link>)
-          : (<Link to='/properties'>Go Back to properties</Link>)
-        )
-      }
-      <h1 className="text-3xl font-bold mb-4">{selectedProperty.address}</h1>
-      
-      <p className="mb-2"><strong>Description:</strong> {selectedProperty.description}</p>
-      <p className="mb-2"><strong>Area:</strong> {selectedProperty.area} {selectedProperty.areaUnit}</p>
-      <p className="mb-2"><strong>Bedrooms:</strong> {selectedProperty.noOfBedrooms}</p>
-      <p className="mb-2"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
-      <p className='mb-2'><strong>Security deposit:</strong> ₹{selectedProperty.securityDepositAmount}</p>
+    <>
+      <div id='preview-property-body' className="p-6 min-h-screen bg-gray-100">
+        {
+          (role==='ROLE_OWNER'
+            ? (<Link to='/owner-dashboard' className='text-blue-500'>{'<'}Go Back</Link>)
+            : (<Link to='/properties' className=''>{'<'}Go Back to properties</Link>)
+          )
+        }
+        <h1 className="text-3xl font-bold mb-4">{selectedProperty.address}</h1>
+        
+        <p className="mb-2"><strong>Description:</strong> {selectedProperty.description}</p>
+        <p className="mb-2"><strong>Area:</strong> {selectedProperty.area} {selectedProperty.areaUnit}</p>
+        <p className="mb-2"><strong>Bedrooms:</strong> {selectedProperty.noOfBedrooms}</p>
+        <p className="mb-2"><strong>Rent:</strong> ₹{selectedProperty.monthlyRent} / month</p>
+        <p className='mb-2'><strong>Security deposit:</strong> ₹{selectedProperty.securityDepositAmount}</p>
 
 
-      {/* Action Buttons */}
-      {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
-        <div className="flex space-x-4 mt-6">
-          <button className="outline-2 p-2 rounded">
-            Edit Property
-          </button>
-          <button onClick={handleDeleteProperty} className="outline-2 p-2 rounded ">
-            Delete Property
-          </button>
-          <button className="outline-2 p-2 rounded ">
-            Add Facilities & Rules
-          </button>
-        </div>
+        {/* Action Buttons */}
+        {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
+          <div className="flex space-x-4 mt-6">
+            <button className="outline-2 p-2 rounded"
+              onClick={()=>setIsVisible(true)}
+            >
+              Edit Property
+            </button>
+            <button onClick={handleDeleteProperty} className="outline-2 p-2 rounded ">
+              Delete Property
+            </button>
+            <button className="outline-2 p-2 rounded ">
+              Add Facilities & Rules
+            </button>
+          </div>
+        )}
+      </div>
+      {/* EDIT PROPERTY */}
+      {isVisible && (
+        <EditProperty property={ selectedProperty } onClose={()=>setIsVisible(false)} prId={pr_id} ></EditProperty>
       )}
-    </div>
+    </>
   )
 }
 

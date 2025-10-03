@@ -15,7 +15,7 @@ function OwnerDashboard() {
   // response of getProperties is stored here
   const [properties, setProperties] = useState([]);
 
-  // used to take inpput from html form
+  // used to take input from html form
   const [description, setDescription] = useState("vgera vgera")
   const [address, setAddress] = useState("swarnim paradise")
   const [isVerified, setIsVerified] = useState(false)
@@ -137,6 +137,7 @@ function OwnerDashboard() {
         </div>
       </div>
       
+      {/* ADD PROPERTY */}
       <div className="flex items-center justify-center bg-gray-500 p-4">
         <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-xl shadow-2xl">
           <h2 className="text-3xl font-extrabold text-center text-gray-900">
@@ -183,6 +184,13 @@ function OwnerDashboard() {
             </div>
 
             {/* AREA UNIT */}
+            <div>
+              <label htmlFor="newareaUnit" className="block text-sm font-medium text-gray-700">Area unit new</label>
+              <select className={`${inputClassName}`} id="areaUnit" onChange={(e)=>setAreaUnit(e.target.value)}>
+                <option value='sq_feet'>sq_feet</option>
+                <option value="sq_meter">sq_meter</option>
+              </select>
+            </div>
 
             {/* NO OF BEDROOMS */}
             <div>

@@ -1,7 +1,7 @@
 package com.property_rental.backend.dtos;
 
+import com.property_rental.backend.entities.Photo;
 import com.property_rental.backend.entities.Property;
-import com.property_rental.backend.entities.RentedProperty;
 import lombok.*;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class PropertyDto {
     private Double monthlyRent;
     private int noOfBedrooms;
     private Double securityDepositAmount;
-    private List<RentedProperty> rentedPropertyList;
+    private List<Photo> photoList;
 
     public PropertyDto(Property property){
         this.id= property.getId();
@@ -34,5 +34,6 @@ public class PropertyDto {
         this.monthlyRent= property.getMonthlyRent();
         this.noOfBedrooms= property.getNoOfBedrooms();
         this.securityDepositAmount= property.getSecurityDepositAmount();
+        this.photoList= property.getPhotoList();
     }
 }

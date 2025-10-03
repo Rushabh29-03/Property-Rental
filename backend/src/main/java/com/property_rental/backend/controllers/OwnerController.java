@@ -58,7 +58,7 @@ public class OwnerController {
 
        try {
            List<PropertyDto> properties=user.getProperties();
-           System.out.println(properties);
+//           System.out.println(properties);
            return new ResponseEntity<>(properties, HttpStatus.OK);
        } catch (IllegalArgumentException e) {
            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

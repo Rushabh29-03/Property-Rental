@@ -56,16 +56,45 @@ const PropertyService = {
         }
     },
 
-    deletePropertyById: async(pr_id)=>{
+    editProperty: async (propertyDto, prId)=>{
+        const currentUser=AuthService.getCurrentUser();
+
+        if(!currentUser || !currentUser.jwtToken){
+            console.log("Autheentication error: missing jwt token");
+            return [];
+        }
+        console.log("Attempting to edit property: ", prId);
+
+        const response=await axios.put(`${API_URL}/edit_property/${prId}`, propertyDto, {
+            headers:{
+                'Authorization':`Bearer ${currentUser.jwtToken}`
+            }
+        });
+
+        try {
+            if(response.data.message){
+                console.log("Response data: ", response.data);
+                return response.data;
+            }
+            else{
+                alert(response.data.errMessage)
+            }
+        } catch (error) {
+            console.log("React error editing property: ", error);
+            throw error;
+        }
+    },
+
+    deletePropertyById: async(prId)=>{
         const currentUser=AuthService.getCurrentUser();
         
         if(!currentUser || !currentUser.jwtToken){
             console.log("Autheentication error: missing jwt token");
             return [];
         }
-        console.log("Attempting to delete property: ", pr_id);
+        console.log("Attempting to delete property: ", prId);
 
-        const response=await axios.delete(`${API_URL}/delete_property/${pr_id}`, {
+        const response=await axios.delete(`${API_URL}/delete_property/${prId}`, {
             headers:{
                 'Authorization':`Bearer ${currentUser.jwtToken}`
             }

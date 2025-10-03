@@ -1,6 +1,7 @@
 package com.property_rental.backend.entities;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
@@ -108,7 +109,7 @@ public class Property {
     @Setter
     @Getter
     @OneToMany(mappedBy = "property")
-    private List<Photo> photos;
+    private List<Photo> photoList;
 
 //        empty constructor
     public Property (){}
@@ -144,10 +145,10 @@ public class Property {
 
 //    convenience method to add photos
     public void add(Photo photo){
-        if(photos==null)
-            photos = new ArrayList<>();
+        if(photoList==null)
+            photoList = new ArrayList<>();
 
-        photos.add(photo);
+        photoList.add(photo);
         photo.setProperty(this);
     }
 }

@@ -13,9 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/property")
@@ -47,6 +47,7 @@ public class PropertyController {
             return new ResponseEntity<>(propertyDto, HttpStatus.OK);
         } catch (Exception e) {
             // Handle exceptions (e.g., database error)
+//            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -71,6 +72,51 @@ public class PropertyController {
         } catch (Exception e) {
             System.err.println("Internal server error while creating property: "+e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("edit_property/{propertyId}")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN)")
+    public ResponseEntity<Map<String, Object>> editPropertyById(
+            @RequestBody PropertyDto propertyDto,
+            @PathVariable int propertyId) {
+
+        Map<String, Object> response=new HashMap<>();
+
+//        get signed-in user username (Principal)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUser = authentication.getName();
+        String role = authentication.getAuthorities().toString();
+
+        try {
+//            get property
+            Property existingProperty=propertyService.findPropertyById(propertyId);
+
+            if(existingProperty==null){
+                response.put("errMessage", "Property not found");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            boolean isAdmin = role.equals("[ROLE_ADMIN]");
+            boolean isOwner = existingProperty.getOwner().getUserName().equals(currentUser);
+
+            if(!isAdmin && !isOwner){
+                response.put("errMessage", "You're not allowed to edit this property.");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+
+            PropertyDto updatedProperty=propertyService.updateProperty(propertyDto, propertyId);
+
+            response.put("message", "Property updated successfully");
+            response.put("updatedProperty", updatedProperty);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            response.put("errMessage", "Property not found with id: "+propertyId);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            response.put("errMessage", "Error updating property");
+            response.put("detailError", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
