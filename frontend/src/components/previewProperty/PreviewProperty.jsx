@@ -4,12 +4,13 @@ import AuthService from '../../services/AuthService';
 import PropertyService from '../../services/PropertyService';
 import { Link } from 'react-router';
 import EditProperty from '../editProperty/EditProperty';
+import AdminService from '../../services/AdminService';
 
 function PreviewProperty() {
 
   const [selectedProperty, setSelectedProperty] = useState(null)
   const { pr_id } = useParams();
-  const role = AuthService.getCurrentUser().role;
+  const role = AuthService.getCurrentUser().role; // 'ROLE_ADMIN'  
 
   // manage loading/error during fallback fetch
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,7 @@ function PreviewProperty() {
   const [petsPolicy, setPetsPolicy] = useState(null)
   const [isSmokingAllowed, setIsSmokingAllowed] = useState(false)
   const [otherRules, setOtherRules] = useState(null)
+  const [verified, setVerified] = useState(false)
 
   // navigate hook
   const navigate = useNavigate();
@@ -51,7 +53,7 @@ function PreviewProperty() {
       setSelectedProperty(response);
     }
 
-    console.log("response: ", response);
+    console.log("getPropertyById: ", response);
   }
 
   // !EDIT PROPERTY RULES
@@ -93,7 +95,18 @@ function PreviewProperty() {
     }
   }
 
-  // !USE-EFFECT - fetching property
+  // !TOGGLE VERIFY
+  const handleToggleVerify = async(e)=>{
+    e.preventDefault();
+
+    const response = await AdminService.toggleVerifiedStatus(pr_id);
+    if(response){
+      alert(response.message)
+      // navigate('/properties')
+    }
+  }
+
+  // !USE-EFFECT 1 - fetching property
   useEffect(() => {
 
     const userId = AuthService.getCurrentUser()?.username;
@@ -105,7 +118,7 @@ function PreviewProperty() {
   }, [pr_id]); 
 
 
-  // !USE-EFFECT - scroll controll
+  // !USE-EFFECT 2 - scroll controll
   useEffect(() => {
     const previewBody = document.getElementById('preview-property-body');
     
@@ -136,7 +149,7 @@ function PreviewProperty() {
     };
   }, [isVisible]);
 
-  // !USE-EFFECT - update states
+  // !USE-EFFECT 3 - update states
   useEffect(() => {
       if (selectedProperty) {
           // Use property data to set the local state for editing
@@ -147,15 +160,7 @@ function PreviewProperty() {
           setPetsPolicy(selectedProperty.petsPolicy || null)
           setIsSmokingAllowed(selectedProperty.smokingAllowed || false) 
           setOtherRules(selectedProperty.otherRules || null)
-
-          // setAddress(selectedProperty.address);
-          // setArea(selectedProperty.area);
-          // setMonthlyRent(selectedProperty.monthlyRent);
-          // setMinStay(selectedProperty.minStay);
-          // setPetsPolicy(selectedProperty.petsPolicy);
-          // setIsSmokingAllowed(selectedProperty.smokingAllowed);
-          // setOtherRules(selectedProperty.otherRules);
-          console.log("smoking : ", selectedProperty.smokingAllowed);
+          setVerified(selectedProperty.isVerified || false)
       }
   }, [selectedProperty]);
 
@@ -246,11 +251,31 @@ function PreviewProperty() {
             />
           </p>
         </div>
+        
         <button onClick={handleEditPropertyRules}
           className="outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600"
         >
           Update property rules
         </button>
+
+        <br /><br />
+        {(role==='ROLE_ADMIN') && (
+          <div>
+            <p className="mb-2">
+              <label htmlFor="verify"><strong>Verify: </strong></label> 
+              <input 
+                type='checkbox' 
+                checked={verified}
+                onChange={(e) => {
+                  setVerified(e.target.checked);                
+                  return handleToggleVerify(e);
+                }}
+                id='verify' 
+                className={`${inputClassName}`}
+              />
+            </p>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className='fixed top-9/10 left-17/20'>

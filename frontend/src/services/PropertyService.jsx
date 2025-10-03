@@ -77,11 +77,11 @@ const PropertyService = {
                 return response.data;
             }
             else{
-                alert(response.data.errMessage)
+                alert(response.data.errMessage);
             }
         } catch (error) {
             console.log("React error editing property: ", error);
-            alert(error.response.data.errMessage)
+            alert(error.response.data.errMessage);
             throw error;
         }
     },
