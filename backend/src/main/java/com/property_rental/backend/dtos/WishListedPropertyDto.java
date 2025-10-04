@@ -1,0 +1,31 @@
+package com.property_rental.backend.dtos;
+
+import com.property_rental.backend.entities.User;
+import com.property_rental.backend.entities.WishListedProperty;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+public class WishListedPropertyDto {
+    private int id;
+    private LocalDateTime wishlistDate;
+    private String note;
+    private String status;
+    private User user;
+    private PropertyDto propertyDto;
+
+    public WishListedPropertyDto(WishListedProperty wishListedProperty){
+        this.id= wishListedProperty.getId();
+        this.wishlistDate= wishListedProperty.getWishlistDate();
+        this.note= wishListedProperty.getNote();
+        this.status= wishListedProperty.getStatus();
+        this.user= wishListedProperty.getUser();
+        this.propertyDto= wishListedProperty.getProperty();
+    }
+}

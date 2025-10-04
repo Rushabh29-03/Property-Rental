@@ -1,11 +1,13 @@
 package com.property_rental.backend.entities;
 
+import com.property_rental.backend.dtos.PropertyDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Setter
 @Getter
@@ -22,9 +24,8 @@ public class WishListedProperty {
 
     @Setter
     @Getter
-    @Column(name = "wishlist_date", insertable = false, updatable = false,
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime wishlistDate; //DEFAULT CURRENT_TIMESTAMP
+    @Column(name = "wishlist_date", insertable = false, updatable = false)
+    private LocalDateTime wishlistDate=LocalDateTime.now(); //DEFAULT CURRENT_TIMESTAMP
 
     @Setter
     @Getter
@@ -46,7 +47,6 @@ public class WishListedProperty {
 
     //    WISHLIST TO PROPERTY
     @Setter
-    @Getter
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "property_id")
@@ -61,7 +61,6 @@ public class WishListedProperty {
         this.status = status;
     }
 
-    //    constructor
     public WishListedProperty(String note) {
         this.note = note;
     }
@@ -75,5 +74,9 @@ public class WishListedProperty {
                 ", note='" + note + '\'' +
                 ", status='" + status + '\'' +
                 '}';
+    }
+
+    public PropertyDto getProperty(){
+        return new PropertyDto(property);
     }
 }

@@ -91,4 +91,11 @@ public class UserService implements UserDetailsService {
         // 3. If the username is not found in either table, throw an exception
         throw new UsernameNotFoundException("User '" + username + "' not found in either User or Admin table.");
     }
+
+    public User findByUsername(String username){
+        User user = userRepository.findByUserName(username);
+        if(user!=null)
+            return user;
+        throw new UsernameNotFoundException("User not found with username: "+username);
+    }
 }

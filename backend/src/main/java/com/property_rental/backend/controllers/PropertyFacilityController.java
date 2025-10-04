@@ -58,7 +58,7 @@ public class PropertyFacilityController {
         try {
 //            get signed-in user
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-            
+
 
             propertyFacilityService.removeFacilityFromProperty(facility.getFacName(), propertyId);
             response.put("message", "Facility deleted successfully from property: "+propertyId);

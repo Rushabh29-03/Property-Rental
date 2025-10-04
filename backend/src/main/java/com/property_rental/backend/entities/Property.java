@@ -176,4 +176,12 @@ public class Property {
         photoList.add(photo);
         photo.setProperty(this);
     }
+
+    public void markAsWishList(WishListedProperty wishListedProperty){
+        if(wishListedProperties==null)
+            wishListedProperties = new ArrayList<>();
+
+        wishListedProperties.add(wishListedProperty);
+        wishListedProperty.setProperty(this);
+    }
 }
