@@ -106,14 +106,16 @@ create table if not exists rules(
 
 create table if not exists facilities(
 	fac_id serial primary key,
-	fac_name varchar(20) not null,
-	is_premium boolean default false,
-	description text
+	fac_name varchar(20) unique not null
 );
+
+-- ALTER TABLE facilities
+-- ADD CONSTRAINT uq_facilities_fac_name UNIQUE (fac_name);
 
 create table if not exists property_facilities(
 	property_id int not null, --FK
 	fac_id int not null, --FK
+	description text,
 
 	primary key (property_id, fac_id),
 

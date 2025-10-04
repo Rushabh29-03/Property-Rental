@@ -1,10 +1,13 @@
 package com.property_rental.backend.dtos;
 
+import com.property_rental.backend.entities.Facility;
 import com.property_rental.backend.entities.Photo;
 import com.property_rental.backend.entities.Property;
+import com.property_rental.backend.entities.PropertyFacility;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -26,6 +29,7 @@ public class PropertyDto {
     private String petsPolicy;
     private boolean isSmokingAllowed;
     private String otherRules;
+    private List<PropertyFacilityDto> propertyFacilityList;
     private List<Photo> photoList;
 
     public PropertyDto(Property property){
@@ -42,6 +46,7 @@ public class PropertyDto {
         this.petsPolicy= property.getPetsPolicy();
         this.isSmokingAllowed= property.getIsSmokingAllowed();
         this.otherRules= property.getOtherRules();
+        this.propertyFacilityList= property.getPropertyFacilities();
         this.photoList= property.getPhotoList();
     }
 }

@@ -203,6 +203,7 @@ function PreviewProperty() {
         <br />
         <br />
 
+        {/* MINIMUM STAY */}
         <h1 className='text-xl font-bold mb-4'>Rules</h1>
         <div>
           <p className="mb-2">
@@ -217,6 +218,8 @@ function PreviewProperty() {
             />
           </p>
         </div>
+
+        {/* PETS POLICY */}
         <div>
           <p className="mb-2">
             <strong>Pets policy: </strong> 
@@ -228,6 +231,8 @@ function PreviewProperty() {
             />
           </p>
         </div>
+
+        {/* SMOKING ALLOWED FLAG */}
         <div>
           <p className="mb-2">
             <label htmlFor="isSmokingAllowed"><strong>Smoking allowed: </strong></label> 
@@ -240,6 +245,8 @@ function PreviewProperty() {
             />
           </p>
         </div>
+
+        {/* OTHER RULES */}
         <div>
           <p className="mb-2">
             <strong>Other Rules: </strong> 

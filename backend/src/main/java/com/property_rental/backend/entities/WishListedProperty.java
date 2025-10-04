@@ -20,12 +20,6 @@ public class WishListedProperty {
     @Column(name = "wishlisted_pr_id")
     private int id;
 
-//    @Column(name = "property_id")
-//    private int propertyId; //FOREIGN KEY
-//
-//    @Column(name = "user_id")
-//    private int userId; //FOREIGN KEY
-
     @Setter
     @Getter
     @Column(name = "wishlist_date", insertable = false, updatable = false,
@@ -40,7 +34,7 @@ public class WishListedProperty {
     @Setter
     @Getter
     @Column(name = "status", nullable = false)
-    private String status; //DEFAULT 'New'
+    private String status="New"; //DEFAULT 'New'
 
     //    WISHLIST TO USER
     @Setter
@@ -60,6 +54,12 @@ public class WishListedProperty {
 
     //    empty constructor
     public WishListedProperty(){}
+
+    //    constructor
+    public WishListedProperty(String note, String status) {
+        this.note = note;
+        this.status = status;
+    }
 
     //    constructor
     public WishListedProperty(String note) {

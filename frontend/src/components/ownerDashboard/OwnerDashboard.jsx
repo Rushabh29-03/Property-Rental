@@ -271,7 +271,7 @@ function OwnerDashboard() {
                 type="checkbox" 
                 id='isSmokingAllowed'
                 checked={isSmokingAllowed}
-                onChange={(e) => setIsSmokingAllowed(e.target.value==='on' ? true : false)}
+                onChange={(e) => setIsSmokingAllowed(e.target.checked)}
                 className='ml-2'
                 />
             </div>

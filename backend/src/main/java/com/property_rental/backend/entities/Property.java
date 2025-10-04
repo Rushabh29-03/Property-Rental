@@ -1,5 +1,6 @@
 package com.property_rental.backend.entities;
 
+import com.property_rental.backend.dtos.PropertyFacilityDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "property")
@@ -104,14 +106,8 @@ public class Property {
     private List<WishListedProperty> wishListedProperties;
 
 //        PROPERTY TO FACILITIES
-    @Setter
-    @Getter
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE,
-            CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "property_facilities",
-            joinColumns = @JoinColumn(name = "property_id"),
-            inverseJoinColumns = @JoinColumn(name = "fac_id"))
-    private List<Facility> facilities;
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    private List<PropertyFacility> propertyFacilities;
 
 //        PROPERTY TO PHOTOS
     @Setter
@@ -141,6 +137,16 @@ public class Property {
 
     public boolean getIsSmokingAllowed(){
         return this.isSmokingAllowed;
+    }
+
+    public List<PropertyFacilityDto> getPropertyFacilities(){
+        List<PropertyFacilityDto> propertyFacilityDtoList = new ArrayList<>();
+        for (int i = 0; i < propertyFacilities.size(); i++) {
+            PropertyFacilityDto propertyFacilityDto = new PropertyFacilityDto(propertyFacilities.get(i));
+
+            propertyFacilityDtoList.add(propertyFacilityDto);
+        }
+        return propertyFacilityDtoList;
     }
 
     @Override

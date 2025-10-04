@@ -18,7 +18,9 @@ public class PropertyService {
     }
 
     public Property findPropertyById(int id){
-        return propertyRepository.findById(id).orElse(null);
+        return propertyRepository.findById(id).orElseThrow(
+                ()-> new NoSuchElementException("Property not found with id: "+id)
+        );
     }
 
     @Transactional

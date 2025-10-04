@@ -1,6 +1,7 @@
 package com.property_rental.backend.controllers;
 
 import com.property_rental.backend.dtos.PropertyDto;
+import com.property_rental.backend.dtos.PropertyFacilityDto;
 import com.property_rental.backend.entities.Property;
 import com.property_rental.backend.entities.User;
 import com.property_rental.backend.repositories.PropertyRepository;
@@ -63,9 +64,6 @@ public class PropertyController {
         try {
             owner.add(property);
             Property newProperty=propertyRepository.save(property);
-            System.out.println("*********************");
-            System.out.println(newProperty.getIsSmokingAllowed());
-            System.out.println("*********************");
 
             PropertyDto propertyDto= new PropertyDto(newProperty);
 
@@ -171,6 +169,20 @@ public class PropertyController {
             response.put("errMessage", "Error deleting property");
             response.put("detailError", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+//    GET FACILITIES
+    @GetMapping("/getPropFacility/{propertyId}")
+    public ResponseEntity<?> getPropFacility(@PathVariable int propertyId){
+        try {
+            Property property=propertyService.findPropertyById(propertyId);
+            List<PropertyFacilityDto> propertyFacilityDtoList = property.getPropertyFacilities();
+            return new ResponseEntity<>(propertyFacilityDtoList, HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
