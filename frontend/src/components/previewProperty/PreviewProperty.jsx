@@ -27,11 +27,17 @@ function PreviewProperty() {
   const [otherRules, setOtherRules] = useState(null)
   const [verified, setVerified] = useState(false)
 
+
+  // facilities state
+  const [facilities, setFacilities] = useState([])
+
   // navigate hook
   const navigate = useNavigate();
 
   // html classes
   let inputClassName='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+
+  let buttonClassName ="outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600"
 
   // property rule data to send
   let propertyRulesData = {
@@ -103,6 +109,21 @@ function PreviewProperty() {
     if(response){
       alert(response.message)
       // navigate('/properties')
+    }
+  }
+
+  // !GET FACILITIES HANDLER
+  const getFacilitiesHandler = async(e)=>{
+    e.preventDefault();
+
+    if(facilities.length===0){
+      const response = await PropertyService.getPropertyFacilities(pr_id);
+      if(response){
+        setFacilities(response);
+      }else{
+        console.log("no med pdyo");
+        
+      }
     }
   }
 
@@ -264,6 +285,22 @@ function PreviewProperty() {
         >
           Update property rules
         </button>
+
+        <br />
+        <br />
+        <button className={`${buttonClassName}`} onClick={(e)=>getFacilitiesHandler(e)}>Get Facilities</button>
+
+        {facilities.length === 0
+          ? (<p>No facilities</p>)
+          : (
+            facilities.map((facility) => (
+              <li className='ml-4' key={facility.facName}>
+                <strong>{facility.facName}: </strong>
+                {facility.description}
+              </li>
+            ))
+          )
+        }
 
         <br /><br />
         {(role==='ROLE_ADMIN') && (

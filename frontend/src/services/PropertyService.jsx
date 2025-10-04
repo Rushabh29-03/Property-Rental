@@ -86,11 +86,38 @@ const PropertyService = {
         }
     },
 
+    getPropertyFacilities: async(prId)=>{
+        const currentUser=AuthService.getCurrentUser();
+
+        if(!currentUser || !currentUser.jwtToken){
+            console.log("Autheentication error: missing user or jwt token");
+            return [];
+        }
+        console.log("Fetching facilities for property with ID: ", prId);
+        
+        try {
+            const response = await axios.get(`${API_URL}/getFacilities/${prId}`, {
+                headers:{
+                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                }
+            });
+
+            if(response.data.errMessage)
+                throw error
+
+            return response.data;
+        } catch (error) {
+            console.log("React error fetching facilities for property id: ", prId);
+            alert(error.response.data.errMessage);
+
+        }
+    },
+
     deletePropertyById: async(prId)=>{
         const currentUser=AuthService.getCurrentUser();
         
         if(!currentUser || !currentUser.jwtToken){
-            console.log("Autheentication error: missing jwt token");
+            console.log("Autheentication error: missing user or jwt token");
             return [];
         }
         console.log("Attempting to delete property: ", prId);

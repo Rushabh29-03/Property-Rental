@@ -172,17 +172,20 @@ public class PropertyController {
         }
     }
 
-//    GET FACILITIES
+//    GET FACILITIES returns List of PropertyDto
     @GetMapping("/getFacilities/{propertyId}")
     public ResponseEntity<?> getPropFacility(@PathVariable int propertyId){
+        Map<String, Object> response = new HashMap<>();
         try {
             Property property=propertyService.findPropertyById(propertyId);
             List<PropertyFacilityDto> propertyFacilityDtoList = property.getPropertyFacilities();
             return new ResponseEntity<>(propertyFacilityDtoList, HttpStatus.OK);
         } catch (NoSuchElementException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface FacilityRepository extends JpaRepository<Facility, Integer> {
 
-    Optional<Facility> findByFacName(String facName);
+    Facility findByFacName(String facName);
 }

@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -31,7 +34,7 @@ public class PropertyFacilityController {
             ){
         try {
             PropertyFacility propertyFacility = propertyFacilityService.addFacilityToProperty(
-                    propertyFacilityDto.getFacName().toLowerCase(),
+                    propertyFacilityDto.getFacName().toLowerCase(), // converting fac_name to lowercase to avoid issues
                     propertyFacilityDto.getDescription(),
                     propertyId
             );
