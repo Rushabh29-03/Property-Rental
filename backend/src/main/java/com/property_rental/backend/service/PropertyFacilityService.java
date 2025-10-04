@@ -77,4 +77,27 @@ public class PropertyFacilityService {
 
         return property.getPropertyFacilities();
     }
+
+    @Transactional
+    public void removeFacilityFromProperty(String facName, int propertyId){
+
+        Property property = propertyRepository.findById(propertyId).orElseThrow(
+                ()-> new NoSuchElementException("Property not found with id: "+propertyId)
+        );
+        Facility facility = facilityRepository.findByFacName(facName);
+
+//        check if facility is null
+        if(facility==null){
+            throw new IllegalStateException(String.format(
+                    "Property with id %d don't have any facility '%s'", propertyId, facName
+            ));
+        }
+
+//        create composite key
+        PropertyFacilityId id = new PropertyFacilityId();
+        id.setPropertyId(propertyId);
+        id.setFacilityId(facility.getId());
+
+        propertyFacilityRepository.deleteById(id);
+    }
 }

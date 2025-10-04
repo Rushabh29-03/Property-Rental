@@ -108,7 +108,7 @@ function PreviewProperty() {
     const response = await AdminService.toggleVerifiedStatus(pr_id);
     if(response){
       alert(response.message)
-      // navigate('/properties')
+      navigate('/properties')
     }
   }
 

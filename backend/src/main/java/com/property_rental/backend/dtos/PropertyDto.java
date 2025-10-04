@@ -46,7 +46,6 @@ public class PropertyDto {
         this.petsPolicy= property.getPetsPolicy();
         this.isSmokingAllowed= property.getIsSmokingAllowed();
         this.otherRules= property.getOtherRules();
-        this.propertyFacilityList= property.getPropertyFacilities();
         this.photoList= property.getPhotoList();
     }
 }
