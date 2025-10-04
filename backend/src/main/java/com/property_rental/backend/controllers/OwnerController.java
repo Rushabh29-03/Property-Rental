@@ -23,21 +23,23 @@ import java.util.*;
 @RequestMapping("/owner")
 public class OwnerController {
 
-    @Autowired
-    private OwnerService ownerService;
+    private final OwnerService ownerService;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PropertyRepository propertyRepository;
+    private final PropertyRepository propertyRepository;
 
-    @Autowired
-    private PropertyService propertyService;
+    private final PropertyService propertyService;
 
-
-
-
+    public OwnerController(OwnerService ownerService,
+                           UserRepository userRepository,
+                           PropertyRepository propertyRepository,
+                           PropertyService propertyService) {
+        this.ownerService = ownerService;
+        this.userRepository = userRepository;
+        this.propertyRepository = propertyRepository;
+        this.propertyService = propertyService;
+    }
 
     @ExceptionHandler(InternalError.class)
     @ResponseBody

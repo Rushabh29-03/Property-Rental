@@ -22,14 +22,17 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
 
-    @Autowired
-    private AppConfig appConfig;
+    private final AppConfig appConfig;
+
+    public UserService(UserRepository userRepository, AdminRepository adminRepository, AppConfig appConfig) {
+        this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
+        this.appConfig = appConfig;
+    }
 
     // Method to register a new regular user
     @Transactional

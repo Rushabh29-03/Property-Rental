@@ -173,7 +173,7 @@ public class PropertyController {
     }
 
 //    GET FACILITIES
-    @GetMapping("/getPropFacility/{propertyId}")
+    @GetMapping("/getFacilities/{propertyId}")
     public ResponseEntity<?> getPropFacility(@PathVariable int propertyId){
         try {
             Property property=propertyService.findPropertyById(propertyId);

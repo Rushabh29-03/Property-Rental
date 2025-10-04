@@ -33,26 +33,35 @@ import java.util.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager manager;
+    private final AuthenticationManager manager;
 
-    @Autowired
-    private JwtHelper helper;
+    private final JwtHelper helper;
 
-    @Autowired
-    private AdminService adminService;
+    private final AdminService adminService;
 
-    @Autowired
-    private AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private PropertyRepository propertyRepository;
+    private final PropertyRepository propertyRepository;
 
-    @Autowired
-    private OwnerController ownerController;
+    private final OwnerController ownerController;
+
+    public AuthController(AuthenticationManager manager,
+                          JwtHelper helper,
+                          AdminService adminService,
+                          AdminRepository adminRepository,
+                          UserService userService,
+                          PropertyRepository propertyRepository,
+                          OwnerController ownerController) {
+        this.manager = manager;
+        this.helper = helper;
+        this.adminService = adminService;
+        this.adminRepository = adminRepository;
+        this.userService = userService;
+        this.propertyRepository = propertyRepository;
+        this.ownerController = ownerController;
+    }
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
 

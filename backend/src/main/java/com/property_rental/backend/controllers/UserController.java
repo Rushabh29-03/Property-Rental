@@ -14,8 +14,11 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     // This endpoint is accessible to all authenticated users.
     // The SecurityConfig already ensures this, but using @PreAuthorize adds a layer of clarity.

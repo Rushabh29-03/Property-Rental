@@ -21,13 +21,16 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationEntryPoint point;
+    private final JwtAuthenticationEntryPoint point;
 
-    @Autowired
-    private JwtAuthenticationFilter filter;
+    private final JwtAuthenticationFilter filter;
 
-//    CORS error configuration
+    public SecurityConfig(JwtAuthenticationEntryPoint point, JwtAuthenticationFilter filter) {
+        this.point = point;
+        this.filter = filter;
+    }
+
+    //    CORS error configuration
 //    now react can connect with spring boot
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
