@@ -6,8 +6,6 @@ import com.property_rental.backend.entities.Property;
 import com.property_rental.backend.entities.User;
 import com.property_rental.backend.entities.WishListedProperty;
 import com.property_rental.backend.repositories.WishListedPropertyRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +37,7 @@ public class WishListedPropertyService {
            user.addWishList(wishListedProperty);
            property.markAsWishList(wishListedProperty);
 
-           WishListedPropertyDto wishListedPropertyDto = new WishListedPropertyDto(wishListedPropertyRepository.save(wishListedProperty));
-
-           return wishListedPropertyDto;
+           return new WishListedPropertyDto(wishListedPropertyRepository.save(wishListedProperty));
        } catch (UsernameNotFoundException e){
            throw new UsernameNotFoundException(e.getMessage());
        } catch (NoSuchElementException e){

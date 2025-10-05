@@ -106,6 +106,7 @@ public class Property {
     private List<WishListedProperty> wishListedProperties;
 
 //        PROPERTY TO FACILITIES
+    @Setter
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<PropertyFacility> propertyFacilities;
 

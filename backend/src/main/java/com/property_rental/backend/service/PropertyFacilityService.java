@@ -39,9 +39,9 @@ public class PropertyFacilityService {
         Property property = propertyRepository.findById(propertyId).orElseThrow(
                 ()-> new NoSuchElementException("Property not found with id: "+propertyId)
         );
-        Facility facility = facilityRepository.findByFacName(facName);
+        Facility facility = facilityRepository.findByFacName(facName).orElse(null);
 
-//        IT WILL CREATE NEW FACILITY IF FACILITY NOW AVAILABLE
+//        IT WILL CREATE NEW FACILITY IF FACILITY IS NOT AVAILABLE
         if(facility==null){
             facility = facilityRepository.save(new Facility(facName));
         }
@@ -79,19 +79,23 @@ public class PropertyFacilityService {
     }
 
     @Transactional
-    public void removeFacilityFromProperty(String facName, int propertyId){
+    public void removeFacilityFromProperty(String username, String facName, int propertyId){
 
         Property property = propertyRepository.findById(propertyId).orElseThrow(
                 ()-> new NoSuchElementException("Property not found with id: "+propertyId)
         );
-        Facility facility = facilityRepository.findByFacName(facName);
 
-//        check if facility is null
-        if(facility==null){
-            throw new IllegalStateException(String.format(
-                    "Property with id %d don't have any facility '%s'", propertyId, facName
-            ));
+        System.out.println(username);
+
+        if(! property.getOwner().getUserName().equals(username) && ! username.equals("jordan")){
+            throw new IllegalArgumentException("Access denied, you're not owner/admin of this property.");
         }
+
+        Facility facility = facilityRepository.findByFacName(facName).orElseThrow(
+                ()-> new IllegalStateException(String.format(
+                        "Property eith id %d don't have any facility '%s'", propertyId, facName
+                ))
+        );
 
 //        create composite key
         PropertyFacilityId id = new PropertyFacilityId();

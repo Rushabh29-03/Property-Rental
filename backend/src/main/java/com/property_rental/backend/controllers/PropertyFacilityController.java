@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -29,12 +28,13 @@ public class PropertyFacilityController {
     }
 
 
-//    IT WILL CREATE FACILITY IF NOT FOUND AND ADD TO PROPERTY
+//    IT WILL CREATE FACILITY IF NOT FOUND, AND ADD TO PROPERTY
     @PostMapping("/addFacility/{propertyId}")
     public ResponseEntity<?> addFacilityToProperty(
             @PathVariable int propertyId,
             @RequestBody PropertyFacilityDto propertyFacilityDto
             ){
+
         try {
             PropertyFacility propertyFacility = propertyFacilityService.addFacilityToProperty(
                     propertyFacilityDto.getFacName().toLowerCase(), // converting fac_name to lowercase to avoid issues
@@ -58,9 +58,14 @@ public class PropertyFacilityController {
         try {
 //            get signed-in user
             Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+            String role = authentication.getAuthorities().toArray()[0].toString();
 
+            if(role.equals("ROLE_USER")){
+                response.put("errMessage", "Only admin or owner can delete a property facility");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
 
-            propertyFacilityService.removeFacilityFromProperty(facility.getFacName(), propertyId);
+            propertyFacilityService.removeFacilityFromProperty(authentication.getName(), facility.getFacName(), propertyId);
             response.put("message", "Facility deleted successfully from property: "+propertyId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NoSuchElementException e){
@@ -69,6 +74,9 @@ public class PropertyFacilityController {
         } catch (IllegalStateException e){
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

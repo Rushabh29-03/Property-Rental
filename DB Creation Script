@@ -29,6 +29,10 @@ create table if not exists property(
 	monthly_rent decimal(10, 2) not null,
 	no_of_bedrooms int,
 	security_deposit_amount decimal(10, 2),
+	min_stay int default 0,
+	pets_policy text.
+	smoking_allowed boolean default false,
+	other_rules text,
 
 	CONSTRAINT fk_property_user
 		foreign key (user_id)
@@ -97,13 +101,6 @@ create table if not exists wishlisted_property(
 		on delete cascade
 );
 
-create table if not exists rules(
-	rule_id serial primary key,
-	min_stay int, -- in months
-	pets_policy text,
-	is_smoking_allowed boolean default false
-);
-
 create table if not exists facilities(
 	fac_id serial primary key,
 	fac_name varchar(20) unique not null
@@ -127,23 +124,6 @@ create table if not exists property_facilities(
 	CONSTRAINT fk_pf_facility
 		foreign key (fac_id)
 		references facilities(fac_id)
-		on delete restrict
-);
-
-create table if not exists property_rules(
-	property_id int not null, --FK
-	rule_id int not null, --FK
-
-	primary key (property_id, rule_id),
-
-	CONSTRAINT fk_pr_property
-		foreign key (property_id)
-		references property(property_id)
-		on delete cascade,
-
-	CONSTRAINT fk_pr_rule
-		foreign key (rule_id)
-		references rules(rule_id)
 		on delete restrict
 );
 
