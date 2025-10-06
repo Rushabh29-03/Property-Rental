@@ -22,6 +22,8 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    final Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+
     public AdminController(AdminService adminService){
         this.adminService= adminService;
     }
@@ -36,7 +38,6 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> toggleVerifyPropertyByPropertyId(@PathVariable int propertyId){
         Map<String, Object> response = new HashMap<>();
         try {
-            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
             System.out.println(authentication.getName());
             adminService.toggleVerifyPropertyById(propertyId);
             response.put("message", "property verification updated");

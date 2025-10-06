@@ -24,10 +24,9 @@ import java.util.NoSuchElementException;
 @RequestMapping("/property")
 public class PropertyController {
 
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     private final PropertyRepository propertyRepository;
-
     private final PropertyService propertyService;
-
     private final UserRepository userRepository;
 
     public PropertyController(
@@ -59,7 +58,6 @@ public class PropertyController {
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<PropertyDto> createProperty(@RequestBody Property property){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         try {
             User owner = userRepository.findByUserName(username).orElseThrow(
@@ -89,7 +87,6 @@ public class PropertyController {
         Map<String, Object> response=new HashMap<>();
 
 //        get signed-in user username (Principal)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUser = authentication.getName();
         String role = authentication.getAuthorities().toString();
 
@@ -131,7 +128,6 @@ public class PropertyController {
 
         Map<String, Object> response = new HashMap<>();
 //            get signed-in user username (Principal)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUser = authentication.getName();
         String role = authentication.getAuthorities().toString();
         try {

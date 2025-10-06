@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
 public class PropertyFacilityController {
 
+    Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
     private final PropertyFacilityService propertyFacilityService;
 
     public PropertyFacilityController(PropertyFacilityService propertyFacilityService) {
@@ -57,7 +58,6 @@ public class PropertyFacilityController {
         Map<String, Object> response = new HashMap<>();
         try {
 //            get signed-in user
-            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
             String role = authentication.getAuthorities().toArray()[0].toString();
 
             if(role.equals("ROLE_USER")){

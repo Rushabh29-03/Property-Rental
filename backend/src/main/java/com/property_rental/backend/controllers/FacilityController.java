@@ -19,6 +19,8 @@ import java.util.Map;
 @RequestMapping("/facility")
 public class FacilityController {
 
+    final Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+
     private final FacilityService facilityService;
 
     public FacilityController(FacilityService facilityService) {
@@ -29,7 +31,6 @@ public class FacilityController {
     @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     public ResponseEntity<?> addNewFacility(@RequestBody Facility facility){
         Map<String, Object> response = new HashMap<>();
-        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
         String role = authentication.getAuthorities().toArray()[0].toString();
         if(role.equals("ROLE_USER")){
             response.put("errMessage", "Access Denied!! you don't have access to add facilities");

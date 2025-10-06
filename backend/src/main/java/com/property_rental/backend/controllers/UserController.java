@@ -24,6 +24,7 @@ import java.util.*;
 @RequestMapping("/user")
 public class UserController {
 
+    Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
     private final UserService userService;
     private final PropertyService propertyService;
     private final WishListedPropertyService wishListedPropertyService;
@@ -55,7 +56,6 @@ public class UserController {
     public ResponseEntity<?> markPropertyAsWishList(@PathVariable int propertyId, @RequestBody WishListedProperty wishListedProperty) {
 
 //        get signed-in user
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Map<String, Object> response = new HashMap<>();
         try {
             WishListedPropertyDto addedWishList = wishListedPropertyService.markAsWishlist(authentication.getName(), wishListedProperty, propertyId);
@@ -79,7 +79,6 @@ public class UserController {
     public ResponseEntity<?> getWishListedProperties(){
 
 //        get signed-in user
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Map<String, Object> response = new HashMap<>();
         try {
             List<WishListedPropertyDto> wishListedPropertyDtoList=wishListedPropertyService.getWishListedProperties(authentication.getName());
@@ -100,7 +99,6 @@ public class UserController {
     public ResponseEntity<?> removeWishListProperty(@PathVariable int propertyId) {
 
 //        get signed-in user
-        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
         Map<String, Object> response = new HashMap<>();
         try {
             wishListedPropertyService.removeWishList(authentication.getName(), propertyId);

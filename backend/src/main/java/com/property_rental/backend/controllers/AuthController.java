@@ -34,6 +34,8 @@ import java.util.*;
 @RequestMapping("/auth")
 public class AuthController {
 
+    final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
     private final AuthenticationManager manager;
 
     private final JwtHelper jwtHelper;
@@ -176,7 +178,6 @@ public class AuthController {
     @GetMapping("/allProperties")
     public ResponseEntity<List<PropertyDto>> getAllProperties(){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         UserDetails user=userService.loadUserByUsername(username);
 

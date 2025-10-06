@@ -24,12 +24,10 @@ import java.util.*;
 @RequestMapping("/owner")
 public class OwnerController {
 
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     private final OwnerService ownerService;
-
     private final UserRepository userRepository;
-
     private final PropertyRepository propertyRepository;
-
     private final PropertyService propertyService;
 
     public OwnerController(OwnerService ownerService,
@@ -56,7 +54,6 @@ public class OwnerController {
     public ResponseEntity<List<PropertyDto>> getProperties() {
 
 //        get signed-in username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user=userRepository.findByUserName(authentication.getName()).orElseThrow(
                 ()-> new UsernameNotFoundException("User not found with username: "+authentication.getName())
         );
@@ -72,7 +69,5 @@ public class OwnerController {
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
-
-
 }
 
