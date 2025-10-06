@@ -120,6 +120,8 @@ function PreviewProperty() {
 
     const response = await AdminService.toggleVerifiedStatus(pr_id);
     if(response){
+      alert(response.message);
+      
       navigate('/properties')
     }
   }
@@ -374,15 +376,25 @@ function PreviewProperty() {
         )}
 
         <br />
-        {/* WISHLIST PROPERTY */}
-        {(role==='ROLE_USER') && (isWishListed)
+        {/* WISHLIST PROPERTY BUTTON HIDDEN IF NOT USER */}
+        {(isWishListed)
          ? (
-          <button onClick={(e)=>handleRemoveWishlist(e)} className={`${buttonClassName}`}>Remove from Wishlist</button>
+          <button 
+            onClick={(e)=>handleRemoveWishlist(e)} 
+            className={`${buttonClassName} ${role!=='ROLE_USER' ? 'hidden' : ''}`}>
+              Remove from Wishlist
+          </button>
          )
          : (
-          <button onClick={(e)=>handleAddWishlist(e)} className={`${buttonClassName}`}>Add to WishList</button>
+          <button 
+            onClick={(e)=>handleAddWishlist(e)} 
+            className={`${buttonClassName} ${role!=='ROLE_USER' ? 'hidden' : ''}`}>
+              Add to WishList
+          </button>
          )
         }
+
+        {(role==='ROLE_USER')}
 
         {/* Action Buttons */}
         <div className='fixed top-9/10 left-17/20'>

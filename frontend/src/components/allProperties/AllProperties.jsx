@@ -9,6 +9,9 @@ import UserService from '../../services/UserService';
 
 function AllProperties() {
 
+
+  const role = AuthService.getCurrentUser().role;
+
   // response of getProperties is stored here
   const [properties, setProperties] = useState([]);
 
@@ -82,11 +85,12 @@ function AllProperties() {
   useEffect(() => {
 
     handleGetProperty();
-    getWishListed();
+    if(role==='ROLE_USER'){
+      getWishListed();
+    }
   }, []);
 
   const handleNavigate = (pr_id)=>{
-    console.log(wishListedProperties);
     
     navigate(`/property/${pr_id}`, {
       state: {

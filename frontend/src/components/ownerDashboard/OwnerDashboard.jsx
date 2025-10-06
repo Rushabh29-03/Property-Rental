@@ -184,7 +184,7 @@ function OwnerDashboard() {
 
             {/* AREA */}
             <div>
-              <label htmlFor="area" className="block text-sm font-medium text-gray-700">area (in square feet)<span className='text-red-700'>*</span></label>
+              <label htmlFor="area" className="block text-sm font-medium text-gray-700">Area<span className='text-red-700'>*</span></label>
               <input
                 type="number"
                 id="area"
@@ -197,7 +197,7 @@ function OwnerDashboard() {
 
             {/* AREA UNIT */}
             <div>
-              <label htmlFor="newareaUnit" className="block text-sm font-medium text-gray-700">Area unit new</label>
+              <label htmlFor="areaUni" className="block text-sm font-medium text-gray-700">Area unit</label>
               <select className={`${inputClassName}`} id="areaUnit" onChange={(e)=>setAreaUnit(e.target.value)}>
                 <option value='sq_feet'>sq_feet</option>
                 <option value="sq_meter">sq_meter</option>
