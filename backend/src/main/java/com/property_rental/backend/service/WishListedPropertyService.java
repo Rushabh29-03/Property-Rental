@@ -8,7 +8,9 @@ import com.property_rental.backend.entities.WishListedProperty;
 import com.property_rental.backend.repositories.WishListedPropertyRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -25,6 +27,7 @@ public class WishListedPropertyService {
         this.propertyService = propertyService;
     }
 
+    @Transactional
     public WishListedPropertyDto markAsWishlist(String username, WishListedProperty wishListedProperty, int propertyId){
 
        try {
@@ -45,5 +48,35 @@ public class WishListedPropertyService {
        } catch (Exception e) {
            throw new RuntimeException(e);
        }
+    }
+
+    public List<WishListedPropertyDto> getWishListedProperties(String username) {
+        try {
+            User user = userService.findByUsername(username); //throws UsernameNotFoundException
+            return user.getWishListedProperties();
+        }  catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    public void removeWishList(String username, int propertyId) {
+
+        try {
+            User user = userService.findByUsername(username); //throws UserNameNotFoundException
+
+            WishListedProperty wishListedProperty = wishListedPropertyRepository.findByUserIdAndPropertyId(user.getId(), propertyId).orElseThrow(
+                    ()-> new NoSuchElementException("User  with id: "+user.getId()+" haven't marked property: "+propertyId+" as wish list")
+            );
+            wishListedPropertyRepository.delete(wishListedProperty);
+        } catch (UsernameNotFoundException e){
+            throw new UsernameNotFoundException(e.getMessage());
+        } catch (NoSuchElementException e){
+            throw new NoSuchElementException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

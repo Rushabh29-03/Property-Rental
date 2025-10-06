@@ -17,7 +17,6 @@ public class WishListedPropertyDto {
     private LocalDateTime wishlistDate;
     private String note;
     private String status;
-    private User user;
     private PropertyDto propertyDto;
 
     public WishListedPropertyDto(WishListedProperty wishListedProperty){
@@ -25,7 +24,6 @@ public class WishListedPropertyDto {
         this.wishlistDate= wishListedProperty.getWishlistDate();
         this.note= wishListedProperty.getNote();
         this.status= wishListedProperty.getStatus();
-        this.user= wishListedProperty.getUser();
         this.propertyDto= wishListedProperty.getProperty();
     }
 }

@@ -45,7 +45,7 @@ function Header() {
 
           {/* User specific link */}
           {isLoggedIn && isUser && (
-            <Link to='/'>My WishList</Link>
+            <Link to='/wishList'>My WishList</Link>
           )}
 
           {/* Authentication Links (Conditional Rendering) */}

@@ -18,10 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -72,6 +69,47 @@ public class UserController {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getWishListedProperties")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getWishListedProperties(){
+
+//        get signed-in user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<WishListedPropertyDto> wishListedPropertyDtoList=wishListedPropertyService.getWishListedProperties(authentication.getName());
+            response.put("message", "Fetched wishListed properties successfully");
+            response.put("wishListedProperties", wishListedPropertyDtoList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/removeWishListProperty/{propertyId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> removeWishListProperty(@PathVariable int propertyId) {
+
+//        get signed-in user
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        Map<String, Object> response = new HashMap<>();
+        try {
+            wishListedPropertyService.removeWishList(authentication.getName(), propertyId);
+            response.put("message", "Removed wishlist successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (UsernameNotFoundException | NoSuchElementException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

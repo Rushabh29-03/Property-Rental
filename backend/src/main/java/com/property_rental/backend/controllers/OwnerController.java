@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -56,7 +57,9 @@ public class OwnerController {
 
 //        get signed-in username
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user=userRepository.findByUserName(authentication.getName());
+        User user=userRepository.findByUserName(authentication.getName()).orElseThrow(
+                ()-> new UsernameNotFoundException("User not found with username: "+authentication.getName())
+        );
 
        try {
            List<PropertyDto> properties=user.getProperties();

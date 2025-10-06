@@ -12,5 +12,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     // Spring Data JPA automatically creates a query for this method.
     // The method name must match the field name 'userName' in User entity.
-    User findByUserName(String userName);
+    Optional<User> findByUserName(String userName);
 }

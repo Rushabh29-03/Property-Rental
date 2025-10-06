@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import AuthService from '../../services/AuthService';
 import PropertyService from '../../services/PropertyService';
 import { Link } from 'react-router';
 import EditProperty from '../editProperty/EditProperty';
 import AdminService from '../../services/AdminService';
+import UserService from '../../services/UserService';
 
 function PreviewProperty() {
+
+  // navigate and Location hook
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [selectedProperty, setSelectedProperty] = useState(null)
   const { pr_id } = useParams();
@@ -27,13 +32,13 @@ function PreviewProperty() {
   const [otherRules, setOtherRules] = useState(null)
   const [verified, setVerified] = useState(false)
 
-
   // facilities state
   const [facilities, setFacilities] = useState([])
   const [facilityLoaded, setFacilityLoaded] = useState(false)
 
-  // navigate hook
-  const navigate = useNavigate();
+  // wishlist state
+  const [note, setNote] = useState("EE haloo")
+  const isWishListed = location.state?.isWishListedProp
 
   // html classes
   let inputClassName='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
@@ -51,6 +56,11 @@ function PreviewProperty() {
     "otherRules": otherRules
   }
 
+  // wishlist property data to send
+  let wishListData = {
+    "note": note
+  }
+
   // !GET PROPERTY BY ID
   const handleGetPropertyById = async(prId)=>{
 
@@ -62,7 +72,7 @@ function PreviewProperty() {
       setSelectedProperty([])
     }
 
-    console.log("getPropertyById: ", response);
+    // console.log("getPropertyById: ", response);
   }
 
   // !EDIT PROPERTY RULES
@@ -110,7 +120,6 @@ function PreviewProperty() {
 
     const response = await AdminService.toggleVerifiedStatus(pr_id);
     if(response){
-      alert(response.message)
       navigate('/properties')
     }
   }
@@ -126,8 +135,27 @@ function PreviewProperty() {
         setFacilityLoaded(true);
       }else{
         console.log("no med pdyo");
-        
       }
+    }
+  }
+
+  // !HANDLE ADD WISHLIST
+  const handleAddWishlist = async(e) => {
+    e.preventDefault();
+    const response = await UserService.addWishList(pr_id, wishListData);
+    if(response){
+      alert(response.message)
+      navigate('/wishList')
+    }
+  }
+
+  // !HANDLE REMOVE WISHLIST
+  const handleRemoveWishlist = async(e) => {
+    e.preventDefault();
+    const response = await UserService.removeWishListedProperty(pr_id);
+    if(response){
+      alert(response.message)
+      navigate('/wishList');
     }
   }
 
@@ -264,15 +292,17 @@ function PreviewProperty() {
           <p className="mb-2">
             <label htmlFor="isSmokingAllowed"><strong>Smoking allowed: </strong></label>
 
+            {/* show when user */}
             {role==='ROLE_USER' && (
               <input type="text" 
-                value={role==='ROLE_USER' ? 'Yes' : 'No'}
+                value={isSmokingAllowed ? 'Yes' : 'No'}
                 id='isSmokingAllowed'
                 className={`${inputClassName}`}
                 disabled={role==='ROLE_USER' ? true : false}
               />
             )}
             
+            {/* show when not user */}
             {role!=='ROLE_USER' && (
               <input 
                 type='checkbox' 
@@ -300,14 +330,15 @@ function PreviewProperty() {
           </p>
         </div>
         
+        {/* show only when its not user */}
         <button onClick={handleEditPropertyRules}
           className={`${role==='ROLE_USER' ? 'hidden' : ''} outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600`}
         >
           Update property rules
         </button>
 
-        <br />
-        <br />
+        <br /><br />
+        {/* GET FACILITIES */}
         <button className={`${buttonClassName}`} onClick={(e)=>getFacilitiesHandler(e)}>Get Facilities</button>
 
         {facilities && facilities.length === 0
@@ -323,6 +354,7 @@ function PreviewProperty() {
         }
 
         <br /><br />
+        {/* VERIFY PROPERTY */}
         {(role==='ROLE_ADMIN') && (
           <div>
             <p className="mb-2">
@@ -340,6 +372,17 @@ function PreviewProperty() {
             </p>
           </div>
         )}
+
+        <br />
+        {/* WISHLIST PROPERTY */}
+        {(role==='ROLE_USER') && (isWishListed)
+         ? (
+          <button onClick={(e)=>handleRemoveWishlist(e)} className={`${buttonClassName}`}>Remove from Wishlist</button>
+         )
+         : (
+          <button onClick={(e)=>handleAddWishlist(e)} className={`${buttonClassName}`}>Add to WishList</button>
+         )
+        }
 
         {/* Action Buttons */}
         <div className='fixed top-9/10 left-17/20'>

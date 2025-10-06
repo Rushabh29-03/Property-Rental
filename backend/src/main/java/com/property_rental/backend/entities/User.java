@@ -1,6 +1,7 @@
 package com.property_rental.backend.entities;
 
 import com.property_rental.backend.dtos.PropertyDto;
+import com.property_rental.backend.dtos.WishListedPropertyDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -73,6 +74,7 @@ public class User {
     private List<RentedProperty> rentedProperties;
 
     //    USER TO WISHLIST PROPERTY
+    @Setter
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<WishListedProperty> wishListedProperties;
 
@@ -126,6 +128,14 @@ public class User {
         return propertyDtoList;
     }
 
+    public List<WishListedPropertyDto> getWishListedProperties() {
+        List<WishListedPropertyDto> wishListedPropertyDtoList = new ArrayList<>();
+        for (int i = 0; i < wishListedProperties.size(); i++) {
+            wishListedPropertyDtoList.add(new WishListedPropertyDto(wishListedProperties.get(i)));
+        }
+        return wishListedPropertyDtoList;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -156,6 +166,7 @@ public class User {
         }
 
         wishListedProperties.add(wishListedProperty);
+        wishListedProperty.setUser(this);
     }
 
 }

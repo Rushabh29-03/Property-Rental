@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class PropertyController {
     }
 
     @GetMapping("/properties/{propertyId}")
-    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable int propertyId) {
+    public ResponseEntity<?> getPropertyById(@PathVariable int propertyId) {
         try {
             Property property=propertyService.findPropertyById(propertyId);
             PropertyDto propertyDto = new PropertyDto(property);
@@ -50,7 +51,7 @@ public class PropertyController {
         } catch (Exception e) {
             // Handle exceptions (e.g., database error)
 //            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -60,8 +61,10 @@ public class PropertyController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User owner = userRepository.findByUserName(username);
         try {
+            User owner = userRepository.findByUserName(username).orElseThrow(
+                    ()-> new UsernameNotFoundException("User not found with username: "+username)
+            );
             owner.add(property);
             Property newProperty=propertyRepository.save(property);
 

@@ -65,7 +65,9 @@ public class UserService implements UserDetailsService {
         }
 
         // 2. If not found as an Admin, attempt to find the user in the USERS table
-        User getUser = userRepository.findByUserName(username);
+        User getUser = userRepository.findByUserName(username).orElseThrow(
+                ()-> new UsernameNotFoundException("User not found with username: "+username)
+        );
 
         Optional<User> userOptional= Optional.ofNullable(getUser);
 
@@ -93,9 +95,9 @@ public class UserService implements UserDetailsService {
     }
 
     public User findByUsername(String username){
-        User user = userRepository.findByUserName(username);
-        if(user!=null)
-            return user;
-        throw new UsernameNotFoundException("User not found with username: "+username);
+        User user = userRepository.findByUserName(username).orElseThrow(
+                ()-> new UsernameNotFoundException("User not found with username: "+username)
+        );
+        return user;
     }
 }

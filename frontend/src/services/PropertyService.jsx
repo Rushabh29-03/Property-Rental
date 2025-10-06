@@ -15,15 +15,16 @@ const PropertyService = {
 
         console.log("Fetching property with ID: ", propertyId);
 
-        const response = await axios.get(`${API_URL}/properties/${propertyId}`, {
-            headers:{
-                'Authorization':`Bearer ${currentUser.jwtToken}`
-            }
-        });
-
         try {
+            const response = await axios.get(`${API_URL}/properties/${propertyId}`, {
+                headers:{
+                    'Authorization':`Bearer ${currentUser.jwtToken}`
+                }
+            });
+        
             return response.data;
         } catch (error) {
+            alert(error.response.data);
             console.error(`Error getting property with ID ${propertyId}: `, error);
             throw error;
         }
@@ -42,13 +43,13 @@ const PropertyService = {
 
         console.log("Adding property");
         
-        const response=await axios.post(API_URL+"/addProperty", propertyData, {
-            headers: {
-                'Authorization': `Bearer ${currentUser.jwtToken}`
-            }
-        });
-
         try {
+            const response=await axios.post(API_URL+"/addProperty", propertyData, {
+                headers: {
+                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                }
+            });
+
             return response.data;
         } catch (error) {
             console.error("Error adding property: ", error);

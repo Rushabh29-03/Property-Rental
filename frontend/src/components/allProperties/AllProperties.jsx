@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import OwnerService from '../../services/OwnerService';
 import PreviewProperty from '../previewProperty/PreviewProperty';
 import { useNavigate } from 'react-router';
+import UserService from '../../services/UserService';
 
 function AllProperties() {
 
@@ -25,6 +26,9 @@ function AllProperties() {
   const [isVisible, setIsVisible] = useState(false)
   const [clickedProperty, setClickedProperty] = useState()
 
+  // wishlisted properties list
+  const [wishListedProperties, setWishListedProperties] = useState([])
+
   const navigate=useNavigate();
 
   let propertyData = {
@@ -38,6 +42,18 @@ function AllProperties() {
     "setSecurityDeposit": setSecurityDeposit
   }
 
+  // console.log(properties);
+
+  let wishListData = {}
+  
+  properties.map(property => {
+    wishListData[property.id] = ""
+  });
+
+  wishListedProperties.map(property => {
+    wishListData[property.propertyDto.id] = true
+  });
+
   let inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 
   // !GET PROPERTY
@@ -49,14 +65,34 @@ function AllProperties() {
     setProperties(response?response:[]);
   }
 
-  // runs when property gets changed
+  // !GET USER'S WISHLISTED PROPERTY DATA
+  const getWishListed = async()=> {
+    const response = await UserService.getWishListedProperties();
+
+    if(response){
+      // console.log(response.wishListedProperties);
+              
+      setWishListedProperties(response.wishListedProperties ? response.wishListedProperties : [])
+    } else{
+      console.log("Med no padyo");
+    }
+  }
+
+  // !RUN WHEN PAGE LOADS
   useEffect(() => {
 
     handleGetProperty();
+    getWishListed();
   }, []);
 
   const handleNavigate = (pr_id)=>{
-    navigate(`/property/${pr_id}`);
+    console.log(wishListedProperties);
+    
+    navigate(`/property/${pr_id}`, {
+      state: {
+        isWishListedProp: wishListData[pr_id]
+      }
+    });
   }
 
   return (

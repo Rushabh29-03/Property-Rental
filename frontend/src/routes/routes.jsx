@@ -5,6 +5,7 @@ import Home from '../components/homePage/Home';
 import OwnerDashboard from '../components/ownerDashboard/OwnerDashboard';
 import AllProperties from '../components/allProperties/AllProperties';
 import PreviewProperty from '../components/previewProperty/PreviewProperty';
+import UserWishListPage from '../components/userWishListPage/UserWishListPage';
 
 
 const AppRoutes = () => {
@@ -22,6 +23,9 @@ const AppRoutes = () => {
 
       {/* preview specific property */}
       <Route path='/property/:pr_id' element={<PreviewProperty />} />
+
+      {/* user wishlisted properties page */}
+      <Route path='/wishList' element={<UserWishListPage />}/>
 
       {/* testing */}
       <Route path='/properties' element={<AllProperties />}/>
