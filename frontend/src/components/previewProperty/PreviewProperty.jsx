@@ -30,6 +30,7 @@ function PreviewProperty() {
 
   // facilities state
   const [facilities, setFacilities] = useState([])
+  const [facilityLoaded, setFacilityLoaded] = useState(false)
 
   // navigate hook
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ function PreviewProperty() {
     
     if(response){
       setSelectedProperty(response);
+    } else{
+      setSelectedProperty([])
     }
 
     console.log("getPropertyById: ", response);
@@ -120,6 +123,7 @@ function PreviewProperty() {
       const response = await PropertyService.getPropertyFacilities(pr_id);
       if(response){
         setFacilities(response);
+        setFacilityLoaded(true);
       }else{
         console.log("no med pdyo");
         
@@ -236,6 +240,7 @@ function PreviewProperty() {
               onChange={(e)=>setMinStay(e.target.value)}
               className={`${inputClassName}`}
               required
+              disabled={role==='ROLE_USER' ? true : false}
             />
           </p>
         </div>
@@ -249,6 +254,7 @@ function PreviewProperty() {
               value={petsPolicy || ''} 
               onChange={(e)=>setPetsPolicy(e.target.value)}
               className={`${inputClassName}`}
+              disabled={role==='ROLE_USER' ? true : false}
             />
           </p>
         </div>
@@ -256,14 +262,27 @@ function PreviewProperty() {
         {/* SMOKING ALLOWED FLAG */}
         <div>
           <p className="mb-2">
-            <label htmlFor="isSmokingAllowed"><strong>Smoking allowed: </strong></label> 
-            <input 
-              type='checkbox' 
-              checked={isSmokingAllowed}
-              onChange={(e) => setIsSmokingAllowed(e.target.checked)}
-              id='isSmokingAllowed' 
-              className={`${inputClassName}`}
-            />
+            <label htmlFor="isSmokingAllowed"><strong>Smoking allowed: </strong></label>
+
+            {role==='ROLE_USER' && (
+              <input type="text" 
+                value={role==='ROLE_USER' ? 'Yes' : 'No'}
+                id='isSmokingAllowed'
+                className={`${inputClassName}`}
+                disabled={role==='ROLE_USER' ? true : false}
+              />
+            )}
+            
+            {role!=='ROLE_USER' && (
+              <input 
+                type='checkbox' 
+                checked={isSmokingAllowed}
+                onChange={(e) => setIsSmokingAllowed(e.target.checked)}
+                id='isSmokingAllowed' 
+                className={`${inputClassName}`}
+                disabled={role==='ROLE_USER' ? true : false}
+              />
+            )}
           </p>
         </div>
 
@@ -276,12 +295,13 @@ function PreviewProperty() {
               value={otherRules || ''} 
               onChange={(e)=>setOtherRules(e.target.value)}
               className={`${inputClassName}`}
+              disabled={role==='ROLE_USER' ? true : false}
             />
           </p>
         </div>
         
         <button onClick={handleEditPropertyRules}
-          className="outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600"
+          className={`${role==='ROLE_USER' ? 'hidden' : ''} outline-2 outline-black p-2 rounded cursor-pointer bg-blue-500 shadow-gray-700 shadow-2xl hover:bg-blue-600`}
         >
           Update property rules
         </button>
@@ -290,8 +310,8 @@ function PreviewProperty() {
         <br />
         <button className={`${buttonClassName}`} onClick={(e)=>getFacilitiesHandler(e)}>Get Facilities</button>
 
-        {facilities.length === 0
-          ? (<p>No facilities</p>)
+        {facilities && facilities.length === 0
+          ? (<p>{facilityLoaded ? "No facility." : ""}</p>)
           : (
             facilities.map((facility) => (
               <li className='ml-4' key={facility.facName}>

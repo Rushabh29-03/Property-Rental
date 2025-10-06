@@ -40,9 +40,10 @@ public class UserController {
 
     // This endpoint is accessible to all authenticated users.
     // The SecurityConfig already ensures this, but using @PreAuthorize adds a layer of clarity.
-    @GetMapping("/user")
+    @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<String> userEndpoint() {
+    public ResponseEntity<?> userEndpoint(@PathVariable int userId) {
+
         return ResponseEntity.ok("Hello User! Welcome to the general user portal.");
     }
 

@@ -6,6 +6,7 @@ import './Header.css'
 function Header() {
   const currentUser = AuthService.getCurrentUser();
   const isOwner = currentUser && currentUser.role === 'ROLE_OWNER'
+  const isUser = currentUser && currentUser.role === 'ROLE_USER'
   const isLoggedIn = !!currentUser
 
   const navigate = useNavigate();
@@ -40,6 +41,11 @@ function Header() {
           {isLoggedIn && isOwner && (
             <Link to="/owner-dashboard">Owner Dashboard</Link>
             // <a href="owner-dashboard">Owner Dashboard</a>
+          )}
+
+          {/* User specific link */}
+          {isLoggedIn && isUser && (
+            <Link to='/'>My WishList</Link>
           )}
 
           {/* Authentication Links (Conditional Rendering) */}
