@@ -175,7 +175,7 @@ public class PropertyController {
         }
     }
 
-//    GET FACILITIES returns List of PropertyDto
+//    GET FACILITIES returns List of PropertyFacilityDto
     @GetMapping("/getFacilities/{propertyId}")
     public ResponseEntity<?> getPropFacility(@PathVariable int propertyId){
         Map<String, Object> response = new HashMap<>();

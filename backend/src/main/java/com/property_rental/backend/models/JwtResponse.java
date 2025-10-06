@@ -13,7 +13,8 @@ import java.util.Collection;
 @ToString
 public class JwtResponse {
 
-    private String jwtToken;
+    private String accessToken;
+    private String refreshToken;
     private String username;
     private String role;
 }

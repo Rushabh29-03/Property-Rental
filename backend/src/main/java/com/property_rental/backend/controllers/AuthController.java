@@ -6,6 +6,7 @@ import com.property_rental.backend.entities.Property;
 import com.property_rental.backend.entities.User;
 import com.property_rental.backend.models.JwtRequest;
 import com.property_rental.backend.models.JwtResponse;
+import com.property_rental.backend.models.RefreshTokenRequest;
 import com.property_rental.backend.repositories.AdminRepository;
 import com.property_rental.backend.repositories.PropertyRepository;
 import com.property_rental.backend.security.JwtHelper;
@@ -35,7 +36,7 @@ public class AuthController {
 
     private final AuthenticationManager manager;
 
-    private final JwtHelper helper;
+    private final JwtHelper jwtHelper;
 
     private final AdminService adminService;
 
@@ -48,14 +49,14 @@ public class AuthController {
     private final OwnerController ownerController;
 
     public AuthController(AuthenticationManager manager,
-                          JwtHelper helper,
+                          JwtHelper jwtHelper,
                           AdminService adminService,
                           AdminRepository adminRepository,
                           UserService userService,
                           PropertyRepository propertyRepository,
                           OwnerController ownerController) {
         this.manager = manager;
-        this.helper = helper;
+        this.jwtHelper = jwtHelper;
         this.adminService = adminService;
         this.adminRepository = adminRepository;
         this.userService = userService;
@@ -91,16 +92,41 @@ public class AuthController {
 //        System.out.println((userDetails.getAuthorities().toArray()[0]).toString());
 
         // Generate the JWT token.
-        String token = this.helper.generateToken(userDetails);
+        String accessToken = this.jwtHelper.generateAccessToken(userDetails);
+        String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);
 
         // Create the response object.
         JwtResponse response = JwtResponse.builder()
-                .jwtToken(token)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .username(userDetails.getUsername())
                 .role((userDetails.getAuthorities().toArray()[0]).toString())
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<JwtResponse> refreshToken(@RequestBody RefreshTokenRequest request){
+        String refreshToken = request.getRefreshToken();
+        String username = this.jwtHelper.getUsernameFromToken(refreshToken);
+
+        if(username!=null && !this.jwtHelper.isTokenExpired(refreshToken)){
+//            load userDetails
+            UserDetails userDetails = this.userService.loadUserByUsername(username);
+
+            String newAccessToken = this.jwtHelper.generateAccessToken(userDetails);
+
+            JwtResponse response = JwtResponse.builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(refreshToken) // Keep the original refresh token
+                    .username(username).build();
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            // Handle invalid or expired refresh token
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     private void doAuthenticate(String username, String password) {

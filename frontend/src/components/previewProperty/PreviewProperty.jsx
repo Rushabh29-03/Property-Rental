@@ -341,7 +341,9 @@ function PreviewProperty() {
 
         <br /><br />
         {/* GET FACILITIES */}
-        <button className={`${buttonClassName}`} onClick={(e)=>getFacilitiesHandler(e)}>Get Facilities</button>
+        {role==='ROLE_USER' && (
+          <button className={`${buttonClassName}`} onClick={(e)=>getFacilitiesHandler(e)}>Get Facilities</button>
+        )}
 
         {facilities && facilities.length === 0
           ? (<p>{facilityLoaded ? "No facility." : ""}</p>)
