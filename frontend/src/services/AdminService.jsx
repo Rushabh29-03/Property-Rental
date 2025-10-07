@@ -7,7 +7,7 @@ const API_URL = Environment.apiUrl + '/admin'
 const AdminService = {
     toggleVerifiedStatus: async(prId)=>{
         const currentUser=AuthService.getCurrentUser();
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.error("Authentication error: missing jwt token");
             throw new Error("User not authenticated.");
         }
@@ -17,7 +17,7 @@ const AdminService = {
         try {
             const response = await axios.put(`${API_URL}/toggleVerify/${prId}`, prId, {
                 headers:{
-                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                    'Authorization': `Bearer ${currentUser.accessToken}`
                 }
             });
 
@@ -25,12 +25,11 @@ const AdminService = {
                 console.log("Response data: ", response.data);
                 return response.data;
             }
-            else
-                alert(response.data.errMessage);
         } catch (error) {
-            console.log("React error editing property: ", error);
-            alert(error.response.data);
-            throw error;
+            console.error("React error editing property: ", error);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 }

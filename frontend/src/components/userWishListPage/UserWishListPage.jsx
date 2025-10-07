@@ -15,13 +15,15 @@ function UserWishListPage() {
 
     // !GET WISHLISTED PROPERTIES
     const getWishListed = async()=> {
-        const response = await UserService.getWishListedProperties();
+        try{
+            const response = await UserService.getWishListedProperties();
 
-        if(response){                    
-            setWishListedProperties(response.wishListedProperties ? response.wishListedProperties : [])
-            setLoading(false)
-        } else{
-            console.log("Med no padyo");
+            if(response){                    
+                setWishListedProperties(response.wishListedProperties ? response.wishListedProperties : [])
+                setLoading(false)
+            }
+        } catch(error){
+            console.error(error);
         }
     }
 

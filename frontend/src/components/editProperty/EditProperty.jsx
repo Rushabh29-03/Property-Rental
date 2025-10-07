@@ -39,17 +39,21 @@ function EditProperty( {property, onClose, prId} ) {
         console.log(propertyData);
         
         
-        const response = await PropertyService.editProperty(propertyData, prId);
+        try{
+            const response = await PropertyService.editProperty(propertyData, prId);
         
-        if(response){
-            switch (AuthService.getCurrentUser().role) {
-                case 'ROLE_OWNER':
-                    navigate('/owner-dashboard')
-                    break;
-                default:
-                    navigate('/properties')
-                    break;
+            if(response){
+                switch (AuthService.getCurrentUser().role) {
+                    case 'ROLE_OWNER':
+                        navigate('/owner-dashboard')
+                        break;
+                    default:
+                        navigate('/properties')
+                        break;
+                }
             }
+        } catch(error){
+            console.error(error);
         }
     }
     

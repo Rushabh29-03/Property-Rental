@@ -8,24 +8,29 @@ const OwnerService = {
     getProperties: async ()=>{
 
         const currentUser = AuthService.getCurrentUser();
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.log("Autheentication error: missing jwt token");
             return [];
         }
         console.log("Getting properties for owner: ", currentUser.username);
         
-        const response = await axios.get(API_URL+"/properties", {
-            headers:{
-                'Authorization':`Bearer ${currentUser.jwtToken}`
-            }
-        });
-
         try {
+            const response = await axios.get(API_URL+"/properties", {
+                headers:{
+                    'Authorization':`Bearer ${currentUser.accessToken}`
+                }
+            });
+
             // console.log(response.data);
             return response.data;
         } catch (error) {
-            console.error("Error getting property: ", error);
-            return [];
+            console.error("Error getting property: ", error.response.data);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
+            else {
+                return [];
+            }
         }
     },
 }

@@ -9,7 +9,7 @@ const UserService = {
 
     addWishList: async(prId, wishListPropertyData)=>{
         const currentUser = AuthService.getCurrentUser();
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.error("Authentication error: missing jwt token");
             throw new error("User not authenticated");
         }
@@ -19,20 +19,22 @@ const UserService = {
         try {
             const response = await axios.post(`${API_URL}/wishListProperty/${prId}`, wishListPropertyData, {
                 headers:{
-                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                    'Authorization': `Bearer ${currentUser.accessToken}`
                 }
             });
             // console.log(response.data.message);
             return response.data;
         } catch (error) {
             console.error(`React error marking property: ${prId} as wishlist: `, error);
-            throw error;
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 
     getWishListedProperties: async()=>{
         const currentUser = AuthService.getCurrentUser();
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.error("Authentication error: missing jwt token");
             throw new error("User not authenticated");
         }
@@ -42,21 +44,23 @@ const UserService = {
         try {
             const response = await axios.get(`${API_URL}/getWishListedProperties`, {
                 headers:{
-                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                    'Authorization': `Bearer ${currentUser.accessToken}`
                 }
             });
 
             // console.log(response.data);
             return response.data;
         } catch (error) {
-            console.error(`React Error fetching wishlisted properties for user: ${currentUser.username}: `, error);
-            throw error;
+            console.error(`React Error fetching wishlisted properties for user: ${currentUser.username}: `, error.response.data);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 
     removeWishListedProperty: async(prId)=>{
         const currentUser=AuthService.getCurrentUser();
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.error("Authentication error: missing jwt token");
             throw new error("User not authenticated");
         }
@@ -66,15 +70,16 @@ const UserService = {
         try {
             const response = await axios.delete(`${API_URL}/removeWishListProperty/${prId}`, {
                 headers: {
-                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                    'Authorization': `Bearer ${currentUser.accessToken}`
                 }
             });
-            
             return response.data;
+            
         } catch (error) {
-            alert(error.response.data);
-            console.log(`React error removing property ${prId} from wishlist`);
-            throw error;
+            console.error(`React error removing property ${prId} from wishlist`);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 }

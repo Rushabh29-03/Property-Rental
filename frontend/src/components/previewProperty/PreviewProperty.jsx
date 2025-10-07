@@ -64,12 +64,15 @@ function PreviewProperty() {
   // !GET PROPERTY BY ID
   const handleGetPropertyById = async(prId)=>{
 
-    const response = await PropertyService.getPropertyById(prId);
-    
-    if(response){
-      setSelectedProperty(response);
-    } else{
-      setSelectedProperty([])
+    try{
+      const response = await PropertyService.getPropertyById(prId);
+      if(response){
+        setSelectedProperty(response);
+      } else{
+        setSelectedProperty([])
+      }
+    } catch(error) {
+      console.error(error);
     }
 
     // console.log("getPropertyById: ", response);
@@ -81,19 +84,23 @@ function PreviewProperty() {
 
     console.log("Sending data: ", propertyRulesData);
     
-    const resposne = await PropertyService.editProperty(propertyRulesData, pr_id);
+    try{
+      const resposne = await PropertyService.editProperty(propertyRulesData, pr_id);
 
-    if(resposne){
-      alert('Property updated');
-      switch (AuthService.getCurrentUser().role) {
-        case 'ROLE_OWNER':
-          navigate('/owner-dashboard')
-          break;
-      
-        default:
-          navigate('/properties')
-          break;
+      if(resposne){
+        alert('Property updated');
+        switch (AuthService.getCurrentUser().role) {
+          case 'ROLE_OWNER':
+            navigate('/owner-dashboard')
+            break;
+        
+          default:
+            navigate('/properties')
+            break;
+        }
       }
+    } catch(error){
+      console.error(error);
     }
   }
 

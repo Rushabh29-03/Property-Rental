@@ -38,7 +38,7 @@ const AuthService = {
                 throw new Error(response.data.errMessage);
             }
 
-            else if (response.data.jwtToken) { 
+            else if (response.data.accessToken) { 
                 AuthService.setCurrentUser(response.data);
                 
             }
@@ -46,10 +46,7 @@ const AuthService = {
             return response.data; // Return the data
             
         } catch (error) {
-            alert(error);
-            console.error("Sign-in error:", error);
-            
-            throw error;
+            console.error("Sign-in error:", error);            
         }
     },
 
@@ -61,7 +58,6 @@ const AuthService = {
 
         try {
             if(! response.data.canProceed){
-                alert(response.data.errMessage);
                 console.log(response.data.detailError);
             }
             else{
@@ -72,24 +68,41 @@ const AuthService = {
             }
         } catch (error) {
             console.error("Sign-up error: ", error);
-            throw error;
         }
     },
 
     getAllProperties: async()=>{
         console.log("fetching all properties");
         
-        const response = await axios.get(API_URL+"/allProperties", {
-            headers: {
-                'Authorization': `Bearer ${AuthService.getCurrentUser().jwtToken}`
-            }
-        });
-
         try {
+            const response = await axios.get(API_URL+"/allProperties", {
+                headers: {
+                    'Authorization': `Bearer ${AuthService.getCurrentUser().accessToken}`
+                }
+            });
             return response.data;
         } catch (error) {
-            console.error("Error fetching all properties");
-            throw new error;
+            console.error("Error fetching all properties", error.response.data);
+            AuthService.reLogin();
+        }
+    },
+
+    reLogin: async()=>{
+        console.log("Logging in again");
+        const currentUser = AuthService.getCurrentUser();
+        console.log("current user: ", currentUser.refreshToken);
+        
+        try {
+            const response = await axios.post(`${API_URL}/refresh-token`, {refreshToken: currentUser.refreshToken});
+
+            if(response){
+                // console.log("New access token: ", response.data);
+                AuthService.setCurrentUser(response.data);
+                // AuthService.signIn(response.data.username)
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 }
