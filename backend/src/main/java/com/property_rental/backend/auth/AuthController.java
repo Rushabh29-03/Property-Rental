@@ -34,17 +34,11 @@ public class AuthController {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     private final AuthenticationManager manager;
-
     private final JwtHelper jwtHelper;
-
     private final AdminService adminService;
-
     private final AdminRepository adminRepository;
-
     private final UserService userService;
-
     private final PropertyRepository propertyRepository;
-
     private final OwnerController ownerController;
 
     public AuthController(AuthenticationManager manager,
@@ -131,7 +125,12 @@ public class AuthController {
     private void doAuthenticate(String username, String password) {
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
-        manager.authenticate(authentication);
+        try {
+            manager.authenticate(authentication);
+        } catch (Exception e) {
+            // Handle specific authentication exceptions (BadCredentialsException, DisabledException, etc.)
+            throw new RuntimeException("Invalid Username or Password!");
+        }
     }
 
     @ExceptionHandler(BadCredentialsException.class)

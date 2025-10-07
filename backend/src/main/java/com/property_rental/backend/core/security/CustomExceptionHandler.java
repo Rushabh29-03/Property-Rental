@@ -18,7 +18,7 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException e) {
 
         Map<String, String> response = new HashMap<>();
-        response.put("errMessages", "Access token is expired");
+        response.put("errMessage", "Access token is expired");
 
         // The HTTP status must be 401 Unauthorized for the client to trigger a token refresh
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
