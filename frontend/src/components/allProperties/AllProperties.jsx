@@ -63,21 +63,20 @@ function AllProperties() {
   const handleGetProperty = async () => {
 
     //response is array of properties
-    const response = await AuthService.getAllProperties();
-
-    setProperties(response?response:[]);
+    try {
+      const response = await AuthService.getAllProperties();
+      setProperties(response?response:[]);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // !GET USER'S WISHLISTED PROPERTY DATA
   const getWishListed = async()=> {
-    const response = await UserService.getWishListedProperties();
-
-    if(response){
-      // console.log(response.wishListedProperties);
-              
-      setWishListedProperties(response.wishListedProperties ? response.wishListedProperties : [])
-    } else{
-      console.log("Med no padyo");
+    try{
+      const response = await UserService.getWishListedProperties();
+    } catch(error) {
+      console.error(error);
     }
   }
 

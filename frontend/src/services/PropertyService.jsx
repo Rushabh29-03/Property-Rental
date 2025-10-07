@@ -8,7 +8,7 @@ const PropertyService = {
 
     getPropertyById: async(propertyId)=>{
         const currentUser=AuthService.getCurrentUser();
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.error("Authentication error: missing jwt token");
             throw new Error("User not authenticated.");
         }
@@ -18,15 +18,16 @@ const PropertyService = {
         try {
             const response = await axios.get(`${API_URL}/properties/${propertyId}`, {
                 headers:{
-                    'Authorization':`Bearer ${currentUser.jwtToken}`
+                    'Authorization':`Bearer ${currentUser.accessToken}`
                 }
             });
         
             return response.data;
         } catch (error) {
-            alert(error.response.data);
-            console.error(`Error getting property with ID ${propertyId}: `, error);
-            throw error;
+            console.error(`Error getting property with ID ${propertyId}: `, error.response.data);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
 
     },
@@ -36,7 +37,7 @@ const PropertyService = {
         const currentUser=AuthService.getCurrentUser();
 
         // check for missing user or token
-        if (!currentUser || !currentUser.jwtToken) {
+        if (!currentUser || !currentUser.accessToken) {
             console.error("Authentication Error: Cannot add property, JWT token missing.");
             throw new Error("User not authenticated.");
         }
@@ -46,21 +47,23 @@ const PropertyService = {
         try {
             const response=await axios.post(API_URL+"/addProperty", propertyData, {
                 headers: {
-                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                    'Authorization': `Bearer ${currentUser.accessToken}`
                 }
             });
 
             return response.data;
         } catch (error) {
-            console.error("Error adding property: ", error);
-            throw error;
+            console.error("Error adding property: ", error.response.data);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 
     editProperty: async (propertyDto, prId)=>{
         const currentUser=AuthService.getCurrentUser();
 
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.log("Autheentication error: missing jwt token");
             return [];
         }
@@ -69,7 +72,7 @@ const PropertyService = {
         try {
             const response=await axios.put(`${API_URL}/edit_property/${prId}`, propertyDto, {
                 headers:{
-                    'Authorization':`Bearer ${currentUser.jwtToken}`
+                    'Authorization':`Bearer ${currentUser.accessToken}`
                 }
             });
 
@@ -77,20 +80,18 @@ const PropertyService = {
                 console.log("Response data: ", response.data);
                 return response.data;
             }
-            else{
-                alert(response.data.errMessage);
-            }
         } catch (error) {
-            console.log("React error editing property: ", error);
-            alert(error.response.data.errMessage);
-            throw error;
+            console.error("React error editing property: ", error);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 
     getPropertyFacilities: async(prId)=>{
         const currentUser=AuthService.getCurrentUser();
 
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.log("Autheentication error: missing user or jwt token");
             return [];
         }
@@ -99,7 +100,7 @@ const PropertyService = {
         try {
             const response = await axios.get(`${API_URL}/getFacilities/${prId}`, {
                 headers:{
-                    'Authorization': `Bearer ${currentUser.jwtToken}`
+                    'Authorization': `Bearer ${currentUser.accessToken}`
                 }
             });
 
@@ -108,16 +109,17 @@ const PropertyService = {
 
             return response.data;
         } catch (error) {
-            console.log("React error fetching facilities for property id: ", prId);
-            alert(error.response.data.errMessage);
-
+            console.error("React error fetching facilities for property id: ", prId);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     },
 
     deletePropertyById: async(prId)=>{
         const currentUser=AuthService.getCurrentUser();
         
-        if(!currentUser || !currentUser.jwtToken){
+        if(!currentUser || !currentUser.accessToken){
             console.log("Autheentication error: missing user or jwt token");
             return [];
         }
@@ -126,7 +128,7 @@ const PropertyService = {
         try {
             const response=await axios.delete(`${API_URL}/delete_property/${prId}`, {
                 headers:{
-                    'Authorization':`Bearer ${currentUser.jwtToken}`
+                    'Authorization':`Bearer ${currentUser.accessToken}`
                 }
             });
         
@@ -134,14 +136,11 @@ const PropertyService = {
                 console.log(response.data);
                 return response.data;
             }
-            else{
-                alert(response.data.errMessage);
-            }
-            
         } catch (error) {
-            console.log("React Error deleting property: ", error);
-            alert(error.response.data.errMessage);
-            throw error;
+            console.error("React Error deleting property: ", error);
+            if(error.response.data.tokenErrMessage){
+                AuthService.reLogin();
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ import AllProperties from '../allProperties/AllProperties'
 import PropertyService from '../../services/PropertyService';
 import './OwnerDashboard.css'
 import { useNavigate } from 'react-router';
+import axios from 'axios';
 
 function OwnerDashboard() {
 
@@ -63,16 +64,16 @@ function OwnerDashboard() {
     console.log("sending data: ", propertyData);
   
     try {
-        const response = await PropertyService.addProperty(propertyData);
+      const response = await PropertyService.addProperty(propertyData);
 
-        if (response) { 
-            console.log("Property added successfully:", response);
+      if (response) { 
+          console.log("Property added successfully:", response);
 
-            await handleGetProperty(); 
-            window.scrollTo(0, 0);
-        }
+          await handleGetProperty(); 
+          window.scrollTo(0, 0);
+      }
     } catch (error) {
-        console.error("Failed to add property:", error);
+      console.error(error);
     }
   }
 
@@ -80,9 +81,12 @@ function OwnerDashboard() {
   const handleGetProperty = async () => {
 
     //response is array of properties
-    const response = await OwnerService.getProperties();
-
-    setProperties(response);
+    try {
+      const response = await OwnerService.getProperties();
+      setProperties(response);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // !GET PHOTOS HANDLER

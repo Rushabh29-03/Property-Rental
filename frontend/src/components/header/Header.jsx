@@ -14,7 +14,7 @@ function Header() {
   const handleLogout = () => {
     AuthService.logout();
     navigate('/login'); // Redirect to the login page after logout
-    // Force a page reload or state update if necessary (depending on your setup)
+    // Force a page reload or state update if necessary (depending on setup)
     // window.location.reload(); 
   };
   return (
