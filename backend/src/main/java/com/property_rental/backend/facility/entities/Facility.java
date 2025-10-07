@@ -1,6 +1,6 @@
 package com.property_rental.backend.facility.entities;
 
-import com.property_rental.backend.property.entities.PropertyFacility;
+import com.property_rental.backend.propertyFacility.entities.PropertyFacility;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

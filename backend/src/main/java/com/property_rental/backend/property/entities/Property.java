@@ -1,7 +1,8 @@
 package com.property_rental.backend.property.entities;
 
-import com.property_rental.backend.property.dtos.PropertyFacilityDto;
-import com.property_rental.backend.entities.Photo;
+import com.property_rental.backend.propertyFacility.entities.PropertyFacility;
+import com.property_rental.backend.propertyFacility.dtos.PropertyFacilityDto;
+import com.property_rental.backend.photo.entities.Photo;
 import com.property_rental.backend.rental.entities.RentedProperty;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.wishlist.entities.WishListedProperty;
