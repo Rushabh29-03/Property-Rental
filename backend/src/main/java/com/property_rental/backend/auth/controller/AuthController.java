@@ -85,6 +85,13 @@ public class AuthController {
             // Load the user details to generate a token.
             UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
 
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                    request.getUserName(),
+                    null,
+                    Collections.emptyList()
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
             // Generate the JWT tokens.
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
             String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);

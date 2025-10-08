@@ -17,11 +17,13 @@ public class RefreshTokenDto {
     private String refreshToken;
     private Instant expiryDate;
     private boolean isExpired;
+    private LocalDateTime createdAt;
 
     public RefreshTokenDto(RefreshToken refreshToken){
         this.id= refreshToken.getId();
         this.refreshToken= refreshToken.getRefreshToken();
         this.expiryDate= refreshToken.getExpiryDate();
         this.isExpired= refreshToken.isExpired();
+        this.createdAt= refreshToken.getCreatedAt();
     }
 }
