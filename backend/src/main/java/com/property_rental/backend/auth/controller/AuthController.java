@@ -83,7 +83,7 @@ public class AuthController {
 //            this.doAuthenticate(request.getUserName(), request.getPassword());
 
             // Load the user details to generate a token.
-            UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
+            UserDetails userDetails = userService.loadUserByUsername(request.getUserName()); //throws UsernameNotFoundException
 
             Authentication auth = new UsernamePasswordAuthenticationToken(
                     request.getUserName(),
@@ -97,7 +97,14 @@ public class AuthController {
             String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);
 
 //            add refresh token to database, overwrite if already available
-            RefreshToken createdRefreshToken = refreshTokenService.addRefreshToken(request.getUserName(), refreshToken);
+//            if admin, save token to admin table
+            if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
+                adminService.addRefreshTokenToAdmin(userDetails.getUsername(), refreshToken);
+            }
+
+            else {
+                RefreshToken createdRefreshToken = refreshTokenService.addRefreshToken(request.getUserName(), refreshToken); // throws NoSuchElementException
+            }
 
             JwtResponse jwtResponse = JwtResponse.builder()
                     .accessToken(accessToken)
@@ -126,12 +133,25 @@ public class AuthController {
 
             UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
 
-//            check user
-            RefreshTokenDto refreshTokenDto = refreshTokenService.getTokenByUserName(request.getUserName());
+//            check if admin
+//            if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
+//
+//            }
 
-            if(refreshTokenDto.isExpired()){
-                throw new JwtException("Refresh token expired, generate again");
+//            check if admin
+            if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
+                Admin admin = adminService.getRefreshTokenFromAdmin(userDetails.getUsername()); // throws UsernameNotFoundException
+                if(admin.isRefreshTokenExpired()){
+                    throw new JwtException("Admin's refresh token is expired, generate again");
+                }
             }
+            else { //not admin
+                RefreshTokenDto refreshTokenDto = refreshTokenService.getTokenByUserName(request.getUserName());  // throws UsernameNotFoundException
+                if(refreshTokenDto.isExpired()){
+                    throw new JwtException("Refresh token expired, generate again");
+                }
+            }
+
 
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 

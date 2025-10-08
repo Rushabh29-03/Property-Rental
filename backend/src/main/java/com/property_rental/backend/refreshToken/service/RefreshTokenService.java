@@ -1,11 +1,15 @@
 package com.property_rental.backend.refreshToken.service;
 
+import com.property_rental.backend.admin.entities.Admin;
+import com.property_rental.backend.admin.repository.AdminRepository;
 import com.property_rental.backend.auth.security.JwtHelper;
 import com.property_rental.backend.refreshToken.dtos.RefreshTokenDto;
 import com.property_rental.backend.refreshToken.repository.RefreshTokenRepository;
 import com.property_rental.backend.refreshToken.entities.RefreshToken;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.repository.UserRepository;
+import com.property_rental.backend.user.service.UserService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +23,15 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final JwtHelper jwtHelper;
+    private final UserService userService;
+    private final AdminRepository adminRepository;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, JwtHelper jwtHelper) {
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, JwtHelper jwtHelper, UserService userService, AdminRepository adminRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
         this.jwtHelper = jwtHelper;
+        this.userService = userService;
+        this.adminRepository = adminRepository;
     }
 
     public RefreshTokenDto getTokenByUserId(int userId){
@@ -34,6 +42,7 @@ public class RefreshTokenService {
     }
 
     public RefreshTokenDto getTokenByUserName(String username){
+
         User user = userRepository.findByUserName(username).orElseThrow(
                 ()-> new UsernameNotFoundException("Username not found in user table")
         );

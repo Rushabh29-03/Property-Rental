@@ -38,7 +38,6 @@ public class UserService implements UserDetailsService {
     public User registerUser(User user) {
         // Encode the password before saving it to the database
         user.setPassword(appConfig.passwordEncoder().encode(user.getPassword()));
-        user.setRegistrationDate(LocalDateTime.now());
         // Set isOwner to false by default for a standard user registration
 //        System.out.println(user.isOwner()+"*********************");
         return userRepository.save(user);

@@ -52,7 +52,7 @@ public class RefreshToken {
 
     @Setter
     @Getter
-    @Column(name = "expiry_date", nullable = false, unique = true)
+    @Column(name = "expiry_date", nullable = false)
     private Instant expiryDate;
 
 //    TOKEN TO USER

@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -63,10 +64,10 @@ public class User {
     @Column(name = "is_owner")
     private boolean isOwner=false; //DEFAULT false
 
-    @Setter
     @Getter
-    @Column(name = "registration_date", columnDefinition = "TIMESTAMP DEFAULT current_timestamp", updatable = false)
-    private LocalDateTime registrationDate; //DEFAULT current_timestamp
+    @CreatedDate
+    @Column(name = "created_at")
+    private final LocalDateTime createdAt=LocalDateTime.now();
 
     //    OWNER TO PROPERTY
     @OneToMany(mappedBy = "owner",
@@ -160,7 +161,6 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", phoneNo='" + phoneNo + '\'' +
                 ", isOwner=" + isOwner +
-                ", registrationDate='" + registrationDate + '\'' +
                 '}';
     }
 

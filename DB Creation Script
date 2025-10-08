@@ -3,8 +3,19 @@
 create table if not exists admin(
 	admin_id serial primary key,
 	username varchar(20) not null unique,
-	password varchar(255) not null
+	password varchar(255) not null,
+	refresh_token varchar(255),
+	expiry_date timestamp
 );
+
+-- alter table admin
+-- add column refresh_token varchar(255);
+
+-- alter table admin
+-- add column expiry_date timestamp;
+
+-- alter table admin
+-- alter column expiry_date set not null;
 
 create table if not exists users(
 	user_id serial primary key,
@@ -15,8 +26,18 @@ create table if not exists users(
 	last_name varchar(50) not null,
 	phone_no varchar(15),
 	is_owner boolean default false,
-	registration_date timestamp default current_timestamp
+	created_at timestamp
 );
+
+-- alter table users
+-- alter column created_at set default current_timestamp;
+
+-- alter table users
+-- drop column last_modified_by;
+
+-- alter table users
+-- add column last_modified_by varchar(255);
+
 
 create table if not exists property(
 	property_id serial primary key,
@@ -33,6 +54,10 @@ create table if not exists property(
 	pets_policy text,
 	smoking_allowed boolean default false,
 	other_rules text,
+	created_at timestamp,
+	updated_at timestamp,
+	created_by varchar(255),
+	last_modified_by varchar(255),
 
 	CONSTRAINT fk_property_user
 		foreign key (user_id)
@@ -42,6 +67,9 @@ create table if not exists property(
 
 -- alter table property
 -- alter column area_unit set default 'sq_feet';
+
+-- alter table property
+-- add column last_modified_by varchar(255);
 
 create table if not exists rented_property(
 	rented_pr_id serial primary key,
