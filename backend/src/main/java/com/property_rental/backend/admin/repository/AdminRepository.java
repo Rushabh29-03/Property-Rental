@@ -2,7 +2,7 @@ package com.property_rental.backend.admin.repository;
 
 
 
-import com.property_rental.backend.user.entities.Admin;
+import com.property_rental.backend.admin.entities.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -27,7 +27,7 @@ const UserService = {
         } catch (error) {
             console.error(`React error marking property: ${prId} as wishlist: `, error);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },
@@ -53,7 +53,7 @@ const UserService = {
         } catch (error) {
             console.error(`React Error fetching wishlisted properties for user: ${currentUser.username}: `, error.response.data);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },
@@ -78,7 +78,7 @@ const UserService = {
         } catch (error) {
             console.error(`React error removing property ${prId} from wishlist`);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },

@@ -1,4 +1,4 @@
-package com.property_rental.backend.user.entities;
+package com.property_rental.backend.admin.entities;
 
 import jakarta.persistence.*;
 

@@ -1,6 +1,8 @@
 package com.property_rental.backend.user.entities;
 
+import com.property_rental.backend.refreshToken.entities.RefreshToken;
 import com.property_rental.backend.rental.entities.RentedProperty;
+import com.property_rental.backend.refreshToken.dtos.RefreshTokenDto;
 import com.property_rental.backend.wishlist.entities.WishListedProperty;
 import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.wishlist.dtos.WishListedPropertyDto;
@@ -81,11 +83,15 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<WishListedProperty> wishListedProperties;
 
+    //    USER TO TOKEN
+    @Setter
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private RefreshToken refreshToken;
+
     //    empty constructor
     public User (){}
 
-//    constructor
-
+    //    constructor
     public User(String userName, String password, String email, String firstName, String lastName, String phoneNo) {
         this.userName = userName;
         this.password = password;
@@ -137,6 +143,10 @@ public class User {
             wishListedPropertyDtoList.add(new WishListedPropertyDto(wishListedProperties.get(i)));
         }
         return wishListedPropertyDtoList;
+    }
+
+    public RefreshTokenDto getRefreshToken() {
+        return new RefreshTokenDto(refreshToken);
     }
 
     @Override

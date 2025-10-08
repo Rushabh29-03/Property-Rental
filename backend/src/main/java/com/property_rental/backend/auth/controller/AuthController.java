@@ -3,7 +3,10 @@ package com.property_rental.backend.auth.controller;
 import com.property_rental.backend.property.service.PropertyService;
 import com.property_rental.backend.owner.controller.OwnerController;
 import com.property_rental.backend.property.dtos.PropertyDto;
-import com.property_rental.backend.user.entities.Admin;
+import com.property_rental.backend.admin.entities.Admin;
+import com.property_rental.backend.refreshToken.dtos.RefreshTokenDto;
+import com.property_rental.backend.refreshToken.entities.RefreshToken;
+import com.property_rental.backend.refreshToken.service.RefreshTokenService;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.auth.models.JwtRequest;
 import com.property_rental.backend.auth.models.JwtResponse;
@@ -11,6 +14,8 @@ import com.property_rental.backend.auth.models.RefreshTokenRequest;
 import com.property_rental.backend.auth.security.JwtHelper;
 import com.property_rental.backend.admin.service.AdminService;
 import com.property_rental.backend.user.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -37,19 +43,22 @@ public class AuthController {
     private final UserService userService;
     private final PropertyService propertyService;
     private final OwnerController ownerController;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthController(AuthenticationManager manager,
                           JwtHelper jwtHelper,
                           AdminService adminService,
                           UserService userService,
                           PropertyService propertyService,
-                          OwnerController ownerController) {
+                          OwnerController ownerController,
+                          RefreshTokenService refreshTokenService) {
         this.manager = manager;
         this.jwtHelper = jwtHelper;
         this.adminService = adminService;
         this.userService = userService;
         this.propertyService = propertyService;
         this.ownerController = ownerController;
+        this.refreshTokenService=refreshTokenService;
     }
 
     private Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -66,56 +75,75 @@ public class AuthController {
     // -----------------------API TESTING URLS--------------------------
     // =================================================================
 
-    // This endpoint handles the user login and issues a JWT token.
-    // It is public, as configured in SecurityConfig.
-    @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
+    @PostMapping("/generate-refresh-token")
+    public ResponseEntity<?> getNewRefreshToken(@RequestBody  JwtRequest request) {
+        Map<String, Object> response = new HashMap<>();
 
-        // Authenticate the user with the provided username and password.
-        this.doAuthenticate(request.getUserName(), request.getPassword());
+        try {
+//            this.doAuthenticate(request.getUserName(), request.getPassword());
 
-        // Load the user details to generate a token.
-        UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
+            // Load the user details to generate a token.
+            UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
 
-//        System.out.println((userDetails.getAuthorities().toArray()[0]).toString());
+            // Generate the JWT tokens.
+            String accessToken = this.jwtHelper.generateAccessToken(userDetails);
+            String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);
 
-        // Generate the JWT token.
-        String accessToken = this.jwtHelper.generateAccessToken(userDetails);
-        String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);
+//            add refresh token to database, overwrite if already available
+            RefreshToken createdRefreshToken = refreshTokenService.addRefreshToken(request.getUserName(), refreshToken);
 
-        // Create the response object.
-        JwtResponse response = JwtResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .username(userDetails.getUsername())
-                .role((userDetails.getAuthorities().toArray()[0]).toString())
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/refresh-token")
-    public ResponseEntity<JwtResponse> refreshToken(@RequestBody RefreshTokenRequest request){
-        String refreshToken = request.getRefreshToken();
-        String username = this.jwtHelper.getUsernameFromToken(refreshToken);
-
-        if(username!=null && !this.jwtHelper.isTokenExpired(refreshToken)){
-//            load userDetails
-            UserDetails userDetails = this.userService.loadUserByUsername(username);
-
-            String newAccessToken = this.jwtHelper.generateAccessToken(userDetails);
-
-            JwtResponse response = JwtResponse.builder()
-                    .accessToken(newAccessToken)
-                    .refreshToken(refreshToken) // Keep the original refresh token
-                    .username(username)
+            JwtResponse jwtResponse = JwtResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .username(userDetails.getUsername())
                     .role(userDetails.getAuthorities().toArray()[0].toString())
                     .build();
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } else {
-            // Handle invalid or expired refresh token
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(jwtResponse, HttpStatus.CREATED);
+        } catch (UsernameNotFoundException | NoSuchElementException e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+//    get access token
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody JwtRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            this.doAuthenticate(request.getUserName(), request.getPassword());
+
+            UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
+
+//            check user
+            RefreshTokenDto refreshTokenDto = refreshTokenService.getTokenByUserName(request.getUserName());
+
+            if(refreshTokenDto.isExpired()){
+                throw new JwtException("Refresh token expired, generate again");
+            }
+
+            String accessToken = this.jwtHelper.generateAccessToken(userDetails);
+
+            JwtResponse jwtResponse = JwtResponse.builder()
+                    .accessToken(accessToken)
+                    .username(userDetails.getUsername())
+                    .role(userDetails.getAuthorities().toArray()[0].toString())
+                    .build();
+
+            return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+        } catch (UsernameNotFoundException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (JwtException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -171,7 +199,7 @@ public class AuthController {
         UserDetails user=userService.loadUserByUsername(username);
 
         if(user!=null){
-            System.out.println(user.getAuthorities());
+//            System.out.println(user.getAuthorities());
             List<PropertyDto> propertyDtoList=propertyService.allProperties();
 
 //            convert property list to p. dto list

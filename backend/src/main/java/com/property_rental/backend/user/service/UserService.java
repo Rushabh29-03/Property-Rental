@@ -3,7 +3,7 @@ package com.property_rental.backend.user.service;
 import com.property_rental.backend.core.config.AppConfig;
 import com.property_rental.backend.admin.repository.AdminRepository;
 import com.property_rental.backend.user.repository.UserRepository;
-import com.property_rental.backend.user.entities.Admin;
+import com.property_rental.backend.admin.entities.Admin;
 import com.property_rental.backend.user.entities.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.GrantedAuthority;

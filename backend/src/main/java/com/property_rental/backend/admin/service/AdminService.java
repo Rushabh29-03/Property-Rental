@@ -5,7 +5,7 @@ import com.property_rental.backend.core.config.AppConfig;
 import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.property.entities.Property;
 import com.property_rental.backend.property.repository.PropertyRepository;
-import com.property_rental.backend.user.entities.Admin;
+import com.property_rental.backend.admin.entities.Admin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

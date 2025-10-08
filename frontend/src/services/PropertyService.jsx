@@ -26,7 +26,7 @@ const PropertyService = {
         } catch (error) {
             console.error(`Error getting property with ID ${propertyId}: `, error.response.data);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
 
@@ -55,7 +55,7 @@ const PropertyService = {
         } catch (error) {
             console.error("Error adding property: ", error.response.data);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },
@@ -83,7 +83,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error editing property: ", error);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },
@@ -111,7 +111,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error fetching facilities for property id: ", prId);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },
@@ -139,7 +139,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React Error deleting property: ", error);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     }
