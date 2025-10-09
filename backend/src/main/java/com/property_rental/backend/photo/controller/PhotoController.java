@@ -3,6 +3,8 @@ package com.property_rental.backend.photo.controller;
 import com.property_rental.backend.photo.dtos.PhotoDto;
 import com.property_rental.backend.photo.entities.Photo;
 import com.property_rental.backend.photo.service.PhotoService;
+import com.property_rental.backend.property.entities.Property;
+import com.property_rental.backend.property.service.PropertyService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +20,12 @@ import java.util.stream.Collectors;
 public class PhotoController {
 
     private final PhotoService photoService;
+    private final PropertyService propertyService;
 
-    public PhotoController(PhotoService photoService) {
+    public PhotoController(PhotoService photoService, PropertyService propertyService) {
         this.photoService = photoService;
+        this.propertyService = propertyService;
     }
-
 //    @PostMapping("/{propertyId}/upload-photo")
 //    public ResponseEntity<?> uploadFile(@PathVariable int propertyId, @RequestParam List<MultipartFile> files) {
 //
@@ -183,10 +186,11 @@ public class PhotoController {
     public ResponseEntity<Map<String, Object>> getPhotosByPropertyId(@PathVariable int propertyId) {
         try {
             List<Photo> photoList = photoService.getPhotosById(propertyId);
+            Property property = propertyService.findPropertyById(propertyId);
 
             if (photoList.isEmpty()) {
                 return ResponseEntity.ok(Map.of(
-                        "message", "No photos found for property: " + propertyId,
+                        "errMessage", "No photos found for property: " + property.getAddress(),
                         "photos", new ArrayList<>()
                 ));
             }

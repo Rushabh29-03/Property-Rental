@@ -69,7 +69,7 @@ const PhotoService = {
                 timeout: 30000 // 30 seconds
             });
             console.log("Photos metadata:", response.data);
-            return response;
+            return response.data;
         } catch (error) {
             console.error("Fetch photos error:", error);
             

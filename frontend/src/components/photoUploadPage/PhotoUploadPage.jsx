@@ -45,7 +45,7 @@ const PhotoUploadComponent = ({
             img.onload = () => {
                 // Calculate new dimensions (max 1920x1080)
                 let { width, height } = img;
-                const maxWidth = 1920;
+                const maxWidth = 1440;
                 const maxHeight = 1080;
 
                 if (width > maxWidth || height > maxHeight) {

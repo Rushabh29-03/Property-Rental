@@ -35,7 +35,7 @@ function OwnerDashboard() {
   const [newPropertyId, setNewPropertyId] = useState(null);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
 
-  // Photo management state - FIXED
+  // Photo management state
   const [propertyPhotos, setPropertyPhotos] = useState({});
   const [loadingPhotos, setLoadingPhotos] = useState({});
   const [photoUrls, setPhotoUrls] = useState({}); // Store loaded photo URLs
@@ -79,13 +79,13 @@ function OwnerDashboard() {
     return errors;
   };
 
-  // Add property
+  // !HANDLE ADD PROPERTY
   const handleAddProperty = async (e) => {
     e.preventDefault();
 
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
-      setSubmitMessage(`❌ Please fix the following errors: ${validationErrors.join(', ')}`);
+      setSubmitMessage(`!!! Please fix the following errors: ${validationErrors.join(', ')}`);
       return;
     }
 
@@ -125,17 +125,17 @@ function OwnerDashboard() {
           });
         }, 500);
       } else {
-        setSubmitMessage('❌ Property creation failed. Please try again.');
+        setSubmitMessage('!!! Property creation failed. Please try again.');
       }
     } catch (error) {
       console.error('Property creation error:', error);
-      setSubmitMessage(`❌ Error: ${error.response?.data?.message || error.message}`);
+      setSubmitMessage(`!!! Error: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Get properties
+  // !HANDLE GET PROPERTY
   const handleGetProperty = async () => {
     try {
       const response = await OwnerService.getProperties();
@@ -145,8 +145,14 @@ function OwnerDashboard() {
     }
   };
 
-  // Load photos metadata for a property - FIXED
-  const loadPropertyPhotos = async (propertyId) => {
+  // !Photo loading function - single click loads both metadata and first photo
+  const loadPropertyPhotosAndFirstImage = async (propertyId, e) => {
+    // Stop event propagation to prevent property card click
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (propertyPhotos[propertyId] || loadingPhotos[propertyId]) {
       return; // Already loaded or loading
     }
@@ -154,13 +160,43 @@ function OwnerDashboard() {
     setLoadingPhotos(prev => ({ ...prev, [propertyId]: true }));
 
     try {
+      // 1. First load photo metadata
       const response = await PhotoService.fetchPhotos(propertyId);
-      if (response.data?.photos) {
+
+      if (response?.photos && response.photos.length > 0) {
         setPropertyPhotos(prev => ({
           ...prev,
-          [propertyId]: response.data.photos
+          [propertyId]: response.photos
         }));
-        console.log(`Loaded ${response.data.photos.length} photos for property ${propertyId}`);
+
+        console.log(`Loaded ${response.photos.length} photos metadata for property ${propertyId}`);
+
+        // 2. Immediately load the first photo's actual data
+        const firstPhoto = response.photos[0];
+        if (firstPhoto && !photoUrls[firstPhoto.id]) {
+          setLoadingIndividualPhotos(prev => new Set([...prev, firstPhoto.id]));
+
+          try {
+            const dataUrl = await PhotoService.getPhotoDataUrl(firstPhoto.id);
+            if (dataUrl) {
+              setPhotoUrls(prev => ({
+                ...prev,
+                [firstPhoto.id]: dataUrl
+              }));
+              console.log(`Loaded photo data for first photo ${firstPhoto.id}`);
+            }
+          } catch (photoError) {
+            console.error(`Error loading first photo ${firstPhoto.id}:`, photoError);
+          } finally {
+            setLoadingIndividualPhotos(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(firstPhoto.id);
+              return newSet;
+            });
+          }
+        }
+      } else{
+        alert(response.errMessage);
       }
     } catch (error) {
       console.error(`Error loading photos for property ${propertyId}:`, error);
@@ -169,8 +205,14 @@ function OwnerDashboard() {
     }
   };
 
-  // Load individual photo data - NEW FUNCTION
-  const loadIndividualPhoto = async (photoId) => {
+  // !Load individual photo data for additional photos
+  const loadIndividualPhoto = async (photoId, e) => {
+    // Stop event propagation
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (photoUrls[photoId] || loadingIndividualPhotos.has(photoId)) {
       return; // Already loaded or loading
     }
@@ -178,6 +220,7 @@ function OwnerDashboard() {
     setLoadingIndividualPhotos(prev => new Set([...prev, photoId]));
 
     try {
+      // Get photo as base64 data URL for immediate display
       const dataUrl = await PhotoService.getPhotoDataUrl(photoId);
       if (dataUrl) {
         setPhotoUrls(prev => ({
@@ -199,14 +242,14 @@ function OwnerDashboard() {
     }
   };
 
-  // Handle photo upload success
+  // !HANDLE PHOTO UPLOAD SUCCESS
   const handlePhotoUploadSuccess = (data) => {
     setSubmitMessage('✅ Photos uploaded successfully!');
 
     // Refresh photos for the property
     if (newPropertyId) {
       setTimeout(() => {
-        loadPropertyPhotos(newPropertyId);
+        loadPropertyPhotosAndFirstImage(newPropertyId);
       }, 1000);
     }
 
@@ -220,11 +263,12 @@ function OwnerDashboard() {
     }, 2000);
   };
 
-  // Handle photo upload error
+  // !HANDLE PHOTO UPLOAD ERROR
   const handlePhotoUploadError = (error) => {
-    setSubmitMessage(`❌ Photo upload failed: ${error}`);
+    setSubmitMessage(`!!! Photo upload failed: ${error}`);
   };
 
+  // !USE-EFFECT
   // Load properties on component mount
   useEffect(() => {
     const userId = currentUser?.username;
@@ -250,9 +294,11 @@ function OwnerDashboard() {
         <div className="mb-8">
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors font-medium"
+            className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 
+              transition-colors font-medium ${showAddForm ? 'hidden' : ''}`}
           >
-            {showAddForm ? 'Cancel' : 'Add New Property'}
+            {/* {showAddForm ? 'Cancel' : 'Add New Property'} */}
+            Add New Property
           </button>
         </div>
 
@@ -264,40 +310,46 @@ function OwnerDashboard() {
             <form onSubmit={handleAddProperty} className="space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {/* ADDRESS */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Description *
+                    Title *
+                  </label>
+                  <input
+                    type='text'
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className={inputClassName}
+                    rows="3"
+                    placeholder="e.g., Name of your Flat"
+                    required
+                  />
+                </div>
+
+                {/* DESCRIPTION */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Address *
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className={inputClassName}
                     rows="3"
-                    placeholder="Describe your property..."
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Address *
-                  </label>
-                  <textarea
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className={inputClassName}
-                    rows="3"
-                    placeholder="Full address..."
+                    placeholder="Full Address..."
                     required
                   />
                 </div>
               </div>
 
               {/* Property Details */}
+
+              {/* AREA */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Area *
+                    Carpet Area *
                   </label>
                   <input
                     type="number"
@@ -310,9 +362,10 @@ function OwnerDashboard() {
                   />
                 </div>
 
+                {/* AREA UNIT */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Area Unit
+                    Carpet Area Unit
                   </label>
                   <select
                     value={areaUnit}
@@ -324,6 +377,7 @@ function OwnerDashboard() {
                   </select>
                 </div>
 
+                {/* NO OF BEDROOMS */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Bedrooms *
@@ -341,6 +395,8 @@ function OwnerDashboard() {
               </div>
 
               {/* Financial Details */}
+
+              {/* MONTHLY RENT */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -357,6 +413,7 @@ function OwnerDashboard() {
                   />
                 </div>
 
+                {/* SECURITY DEPOSIT */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Security Deposit (₹) *
@@ -374,6 +431,8 @@ function OwnerDashboard() {
               </div>
 
               {/* Additional Details */}
+
+              {/* MINIMUM STAY */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -389,6 +448,7 @@ function OwnerDashboard() {
                   />
                 </div>
 
+                {/* PETS POLICY */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Pets Policy
@@ -403,7 +463,9 @@ function OwnerDashboard() {
                 </div>
               </div>
 
-              {/* Rules and Policies */}
+              {/* Rules */}
+
+              {/* SMOKING ALLOWED FLAG */}
               <div className="space-y-4">
                 <div className="flex items-center">
                   <input
@@ -417,6 +479,7 @@ function OwnerDashboard() {
                   </label>
                 </div>
 
+                {/* OTHER RULES */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Other Rules
@@ -529,23 +592,34 @@ function OwnerDashboard() {
                 {properties.map((property) => (
                   <div
                     key={property.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleNavigate(property.id)}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
-                    {/* Property Image - FIXED */}
-                    <div className="w-full h-48 bg-gray-200 rounded-md mb-4 flex items-center justify-center overflow-hidden">
+                    {/* Property Image */}
+                    <div
+                      className="w-full h-48 bg-gray-200 rounded-md mb-4 flex items-center justify-center overflow-hidden"
+                      onClick={(e) => {
+                        // Only navigate to property details if we're not clicking on photo area
+                        if (!e.target.closest('.photo-area')) {
+                          handleNavigate(property.id);
+                        }
+                      }}
+                    >
                       {loadingPhotos[property.id] ? (
                         <div className="text-gray-500 text-center">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
                           <div className="text-sm">Loading photos...</div>
                         </div>
                       ) : propertyPhotos[property.id]?.length > 0 ? (
-                        <div className="w-full h-full">
+                        <div className="w-full h-full photo-area">
                           {photoUrls[propertyPhotos[property.id][0].id] ? (
                             <img
                               src={photoUrls[propertyPhotos[property.id][0].id]}
                               alt={propertyPhotos[property.id][0].filename}
-                              className="w-full h-full object-cover rounded-md"
+                              className="w-full h-full object-cover rounded-md cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNavigate(property.id);
+                              }}
                               onError={(e) => {
                                 e.target.style.display = 'none';
                                 e.target.nextSibling.style.display = 'flex';
@@ -554,10 +628,7 @@ function OwnerDashboard() {
                           ) : (
                             <div
                               className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                loadIndividualPhoto(propertyPhotos[property.id][0].id);
-                              }}
+                              onClick={(e) => loadIndividualPhoto(propertyPhotos[property.id][0].id, e)}
                             >
                               {loadingIndividualPhotos.has(propertyPhotos[property.id][0].id) ? (
                                 <div className="text-center">
@@ -575,7 +646,7 @@ function OwnerDashboard() {
                             </div>
                           )}
                           {/* Error fallback */}
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 hidden">
+                          <div className="w-full h-full bg-gray-100 items-center justify-center text-gray-400 hidden">
                             <div className="text-center">
                               <svg className="mx-auto h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -586,22 +657,22 @@ function OwnerDashboard() {
                         </div>
                       ) : (
                         <div
-                          className="text-gray-400 text-center hover:text-gray-600 transition-colors cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            loadPropertyPhotos(property.id);
-                          }}
+                          className="text-gray-400 text-center hover:text-gray-600 transition-colors cursor-pointer photo-area"
+                          onClick={(e) => loadPropertyPhotosAndFirstImage(property.id, e)}
                         >
                           <svg className="mx-auto h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <div className="text-sm">Click to load photos</div>
                         </div>
                       )}
                     </div>
 
-                    {/* Property Details */}
-                    <div className="space-y-2">
+                    {/* PROPERTY DETAILS CARD */}
+                    <div className="space-y-2" onClick={() => handleNavigate(property.id)} style={{ cursor: 'pointer' }}>
+                        <h3 className='text-center font-bold text-gray-900 text-xl'>
+                          {property.address}
+                        </h3>
                       <div className="flex justify-between items-start">
                         <h3 className="font-semibold text-gray-900 text-lg">
                           ₹{property.monthlyRent?.toLocaleString()}/month
@@ -623,12 +694,12 @@ function OwnerDashboard() {
                         )}
                       </div>
 
-                      <p className="text-gray-700 text-sm line-clamp-2">
+                      {/* <p className="text-gray-700 text-sm line-clamp-2">
                         {property.description}
-                      </p>
+                      </p> */}
 
                       <div className="text-xs text-gray-500 border-t pt-2">
-                        <p>{property.address}</p>
+                        <p>{property.description ? `Address : ${property.description}` : ''}</p>
                       </div>
                     </div>
                   </div>
