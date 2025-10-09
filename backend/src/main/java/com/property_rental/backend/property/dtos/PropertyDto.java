@@ -27,8 +27,7 @@ public class PropertyDto {
     private String petsPolicy;
     private boolean isSmokingAllowed;
     private String otherRules;
-    private List<PropertyFacilityDto> propertyFacilityList;
-    private List<Photo> photoList;
+//    private List<PropertyFacilityDto> propertyFacilityList;
 
     public PropertyDto(Property property){
         this.id= property.getId();
@@ -44,6 +43,6 @@ public class PropertyDto {
         this.petsPolicy= property.getPetsPolicy();
         this.isSmokingAllowed= property.getIsSmokingAllowed();
         this.otherRules= property.getOtherRules();
-        this.photoList= property.getPhotoList();
+//        this.photoList= property.getPhotoList();
     }
 }

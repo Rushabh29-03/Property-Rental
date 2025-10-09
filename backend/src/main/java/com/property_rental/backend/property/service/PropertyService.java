@@ -47,7 +47,7 @@ public class PropertyService {
         property.setMonthlyRent(propertyDto.getMonthlyRent());
         property.setNoOfBedrooms(propertyDto.getNoOfBedrooms());
         property.setSecurityDepositAmount(propertyDto.getSecurityDepositAmount());
-        property.setPhotoList(propertyDto.getPhotoList()!=null ? propertyDto.getPhotoList() : property.getPhotoList());
+//        property.setPhotoList(propertyDto.getPhotoList()!=null ? propertyDto.getPhotoList() : property.getPhotoList());
         property.setMinStay(propertyDto.getMinStay());
         property.setPetsPolicy(propertyDto.getPetsPolicy());
         property.setIsSmokingAllowed(propertyDto.isSmokingAllowed());

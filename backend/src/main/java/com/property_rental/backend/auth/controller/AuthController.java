@@ -5,19 +5,14 @@ import com.property_rental.backend.owner.controller.OwnerController;
 import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.admin.entities.Admin;
 import com.property_rental.backend.refreshToken.dtos.RefreshTokenDto;
-import com.property_rental.backend.refreshToken.entities.RefreshToken;
 import com.property_rental.backend.refreshToken.service.RefreshTokenService;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.auth.models.JwtRequest;
 import com.property_rental.backend.auth.models.JwtResponse;
-import com.property_rental.backend.auth.models.RefreshTokenRequest;
 import com.property_rental.backend.auth.security.JwtHelper;
 import com.property_rental.backend.admin.service.AdminService;
 import com.property_rental.backend.user.service.UserService;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,8 +29,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-
-
 
     private final AuthenticationManager manager;
     private final JwtHelper jwtHelper;
@@ -60,8 +53,6 @@ public class AuthController {
         this.ownerController = ownerController;
         this.refreshTokenService=refreshTokenService;
     }
-
-    private Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 
     // =================================================================
@@ -97,13 +88,13 @@ public class AuthController {
             String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);
 
 //            add refresh token to database, overwrite if already available
-//            if admin, save token to admin table
+//            isAdmin?, save token to admin table
             if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
                 adminService.addRefreshTokenToAdmin(userDetails.getUsername(), refreshToken);
             }
 
             else {
-                RefreshToken createdRefreshToken = refreshTokenService.addRefreshToken(request.getUserName(), refreshToken); // throws NoSuchElementException
+                refreshTokenService.addRefreshToken(request.getUserName(), refreshToken); // throws NoSuchElementException
             }
 
             JwtResponse jwtResponse = JwtResponse.builder()
@@ -142,7 +133,7 @@ public class AuthController {
             if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
                 Admin admin = adminService.getRefreshTokenFromAdmin(userDetails.getUsername()); // throws UsernameNotFoundException
                 if(admin.isRefreshTokenExpired()){
-                    throw new JwtException("Admin's refresh token is expired, generate again");
+                    throw new JwtException("Admins refresh token is expired, generate again");
                 }
             }
             else { //not admin
@@ -151,7 +142,6 @@ public class AuthController {
                     throw new JwtException("Refresh token expired, generate again");
                 }
             }
-
 
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 
@@ -162,10 +152,10 @@ public class AuthController {
                     .build();
 
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
-        } catch (UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        } catch (JwtException e){
+        } catch (JwtException e) {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
@@ -204,7 +194,7 @@ public class AuthController {
         response.put("message", "");
         response.put("canProceed", false);
         try {
-            User registeredUser = userService.registerUser(user);
+            userService.registerUser(user);
 
             response.replace("message", "User registered successfully!!!");
             response.replace("canProceed", true);
@@ -228,10 +218,6 @@ public class AuthController {
         if(user!=null){
 //            System.out.println(user.getAuthorities());
             List<PropertyDto> propertyDtoList=propertyService.allProperties();
-
-//            convert property list to p. dto list
-//            List<PropertyDto> propertyDtoList = new ArrayList<>(List.of());
-//            propertyList.stream().map(PropertyDto::new).forEach(propertyDtoList::add);
 
             String role = user.getAuthorities().toArray()[0].toString();
 //            return all properties to user or admin
