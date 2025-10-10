@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class JwtHelper {
 
     public static final long REFRESH_TOKEN_VALIDITY = 7*24*60*60; // 7days
-    public static final long ACCESS_TOKEN_VALIDITY = 60; //15 minutes
+    public static final long ACCESS_TOKEN_VALIDITY = 15*60; //15 minutes
 
     //requirement :
 //    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;

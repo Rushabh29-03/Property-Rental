@@ -1,7 +1,8 @@
 package com.property_rental.backend.property.dtos;
 
-import com.property_rental.backend.entities.Photo;
+import com.property_rental.backend.photo.entities.Photo;
 import com.property_rental.backend.property.entities.Property;
+import com.property_rental.backend.propertyFacility.dtos.PropertyFacilityDto;
 import lombok.*;
 
 import java.util.List;
