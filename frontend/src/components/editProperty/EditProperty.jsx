@@ -4,211 +4,321 @@ import { Link, useNavigate } from 'react-router'
 import PropertyService from '../../services/PropertyService'
 import AuthService from '../../services/AuthService'
 
-function EditProperty( {property, onClose, prId} ) {
+function EditProperty({ property, onClose, prId, onUpdate }) {
+    // Form state initialized with property data
+    const [description, setDescription] = useState(property.description || "");
+    const [address, setAddress] = useState(property.address || "");
+    const [area, setArea] = useState(property.area || 0);
+    const [areaUnit, setAreaUnit] = useState(property.areaUnit || "sq_feet");
+    const [monthlyRent, setMonthlyRent] = useState(property.monthlyRent || 0);
+    const [noOfBedrooms, setNoOfBedrooms] = useState(property.noOfBedrooms || 0);
+    const [securityDeposit, setSecurityDeposit] = useState(property.securityDepositAmount || 0);
+    const [minStay, setMinStay] = useState(property.minStay || 0);
+    const [petsPolicy, setPetsPolicy] = useState(property.petsPolicy || "");
+    const [isSmokingAllowed, setIsSmokingAllowed] = useState(property.smokingAllowed || false);
+    const [otherRules, setOtherRules] = useState(property.otherRules || "");
 
-    // used to take input from html form
-    const [description, setDescription] = useState(property.description ? property.description : "")
-    const [address, setAddress] = useState(property.address)
-    const [area, setArea] = useState(property.area)
-    const [areaUnit, setAreaUnit] = useState(property.areaUnit)
-    const [monthlyRent, setMonthlyRent] = useState(property.monthlyRent)
-    const [noOfBedrooms, setNoOfBedrooms] = useState(property.noOfBedrooms ? property.noOfBedrooms : 0)
-    const [securityDeposit, setSecurityDeposit] = useState(property.securityDepositAmount ? property.securityDepositAmount : 0.0)
-    const [photoFile, setPhotoFile] = useState(property.photoFile)
+    // UI state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState('');
 
     const navigate = useNavigate();
 
-    let propertyData = {
-        "description":description,
-        "address":address,
-        "area":area,
-        "areaUnit":areaUnit,
-        "monthlyRent":monthlyRent,
-        "noOfBedrooms":noOfBedrooms,
-        "securityDepositAmount":securityDeposit,
-        "photoFile":photoFile
-    }
+    const inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm";
 
-    let inputClassName = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+    // Property data object
+    const propertyData = {
+        "description": description,
+        "address": address,
+        "area": area,
+        "areaUnit": areaUnit,
+        "monthlyRent": monthlyRent,
+        "noOfBedrooms": noOfBedrooms,
+        "securityDepositAmount": securityDeposit,
+        "minStay": minStay,
+        "petsPolicy": petsPolicy,
+        "smokingAllowed": isSmokingAllowed,
+        "otherRules": otherRules
+    };
 
-    // !EDIT PROPERTY
-    const handleEditProperty = async(e)=>{
+    // Form validation
+    const validateForm = () => {
+        const errors = [];
+        if (!description.trim()) errors.push("Description is required");
+        if (!address.trim()) errors.push("Address is required");
+        if (!area || area <= 0) errors.push("Valid area is required");
+        if (!monthlyRent || monthlyRent <= 0) errors.push("Valid monthly rent is required");
+        if (!noOfBedrooms || noOfBedrooms <= 0) errors.push("Number of bedrooms is required");
+        if (securityDeposit < 0) errors.push("Security deposit cannot be negative");
+        return errors;
+    };
+
+    // Handle edit property
+    const handleEditProperty = async (e) => {
         e.preventDefault();
 
-        console.log("Sending data");
-        console.log(propertyData);
-        
-        
-        try{
-            const response = await PropertyService.editProperty(propertyData, prId);
-        
-            if(response){
-                switch (AuthService.getCurrentUser().role) {
-                    case 'ROLE_OWNER':
-                        navigate('/owner-dashboard')
-                        break;
-                    default:
-                        navigate('/properties')
-                        break;
-                }
-            }
-        } catch(error){
-            console.error(error);
+        const validationErrors = validateForm();
+        if (validationErrors.length > 0) {
+            setSubmitMessage(`Please fix the following errors: ${validationErrors.join(', ')}`);
+            return;
         }
-    }
-    
-  return (
-    <div className='fixed w-350 h-fit top-1/2 left-1/2 -translate-1/2 rounded-2xl p-4 bg-gray-500 shadow-2xl opacity-95'>
-        <div className="flex items-center justify-center bg-gray-500 p-4">
-            <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-xl shadow-2xl">
-            <h2 className="text-3xl font-extrabold text-center text-gray-900">
-                Edit Property
-            </h2>
 
-            <form className="space-y-4">
+        setIsSubmitting(true);
+        setSubmitMessage('Updating property...');
 
-                {/* ADDRESS */}
-                <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address <span className='text-red-700'>*</span></label>
+        try {
+            const response = await PropertyService.editProperty(propertyData, prId);
+            if (response) {
+                setSubmitMessage('Pass: ✅ Property updated successfully!');
+                // Call the onUpdate callback with updated data
+                onUpdate && onUpdate({ ...property, ...propertyData });
 
-                <textarea 
-                    id="address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className={`${inputClassName}`}
-                />
-                </div>
+                // Close modal after a brief delay
+                setTimeout(() => {
+                    onClose && onClose();
+                }, 1500);
+            }
+        } catch (error) {
+            console.error(error);
+            setSubmitMessage(`❌ Update failed: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-                {/* DESCRIPTION */}
-                <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <input
-                    type="text"
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className={`${inputClassName}`}
-                />
-                </div>
-
-                {/* AREA */}
-                <div>
-                <label htmlFor="area" className="block text-sm font-medium text-gray-700">area<span className='text-red-700'>*</span></label>
-                <input
-                    type="number"
-                    id="area"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    className={`${inputClassName}`}
-                    required
-                />
-                </div>
-
-                {/* AREA UNIT */}
-                <div>
-                    <label htmlFor="newareaUnit" className="block text-sm font-medium text-gray-700">Area unit</label>
-                    <select 
-                    className={`${inputClassName}`} 
-                    id="areaUnit" 
-                    value={areaUnit}
-                    onChange={(e)=>setAreaUnit(e.target.value)}>
-                        <option value='sq_feet'>sq_feet</option>
-                        <option value="sq_meter">sq_meter</option>
-                    </select>
-                </div>
-
-                {/* NO OF BEDROOMS */}
-                <div>
-                <label htmlFor="noOfBedrooms">No. of bedrooms</label>
-                <input 
-                    type="number"
-                    id='noOfBedrooms'
-                        value={noOfBedrooms}
-                    onChange={(e) => setNoOfBedrooms(e.target.value)}
-                    className={`${inputClassName}`}
-                />
-                </div>
-
-                {/* MONTHLY RENT */}
-                <div>
-                <label htmlFor="monthlyRent" className="block text-sm font-medium text-gray-700">Monthly Rent <span className='text-red-700'>*</span></label>
-                <input 
-                    type="number" 
-                    id='monthlyRent'
-                        value={monthlyRent}
-                    onChange={(e) => setMonthlyRent(e.target.value)}
-                    className={`${inputClassName}`}
-                />
-                </div>
-
-                {/* SECURITY DEPOSIT */}
-                <div>
-                <label htmlFor="securityDeposit" className="block text-sm font-medium text-gray-700">Security Deposit</label>
-                <input 
-                    type="number" 
-                    id='securityDeposit'
-                    value={securityDeposit}
-                    onChange={(e) => setSecurityDeposit(e.target.value)}
-                    className={`${inputClassName}`}
-                    />
-                </div>
-                
-                {/* PHOTOS */}
-                <div>
-                <label htmlFor="photos" className="block text-sm font-medium text-gray-700">
-                    Property Photo (max 5 files: .jpg, .jpeg, .png)
-                </label>
-                <input 
-                    type="file" 
-                    id='photos'
-                    
-                    multiple
-                    accept=".jpg, .jpeg, .png"
-                    className="mt-1 block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                    max={2}
-                    />
-
-                {/* Display the name of the selected file */}
-                {photoFile && photoFile.length>0 && (
-                    <p className='mt-2 text-sm text-gray-500'>
-                        Selected file(s): 
-                        <br />
-                        {
-                        photoFile.map((photo, index) =>(
-                            <span key={index}>
-                            <strong className='text-gray-700'>{photo.name}</strong>
-                            <br />
-                            </span>
-                        ))
-                        }
-                    </p>
-                )}
-                </div>
-
-                <div className="flex gap-3">
-                        <button 
-                        type="button"
+    return (
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto m-4">
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-gray-900">Edit Property</h2>
+                    <button
                         onClick={onClose}
-                        className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium 
-                            text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 
-                            focus:ring-offset-2 focus:ring-red-500 transition duration-150"
+                        className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
                     >
-                        Cancel
-                    </button>
-                    <button 
-                        onClick={handleEditProperty}
-                        className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium 
-                            text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 
-                            focus:ring-offset-2 focus:ring-indigo-500 transition duration-150"
-                    >
-                        Save
+                        ×
                     </button>
                 </div>
-            </form>
+
+                {/* Form */}
+                <form onSubmit={handleEditProperty} className="p-6 space-y-6">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* ADDRESS */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Title *
+                            </label>
+                            <input
+                                type='text'
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className={inputClassName}
+                                rows="3"
+                                placeholder="Describe your property..."
+                                required
+                            />
+                        </div>
+
+                        {/* DESCRIPTION */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Address *
+                            </label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className={inputClassName}
+                                rows="3"
+                                placeholder="Full address..."
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Property Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* AREA */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Area *
+                            </label>
+                            <input
+                                type="number"
+                                value={area}
+                                onChange={(e) => setArea(Number(e.target.value))}
+                                className={inputClassName}
+                                placeholder="e.g., 1200"
+                                min="1"
+                                required
+                            />
+                        </div>
+
+                        {/* AREA UNIT */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Area Unit
+                            </label>
+                            <select
+                                value={areaUnit}
+                                onChange={(e) => setAreaUnit(e.target.value)}
+                                className={inputClassName}
+                            >
+                                <option value="sq_feet">Square Feet</option>
+                                <option value="sq_meter">Square Meter</option>
+                            </select>
+                        </div>
+
+                        {/* NO OF BEDROOMS */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Bedrooms *
+                            </label>
+                            <input
+                                type="number"
+                                value={noOfBedrooms}
+                                onChange={(e) => setNoOfBedrooms(Number(e.target.value))}
+                                className={inputClassName}
+                                placeholder="e.g., 3"
+                                min="1"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Financial Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* MONTHLY RENT */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Monthly Rent (₹) *
+                            </label>
+                            <input
+                                type="number"
+                                value={monthlyRent}
+                                onChange={(e) => setMonthlyRent(Number(e.target.value))}
+                                className={inputClassName}
+                                placeholder="e.g., 25000"
+                                min="1"
+                                required
+                            />
+                        </div>
+
+                        {/* SECURITY DEPOSIT */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Security Deposit (₹) *
+                            </label>
+                            <input
+                                type="number"
+                                value={securityDeposit}
+                                onChange={(e) => setSecurityDeposit(Number(e.target.value))}
+                                className={inputClassName}
+                                placeholder="e.g., 50000"
+                                min="0"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Additional Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* MINIMUM STAY */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Minimum Stay (months)
+                            </label>
+                            <input
+                                type="number"
+                                value={minStay}
+                                onChange={(e) => setMinStay(Number(e.target.value))}
+                                className={inputClassName}
+                                placeholder="e.g., 11"
+                                min="0"
+                            />
+                        </div>
+
+                        {/* PETS POLICY */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Pets Policy
+                            </label>
+                            <input
+                                type="text"
+                                value={petsPolicy}
+                                onChange={(e) => setPetsPolicy(e.target.value)}
+                                className={inputClassName}
+                                placeholder="e.g., No pets allowed"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Rules */}
+                    <div className="space-y-4">
+                        {/* SMOKING ALLOWED FLAG */}
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                checked={isSmokingAllowed}
+                                onChange={(e) => setIsSmokingAllowed(e.target.checked)}
+                                id="isSmokingAllowed"
+                                className="mr-2"
+                            />
+                            <label htmlFor="isSmokingAllowed" className="text-sm font-medium text-gray-700">
+                                Smoking Allowed
+                            </label>
+                        </div>
+
+                        {/* OTHER RULES */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Other Rules
+                            </label>
+                            <textarea
+                                value={otherRules}
+                                onChange={(e) => setOtherRules(e.target.value)}
+                                className={inputClassName}
+                                rows="3"
+                                placeholder="Any additional rules or requirements..."
+                            />
+                        </div>
+                    </div>
+
+                    {/* Status Message */}
+                    {submitMessage && (
+                        <div className={`p-4 rounded-md ${submitMessage.includes('Pass')
+                            ? 'bg-green-50 border border-green-200 text-green-700'
+                            : 'bg-red-50 border border-red-200 text-red-700'
+                            }`}>
+                            {submitMessage}
+                        </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                            disabled={isSubmitting}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={`px-6 py-2 rounded-md font-medium transition-colors ${isSubmitting
+                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                }`}
+                        >
+                            {isSubmitting ? 'Updating...' : 'Update Property'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-  )
+    );
 }
 
 export default EditProperty

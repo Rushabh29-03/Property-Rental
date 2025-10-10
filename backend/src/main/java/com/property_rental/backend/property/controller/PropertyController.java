@@ -131,7 +131,7 @@ public class PropertyController {
 //            get signed-in user username (Principal)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUser = authentication.getName();
-        String role = authentication.getAuthorities().toString();
+        String role = authentication.getAuthorities().toArray()[0].toString();
         try {
 //            get property to check ownership
             Property property=propertyService.findPropertyById(propertyId);
@@ -149,7 +149,7 @@ public class PropertyController {
 //            }
 
 //            if admin wants to delete, let it delete without checking for ownership
-            if(role.equals("[ROLE_ADMIN]")){
+            if(role.equals("ROLE_ADMIN")){
                 propertyService.deleteById(propertyId);
                 response.put("message", "Property deleted successfully");
                 return new ResponseEntity<>(response, HttpStatus.OK);

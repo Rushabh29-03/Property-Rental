@@ -5,6 +5,8 @@ import PropertyService from '../../services/PropertyService';
 import AdminService from '../../services/AdminService';
 import UserService from '../../services/UserService';
 import PhotoService from '../../services/PhotoService';
+import EditProperty from '../editProperty/EditProperty';
+import PhotoUploadComponent from '../photoUploadPage/PhotoUploadPage';
 
 function PreviewProperty() {
   // Navigate and Location hooks
@@ -25,9 +27,14 @@ function PreviewProperty() {
   const [loadingPhotos, setLoadingPhotos] = useState(new Set());
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+
+  // Modal states
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Property rules state
   const [address, setAddress] = useState("");
+  const [description, setDescription] = useState("");
   const [area, setArea] = useState(0.0);
   const [monthlyRent, setMonthlyRent] = useState(0.0);
   const [minStay, setMinStay] = useState(0);
@@ -46,7 +53,7 @@ function PreviewProperty() {
 
   // CSS classes
   const inputClassName = 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm';
-  const buttonClassName = "px-4 py-2 rounded-md font-medium transition-colors";
+  const buttonClassName = "px-4 py-2 rounded-md font-medium transition-colors cursor-pointer";
 
   // Property data for updates
   const propertyRulesData = {
@@ -66,16 +73,13 @@ function PreviewProperty() {
   const loadPropertyPhotos = async (propertyId) => {
     try {
       const response = await PhotoService.fetchPhotos(propertyId);
-
-      if (response.photos) {
+      if (response?.photos) {
         setPhotos(response.photos);
         // Load first few photos
-        const photosToLoad = response.photos.slice(0, response.photos.length>3 ? 3 : response.photos.length);
-
+        const photosToLoad = response.photos.slice(0, Math.min(3, response.photos.length));
         for (const photo of photosToLoad) {
           loadIndividualPhoto(photo.id);
         }
-
       }
     } catch (error) {
       console.error('Error loading photos:', error);
@@ -143,6 +147,32 @@ function PreviewProperty() {
     }
   };
 
+  // HANDLE DELETE PHOTO
+  const handleDeletePhoto = async (e, photoId) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const isConfirmed = window.confirm("Are you sure you want to delete this photo?");
+    if (!isConfirmed) return;
+
+    try {
+      const response = await PhotoService.deletePhoto(photoId);
+      if (response) {
+        console.log('Photo deleted:', response);
+        // Refresh photos after deletion
+        await loadPropertyPhotos(pr_id);
+        // Reset current index if needed
+        if (currentPhotoIndex >= photos.length - 1) {
+          setCurrentPhotoIndex(0);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      alert('Failed to delete photo. Please try again.');
+    }
+  };
+
   // EDIT PROPERTY RULES
   const handleEditPropertyRules = async (e) => {
     e.preventDefault();
@@ -151,17 +181,12 @@ function PreviewProperty() {
       const response = await PropertyService.editProperty(propertyRulesData, pr_id);
       if (response) {
         alert('Property updated');
-        switch (AuthService.getCurrentUser().role) {
-          case 'ROLE_OWNER':
-            navigate('/owner-dashboard');
-            break;
-          default:
-            navigate('/properties');
-            break;
-        }
+        // Refresh property data
+        await handleGetPropertyById(pr_id);
       }
     } catch (error) {
       console.error(error);
+      alert('Failed to update property');
     }
   };
 
@@ -185,14 +210,15 @@ function PreviewProperty() {
     const response = await AdminService.toggleVerifiedStatus(pr_id);
     if (response) {
       alert(response.message);
-      navigate('/properties');
+      // Refresh property data instead of navigating away
+      await handleGetPropertyById(pr_id);
     }
   };
 
   // GET FACILITIES HANDLER
   const getFacilitiesHandler = async (e) => {
     e.preventDefault();
-     if (!facilityLoaded) {
+    if (!facilityLoaded) {
       // Show facilities: fetch if empty, or just show if already loaded
       if (facilities.length === 0) {
         const response = await PropertyService.getPropertyFacilities(pr_id);
@@ -232,6 +258,27 @@ function PreviewProperty() {
     }
   };
 
+  // Handle photo upload success
+  const handlePhotoUploadSuccess = (data) => {
+    console.log('Photos uploaded successfully:', data);
+    // Refresh photos
+    loadPropertyPhotos(pr_id);
+    // Close upload modal
+    setShowPhotoUpload(false);
+  };
+
+  // Handle photo upload error
+  const handlePhotoUploadError = (error) => {
+    console.error('Photo upload failed:', error);
+    alert('Photo upload failed: ' + error);
+  };
+
+  // Handle property update from EditProperty modal
+  const handlePropertyUpdate = (updatedProperty) => {
+    setSelectedProperty(updatedProperty);
+    setShowEditModal(false);
+  };
+
   // USE-EFFECT 1 - fetching property
   useEffect(() => {
     const userId = AuthService.getCurrentUser()?.username;
@@ -267,6 +314,7 @@ function PreviewProperty() {
   useEffect(() => {
     if (selectedProperty) {
       setAddress(selectedProperty.address || '');
+      setDescription(selectedProperty.description || '');
       setArea(selectedProperty.area || 0.0);
       setMonthlyRent(selectedProperty.monthlyRent || 0.0);
       setMinStay(selectedProperty.minStay || 0);
@@ -323,7 +371,7 @@ function PreviewProperty() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" id="preview-property-body">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -336,7 +384,7 @@ function PreviewProperty() {
             </svg>
             Back
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">{selectedProperty.description}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{selectedProperty.address}</h1>
           <div className="mt-2 flex items-center">
             <span className={`px-3 py-1 text-sm rounded-full ${selectedProperty.isVerified
                 ? 'bg-green-100 text-green-800'
@@ -347,10 +395,20 @@ function PreviewProperty() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${showEditModal ? 'blur-md' : ''} ${showPhotoUpload ? 'blur-md' : ''}`}>
           {/* Left Column - Photo Slider */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Property Photos</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Property Photos</h2>
+              {(role === 'ROLE_OWNER' || role === 'ROLE_ADMIN') && (
+                <button
+                  onClick={() => setShowPhotoUpload(true)}
+                  className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                >
+                  + Add Photos
+                </button>
+              )}
+            </div>
 
             {photos.length > 0 ? (
               <div className="space-y-4">
@@ -409,6 +467,19 @@ function PreviewProperty() {
                   <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
                     {currentPhotoIndex + 1} / {photos.length}
                   </div>
+
+                  {/* Delete Photo Button (for owners/admins) */}
+                  {(role === 'ROLE_OWNER' || role === 'ROLE_ADMIN') && photos[currentPhotoIndex] && (
+                    <button
+                      onClick={(e) => handleDeletePhoto(e, photos[currentPhotoIndex].id)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                      title="Delete this photo"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 {/* Thumbnail Strip */}
@@ -449,6 +520,14 @@ function PreviewProperty() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <p>No photos available</p>
+                  {(role === 'ROLE_OWNER' || role === 'ROLE_ADMIN') && (
+                    <button
+                      onClick={() => setShowPhotoUpload(true)}
+                      className="mt-2 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                    >
+                      Add the first photo
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -456,9 +535,19 @@ function PreviewProperty() {
 
           {/* Right Column - Property Details */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Property Details</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Property Details</h2>
+              {(role === 'ROLE_OWNER' || role === 'ROLE_ADMIN') && (
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                >
+                  Edit Property
+                </button>
+              )}
+            </div>
 
-            <form onSubmit={handleEditPropertyRules} className="space-y-6">
+            <div className="space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -488,98 +577,59 @@ function PreviewProperty() {
               {/* Address */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <textarea
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className={inputClassName}
-                  rows="2"
-                  disabled={role === 'ROLE_USER'}
-                />
+                <p className="text-gray-900">{selectedProperty.description}</p>
               </div>
 
-              {/* Editable Fields */}
+              {/* Additional Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Stay (months)</label>
-                  <input
-                    type="number"
-                    value={minStay}
-                    onChange={(e) => setMinStay(e.target.value)}
-                    className={inputClassName}
-                    disabled={role === 'ROLE_USER'}
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Stay</label>
+                  <p className="text-gray-900">{selectedProperty.minStay || 0} months</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Pets Policy</label>
-                  <input
-                    type="text"
-                    value={petsPolicy || ''}
-                    onChange={(e) => setPetsPolicy(e.target.value)}
-                    className={inputClassName}
-                    disabled={role === 'ROLE_USER'}
-                    placeholder="e.g., No pets allowed"
-                  />
+                  <p className="text-gray-900">{selectedProperty.petsPolicy || 'Not specified'}</p>
                 </div>
               </div>
 
               {/* Smoking Policy */}
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={isSmokingAllowed}
-                  onChange={(e) => setIsSmokingAllowed(e.target.checked)}
-                  id="isSmokingAllowed"
-                  className="mr-2"
-                  disabled={role === 'ROLE_USER'}
-                />
-                <label htmlFor="isSmokingAllowed" className="text-sm font-medium text-gray-700">
-                  Smoking Allowed
-                </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Smoking Policy</label>
+                <p className="text-gray-900">{selectedProperty.smokingAllowed ? 'Allowed' : 'Not allowed'}</p>
               </div>
 
               {/* Other Rules */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Other Rules</label>
-                <textarea
-                  value={otherRules || ''}
-                  onChange={(e) => setOtherRules(e.target.value)}
-                  className={inputClassName}
-                  rows="3"
-                  disabled={role === 'ROLE_USER'}
-                  placeholder="Any additional rules or requirements..."
-                />
-              </div>
+              {selectedProperty.otherRules && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Other Rules</label>
+                  <p className="text-gray-900">{selectedProperty.otherRules}</p>
+                </div>
+              )}
 
               {/* Role-based Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-                {/* Admin/Owner Actions */}
-                {role !== 'ROLE_USER' && (
-                  <button
-                    type="submit"
-                    className={`${buttonClassName} bg-indigo-600 text-white hover:bg-indigo-700`}
-                  >
-                    Update Property
-                  </button>
-                )}
 
-                {/* Admin Only Actions */}
-                {role === 'ROLE_ADMIN' && (
+                {/* Admin/Owner Actions */}
+                {(role==='ROLE_ADMIN' || role==='ROLE_OWNER') && (
                   <>
+                    {/* Admin only */}
+                    {role==='ROLE_ADMIN' && (
+                      <button
+                        type="button"
+                        onClick={handleToggleVerify}
+                        className={`${buttonClassName} ${verified ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'
+                          } text-white`}
+                      >
+                        {verified ? 'Unverify' : 'Verify'}
+                      </button>
+                    )}
                     <button
-                      type="button"
-                      onClick={handleToggleVerify}
-                      className={`${buttonClassName} ${verified ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'
-                        } text-white`}
-                    >
-                      {verified ? 'Unverify' : 'Verify'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleDeleteProperty}
-                      className={`${buttonClassName} bg-red-600 text-white hover:bg-red-700`}
-                    >
-                      Delete Property
-                    </button>
+                        type="button"
+                        onClick={handleDeleteProperty}
+                        className={`${buttonClassName} bg-red-600 text-white hover:bg-red-700`}
+                      >
+                        Delete Property
+                      </button>
                   </>
                 )}
 
@@ -615,7 +665,7 @@ function PreviewProperty() {
                   {facilityLoaded ? 'Hide Facilities' : 'Show Facilities'}
                 </button>
               </div>
-            </form>
+            </div>
 
             {/* Facilities Section */}
             {facilityLoaded && (
@@ -625,7 +675,7 @@ function PreviewProperty() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {facilities.map((facility, index) => (
                       <div key={index} className="bg-gray-100 px-3 py-2 rounded-md text-sm">
-                        {facility.facName || facility}
+                        {facility.name || facility}
                       </div>
                     ))}
                   </div>
@@ -637,13 +687,48 @@ function PreviewProperty() {
           </div>
         </div>
 
+        {/* Photo Upload Modal */}
+        {showPhotoUpload && (
+          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto m-4">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900">Add Photos</h2>
+                <button
+                  onClick={() => setShowPhotoUpload(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="p-6">
+                <PhotoUploadComponent
+                  propertyId={pr_id}
+                  onUploadSuccess={handlePhotoUploadSuccess}
+                  onUploadError={handlePhotoUploadError}
+                  showPreview={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Property Modal */}
+        {showEditModal && (
+          <EditProperty
+            property={selectedProperty}
+            prId={pr_id}
+            onClose={() => setShowEditModal(false)}
+            onUpdate={handlePropertyUpdate}
+          />
+        )}
+
         {/* Photo Modal */}
         {showPhotoModal && photos[currentPhotoIndex] && photoUrls[photos[currentPhotoIndex].id] && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
             <div className="relative max-w-4xl max-h-full p-4">
               <button
                 onClick={() => setShowPhotoModal(false)}
-                className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300"
+                className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10"
               >
                 ×
               </button>

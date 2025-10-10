@@ -50,14 +50,14 @@ function AllProperties() {
 
     try {
       const response = await PhotoService.fetchPhotos(propertyId);
-      if (response.data?.photos?.length > 0) {
+      if (response?.photos?.length > 0) {
         setPropertyPhotos(prev => ({
           ...prev,
-          [propertyId]: response.data.photos
+          [propertyId]: response.photos
         }));
 
         // Load first photo
-        const firstPhoto = response.data.photos[0];
+        const firstPhoto = response.photos[0];
         if (firstPhoto && !photoUrls[firstPhoto.id]) {
           const dataUrl = await PhotoService.getPhotoDataUrl(firstPhoto.id);
           if (dataUrl) {
@@ -367,6 +367,9 @@ function AllProperties() {
                     </div>
 
                     {/* Property Details */}
+                    <h3 className='text-center font-bold text-gray-900 text-xl'>
+                      {property.address}
+                    </h3>
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold text-lg text-gray-900">
@@ -389,9 +392,9 @@ function AllProperties() {
                         </div>
                       </div>
 
-                      <p className="text-gray-700 text-sm line-clamp-2 mb-3">
+                      {/* <p className="text-gray-700 text-sm line-clamp-2 mb-3">
                         {property.description}
-                      </p>
+                      </p> */}
 
                       <div className="text-xs text-gray-500 border-t pt-2">
                         <div className="flex items-center">
@@ -399,7 +402,7 @@ function AllProperties() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
-                          <span className="truncate">{property.address}</span>
+                          <span className="truncate">{property.description}</span>
                         </div>
                       </div>
                     </div>

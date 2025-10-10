@@ -111,7 +111,7 @@ function OwnerDashboard() {
       const response = await PropertyService.addProperty(propertyData);
 
       if (response && response.id) {
-        setSubmitMessage('✅ Property created successfully! You can now add photos.');
+        setSubmitMessage('Pass: ✅ Property created successfully! You can now add photos.');
         setNewPropertyId(response.id);
         setShowPhotoUpload(true);
 
@@ -242,7 +242,7 @@ function OwnerDashboard() {
 
   // !HANDLE PHOTO UPLOAD SUCCESS
   const handlePhotoUploadSuccess = (data) => {
-    setSubmitMessage('✅ Photos uploaded successfully!');
+    setSubmitMessage('Pass: ✅ Photos uploaded successfully!');
 
     // Refresh photos for the property
     if (newPropertyId) {
@@ -525,7 +525,7 @@ function OwnerDashboard() {
 
             {/* Status Message */}
             {submitMessage && (
-              <div className={`mt-4 p-4 rounded-md ${submitMessage.includes('✅')
+              <div className={`mt-4 p-4 rounded-md ${submitMessage.includes('Pass')
                 ? 'bg-green-50 border border-green-200 text-green-700'
                 : 'bg-red-50 border border-red-200 text-red-700'
                 }`}>
