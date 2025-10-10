@@ -79,7 +79,7 @@ public class PropertyController {
     }
 
     @PutMapping("edit_property/{propertyId}")
-    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN)")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> editPropertyById(
             @RequestBody PropertyDto propertyDto,
             @PathVariable int propertyId) {
@@ -124,7 +124,7 @@ public class PropertyController {
     }
 
     @DeleteMapping("delete_property/{propertyId}")
-    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN)")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> deletePropertyById(@PathVariable int propertyId) {
 
         Map<String, Object> response = new HashMap<>();
