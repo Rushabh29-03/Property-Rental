@@ -195,8 +195,6 @@ function OwnerDashboard() {
             });
           }
         }
-      } else{
-        alert(response.errMessage);
       }
     } catch (error) {
       console.error(`Error loading photos for property ${propertyId}:`, error);
@@ -278,6 +276,12 @@ function OwnerDashboard() {
       setProperties([]);
     }
   }, [currentUser?.username]);
+
+  useEffect(() => {
+    for (const i of properties) {
+      loadPropertyPhotosAndFirstImage(i.id);
+    }
+  }, [properties])
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -510,8 +514,8 @@ function OwnerDashboard() {
                   type="submit"
                   disabled={isSubmitting}
                   className={`px-6 py-2 rounded-md font-medium transition-colors ${isSubmitting
-                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
                     }`}
                 >
                   {isSubmitting ? 'Creating...' : 'Create Property'}
@@ -522,8 +526,8 @@ function OwnerDashboard() {
             {/* Status Message */}
             {submitMessage && (
               <div className={`mt-4 p-4 rounded-md ${submitMessage.includes('✅')
-                  ? 'bg-green-50 border border-green-200 text-green-700'
-                  : 'bg-red-50 border border-red-200 text-red-700'
+                ? 'bg-green-50 border border-green-200 text-green-700'
+                : 'bg-red-50 border border-red-200 text-red-700'
                 }`}>
                 {submitMessage}
               </div>
@@ -658,28 +662,27 @@ function OwnerDashboard() {
                       ) : (
                         <div
                           className="text-gray-400 text-center hover:text-gray-600 transition-colors cursor-pointer photo-area"
-                          onClick={(e) => loadPropertyPhotosAndFirstImage(property.id, e)}
                         >
                           <svg className="mx-auto h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                          <div className="text-sm">Click to load photos</div>
+                          <div className="text-sm">No photos added by owner</div>
                         </div>
                       )}
                     </div>
 
                     {/* PROPERTY DETAILS CARD */}
                     <div className="space-y-2" onClick={() => handleNavigate(property.id)} style={{ cursor: 'pointer' }}>
-                        <h3 className='text-center font-bold text-gray-900 text-xl'>
-                          {property.address}
-                        </h3>
+                      <h3 className='text-center font-bold text-gray-900 text-xl'>
+                        {property.address}
+                      </h3>
                       <div className="flex justify-between items-start">
                         <h3 className="font-semibold text-gray-900 text-lg">
                           ₹{property.monthlyRent?.toLocaleString()}/month
                         </h3>
                         <span className={`px-2 py-1 text-xs rounded-full ${property.isVerified
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
                           }`}>
                           {property.isVerified ? 'Verified' : 'Pending'}
                         </span>

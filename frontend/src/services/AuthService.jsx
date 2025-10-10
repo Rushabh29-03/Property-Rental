@@ -79,6 +79,26 @@ const AuthService = {
         }
     },
 
+    relogin: async()=>{
+        const currentUser = AuthService.getCurrentUser();
+        if(!currentUser){
+            console.log("User not found");
+            return;
+        }
+
+        try{
+            const response = await axios.post(`${API_URL}/re-login`, currentUser.username);
+
+            if(response){
+                console.log(response.data);
+                return response;
+            }
+        } catch(error){
+            console.error('React error re-logging in: ', error);
+            AuthService.logout();
+        }
+    },
+
     getAllProperties: async()=>{
         console.log("fetching all properties");
         
@@ -91,7 +111,7 @@ const AuthService = {
             return response.data;
         } catch (error) {
             console.error("Error fetching all properties", error.response.data);
-            AuthService.logout();
+            AuthService.relogin();
         }
     },
 }

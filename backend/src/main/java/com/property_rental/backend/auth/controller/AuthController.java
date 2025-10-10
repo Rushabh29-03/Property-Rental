@@ -177,6 +177,39 @@ public class AuthController {
         return Collections.singletonMap("errMessage", "invalid credentials");
     }
 
+//    re-login if access token expired
+    @PostMapping("/re-login")
+    public ResponseEntity<?> re_login(@RequestBody JwtRequest request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            RefreshTokenDto refreshTokenDto = refreshTokenService.getTokenByUserName(request.getUserName()); // throws UsernameNotFoundException
+            if(refreshTokenDto.isExpired()){
+                response.put("errMessage", "Refresh token is expired, please generate refresh token first");
+            }
+
+            UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
+            this.doAuthenticate(userDetails.getUsername(), userDetails.getPassword());
+
+            String accessToken = this.jwtHelper.generateAccessToken(userDetails);
+
+            JwtResponse jwtResponse = JwtResponse.builder()
+                    .accessToken(accessToken)
+                    .username(userDetails.getUsername())
+                    .role(userDetails.getAuthorities().toArray()[0].toString())
+                    .build();
+
+            return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+        } catch (UsernameNotFoundException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/register/admin")
     public ResponseEntity<String> registerAdmin(@RequestBody Admin admin){
         try {
