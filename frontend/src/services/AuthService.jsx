@@ -5,8 +5,15 @@ const API_URL = Environment.apiUrl + "/auth"
 
 const AuthService = {    
 
-    logout: ()=>{
+    logout: (navigate)=>{
+        localStorage.removeItem('role');
         localStorage.removeItem('user');
+
+        if(navigate){
+            navigate('/login')
+        } else{
+            window.location.href='/login';
+        }
     },
 
     getCurrentUser: ()=>{
@@ -35,7 +42,8 @@ const AuthService = {
 
             // ! INVALID CREDENTIALS HANDLER
             if(response.data.errMessage){
-                throw new Error(response.data.errMessage);
+                throw new Error
+                (response.data.errMessage);
             }
 
             else if (response.data.accessToken) { 
@@ -71,6 +79,26 @@ const AuthService = {
         }
     },
 
+    relogin: async()=>{
+        const currentUser = AuthService.getCurrentUser();
+        if(!currentUser){
+            console.log("User not found");
+            return;
+        }
+
+        try{
+            const response = await axios.post(`${API_URL}/re-login`, currentUser.username);
+
+            if(response){
+                console.log(response.data);
+                return response;
+            }
+        } catch(error){
+            console.error('React error re-logging in: ', error);
+            AuthService.logout();
+        }
+    },
+
     getAllProperties: async()=>{
         console.log("fetching all properties");
         
@@ -83,28 +111,9 @@ const AuthService = {
             return response.data;
         } catch (error) {
             console.error("Error fetching all properties", error.response.data);
-            AuthService.reLogin();
+            AuthService.relogin();
         }
     },
-
-    reLogin: async()=>{
-        console.log("Logging in again");
-        const currentUser = AuthService.getCurrentUser();
-        console.log("current user: ", currentUser.refreshToken);
-        
-        try {
-            const response = await axios.post(`${API_URL}/refresh-token`, {refreshToken: currentUser.refreshToken});
-
-            if(response){
-                // console.log("New access token: ", response.data);
-                AuthService.setCurrentUser(response.data);
-                // AuthService.signIn(response.data.username)
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
 }
 
 export default AuthService;

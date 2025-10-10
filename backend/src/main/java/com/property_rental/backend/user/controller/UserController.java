@@ -43,7 +43,7 @@ public class UserController {
     @ExceptionHandler(ExpiredJwtException.class)
     @ResponseBody
     public Map<String, String> exceptionHandler() {
-        return Collections.singletonMap("errMessage", "JWT Token is expired, please login again.");
+        return Collections.singletonMap("errMessage", "JWT RefreshToken is expired, please login again.");
     }
 
     @PostMapping("/wishListProperty/{propertyId}")

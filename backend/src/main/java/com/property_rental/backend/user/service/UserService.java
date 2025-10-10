@@ -3,7 +3,7 @@ package com.property_rental.backend.user.service;
 import com.property_rental.backend.core.config.AppConfig;
 import com.property_rental.backend.admin.repository.AdminRepository;
 import com.property_rental.backend.user.repository.UserRepository;
-import com.property_rental.backend.user.entities.Admin;
+import com.property_rental.backend.admin.entities.Admin;
 import com.property_rental.backend.user.entities.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,7 +38,6 @@ public class UserService implements UserDetailsService {
     public User registerUser(User user) {
         // Encode the password before saving it to the database
         user.setPassword(appConfig.passwordEncoder().encode(user.getPassword()));
-        user.setRegistrationDate(LocalDateTime.now());
         // Set isOwner to false by default for a standard user registration
 //        System.out.println(user.isOwner()+"*********************");
         return userRepository.save(user);

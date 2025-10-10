@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 request.setAttribute("expired", "true");
                 throw e;
             } catch (MalformedJwtException e) {
-                logger.info("Some changed has done in token !! Invalid Token");
+                logger.info("Some changed has done in token !! Invalid RefreshToken");
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();

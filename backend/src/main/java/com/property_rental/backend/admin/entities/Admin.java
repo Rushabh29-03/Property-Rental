@@ -1,22 +1,43 @@
-package com.property_rental.backend.user.entities;
+package com.property_rental.backend.admin.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "admin")
 public class Admin {
 
+    //    getters and setters
     //    create fields
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "admin_id")
     private int id;
 
+    @Setter
+    @Getter
     @Column(name = "username", nullable = false, unique = true)
     private String userName;
 
+    @Setter
+    @Getter
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Setter
+    @Getter
+    @Column(name = "refresh_token", nullable = false)
+    private String refreshToken;
+
+    @Setter
+    @Getter
+    @Column(name = "expiry_date", nullable = false)
+    private Instant expiryDate;
 
     //    empty constructor
     public Admin(){}
@@ -27,31 +48,6 @@ public class Admin {
         this.password = password;
     }
 
-    //    getters and setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public String toString() {
         return "Admin{" +
@@ -59,5 +55,9 @@ public class Admin {
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    public boolean isRefreshTokenExpired() {
+        return this.expiryDate.isBefore(Instant.now());
     }
 }

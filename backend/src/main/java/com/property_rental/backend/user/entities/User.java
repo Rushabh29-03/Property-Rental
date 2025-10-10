@@ -1,6 +1,8 @@
 package com.property_rental.backend.user.entities;
 
+import com.property_rental.backend.refreshToken.entities.RefreshToken;
 import com.property_rental.backend.rental.entities.RentedProperty;
+import com.property_rental.backend.refreshToken.dtos.RefreshTokenDto;
 import com.property_rental.backend.wishlist.entities.WishListedProperty;
 import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.wishlist.dtos.WishListedPropertyDto;
@@ -9,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,10 +64,10 @@ public class User {
     @Column(name = "is_owner")
     private boolean isOwner=false; //DEFAULT false
 
-    @Setter
     @Getter
-    @Column(name = "registration_date", columnDefinition = "TIMESTAMP DEFAULT current_timestamp", updatable = false)
-    private LocalDateTime registrationDate; //DEFAULT current_timestamp
+    @CreatedDate
+    @Column(name = "created_at")
+    private final LocalDateTime createdAt=LocalDateTime.now();
 
     //    OWNER TO PROPERTY
     @OneToMany(mappedBy = "owner",
@@ -81,11 +84,15 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<WishListedProperty> wishListedProperties;
 
+    //    USER TO TOKEN
+    @Setter
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private RefreshToken refreshToken;
+
     //    empty constructor
     public User (){}
 
-//    constructor
-
+    //    constructor
     public User(String userName, String password, String email, String firstName, String lastName, String phoneNo) {
         this.userName = userName;
         this.password = password;
@@ -139,6 +146,10 @@ public class User {
         return wishListedPropertyDtoList;
     }
 
+    public RefreshTokenDto getRefreshToken() {
+        return new RefreshTokenDto(refreshToken);
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -150,7 +161,6 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", phoneNo='" + phoneNo + '\'' +
                 ", isOwner=" + isOwner +
-                ", registrationDate='" + registrationDate + '\'' +
                 '}';
     }
 

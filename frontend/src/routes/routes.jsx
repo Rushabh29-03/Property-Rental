@@ -6,6 +6,7 @@ import OwnerDashboard from '../components/ownerDashboard/OwnerDashboard';
 import AllProperties from '../components/allProperties/AllProperties';
 import PreviewProperty from '../components/previewProperty/PreviewProperty';
 import UserWishListPage from '../components/userWishListPage/UserWishListPage';
+import Api from '../components/aapi/api';
 
 
 const AppRoutes = () => {
@@ -27,8 +28,11 @@ const AppRoutes = () => {
       {/* user wishlisted properties page */}
       <Route path='/wishList' element={<UserWishListPage />}/>
 
-      {/* testing */}
+      {/* all properties */}
       <Route path='/properties' element={<AllProperties />}/>
+
+      {/* testing */}
+      <Route path='api/testing' element={<Api />}/>
     </Routes>
   );
 };

@@ -28,7 +28,7 @@ const AdminService = {
         } catch (error) {
             console.error("React error editing property: ", error);
             if(error.response.data.tokenErrMessage){
-                AuthService.reLogin();
+                AuthService.logout();
             }
         }
     },
