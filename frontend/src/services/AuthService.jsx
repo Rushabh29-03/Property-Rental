@@ -54,7 +54,8 @@ const AuthService = {
             return response.data; // Return the data
             
         } catch (error) {
-            console.error("Sign-in error:", error);            
+            console.error("Sign-in error:", error);
+            alert(error.response.data.errMessage);
         }
     },
 

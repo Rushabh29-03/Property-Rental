@@ -24,39 +24,36 @@ public class FacilityController {
         this.facilityService = facilityService;
     }
 
-    @PostMapping("/addNewFacility")
-    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
-    public ResponseEntity<?> addNewFacility(@RequestBody Facility facility){
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Map<String, Object> response = new HashMap<>();
-        String role = authentication.getAuthorities().toArray()[0].toString();
-        if(role.equals("ROLE_USER")){
-            response.put("errMessage", "Access Denied!! you don't have access to add facilities");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-        }
+    // GET ALL FACILITIES - accessible to all authenticated users
+    @GetMapping("/getAllFacilities")
+    public ResponseEntity<?> getAllFacilities() {
         try {
-            facility.setFacName(facility.getFacName().toLowerCase());
-            Facility createdFacility = facilityService.createFacility(facility);
-            response.put("message", "Facility added successfully");
-            response.put("added facility", createdFacility);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            List<FacilityDto> facilities = facilityService.getAllFacilities();
+            return new ResponseEntity<>(facilities, HttpStatus.OK);
         } catch (Exception e) {
-            response.put("errMessage", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            Map<String, String> response = new HashMap<>();
+            response.put("errMessage", "Error fetching facilities");
+            response.put("detailError", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getAllFacilities")
-    public ResponseEntity<?> getAllFacilities() {
+    // CREATE NEW FACILITY - only ADMIN and OWNER can create facilities
+    @PostMapping("/createFacility")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    public ResponseEntity<?> createFacility(@RequestBody Facility facility) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<FacilityDto> facilityList = facilityService.getAllFacilities();
-            response.put("message", "all facilities fetched successfully");
-            response.put("facilityList", facilityList);
-            return new ResponseEntity<>(facilityList, HttpStatus.OK);
+            // Convert facility name to lowercase to maintain consistency
+            facility.setFacName(facility.getFacName().toLowerCase());
+
+            Facility createdFacility = facilityService.createFacility(facility);
+            response.put("message", "Facility created successfully");
+            response.put("facility", new FacilityDto(createdFacility));
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            response.put("errMessage", e.getMessage());
+            response.put("errMessage", "Error creating facility");
+            response.put("detailError", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

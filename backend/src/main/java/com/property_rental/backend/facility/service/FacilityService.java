@@ -18,11 +18,21 @@ public class FacilityService {
     }
 
     @Transactional
-    public Facility createFacility(Facility facility){
+    public Facility createFacility(Facility facility) {
         return facilityRepository.save(facility);
     }
 
     public List<FacilityDto> getAllFacilities() {
         return facilityRepository.allFacilities();
+    }
+
+    // Additional method to get facility by name
+    public Facility getFacilityByName(String facName) {
+        return facilityRepository.findByFacName(facName).orElse(null);
+    }
+
+    // Check if facility exists
+    public boolean facilityExists(String facName) {
+        return facilityRepository.findByFacName(facName).isPresent();
     }
 }

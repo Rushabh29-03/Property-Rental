@@ -266,8 +266,7 @@ function OwnerDashboard() {
     setSubmitMessage(`!!! Photo upload failed: ${error}`);
   };
 
-  // !USE-EFFECT
-  // Load properties on component mount
+  // !USE-EFFECT - Load properties on component mount
   useEffect(() => {
     const userId = currentUser?.username;
     if (userId) {
@@ -277,6 +276,7 @@ function OwnerDashboard() {
     }
   }, [currentUser?.username]);
 
+  // !USE-EFFECT - load photos of properties
   useEffect(() => {
     for (const i of properties) {
       loadPropertyPhotosAndFirstImage(i.id);

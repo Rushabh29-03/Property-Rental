@@ -12,7 +12,7 @@ function EditProperty({ property, onClose, prId, onUpdate }) {
     const [areaUnit, setAreaUnit] = useState(property.areaUnit || "sq_feet");
     const [monthlyRent, setMonthlyRent] = useState(property.monthlyRent || 0);
     const [noOfBedrooms, setNoOfBedrooms] = useState(property.noOfBedrooms || 0);
-    const [securityDeposit, setSecurityDeposit] = useState(property.securityDepositAmount || 0);
+    const [securityDeposit, setSecurityDeposit] = useState(property.securityDepositAmount || '');
     const [minStay, setMinStay] = useState(property.minStay || 0);
     const [petsPolicy, setPetsPolicy] = useState(property.petsPolicy || "");
     const [isSmokingAllowed, setIsSmokingAllowed] = useState(property.smokingAllowed || false);

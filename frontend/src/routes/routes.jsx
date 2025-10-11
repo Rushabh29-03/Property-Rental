@@ -7,6 +7,7 @@ import AllProperties from '../components/allProperties/AllProperties';
 import PreviewProperty from '../components/previewProperty/PreviewProperty';
 import UserWishListPage from '../components/userWishListPage/UserWishListPage';
 import Api from '../components/aapi/api';
+import ApiPreviewProperty from '../components/aapi/ApiPreviewProperty';
 
 
 const AppRoutes = () => {
@@ -32,7 +33,7 @@ const AppRoutes = () => {
       <Route path='/properties' element={<AllProperties />}/>
 
       {/* testing */}
-      <Route path='api/testing' element={<Api />}/>
+      <Route path='api/testing' element={<ApiPreviewProperty />}/>
     </Routes>
   );
 };
