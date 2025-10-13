@@ -68,7 +68,7 @@ const PhotoService = {
                 },
                 timeout: 30000 // 30 seconds
             });
-            console.log("Photos metadata:", response.data);
+            // console.log("Photos metadata:", response.data);
             return response.data;
         } catch (error) {
             console.error("Fetch photos error:", error);
@@ -97,6 +97,8 @@ const PhotoService = {
                 },
                 timeout: 30000
             });
+            // console.log(response);
+            
             return response;
         } catch (error) {
             console.error("Fetch photo error:", error);
@@ -104,7 +106,7 @@ const PhotoService = {
         }
     },
 
-    // Get photo as raw image URL (for direct display in img tags) - FIXED
+    // Get photo as raw image URL (for direct display in img tags)
     getPhotoRawUrl: (photoId) => {
         const currentUser = AuthService.getCurrentUser();
         if (!currentUser || !currentUser.accessToken) {
@@ -115,11 +117,11 @@ const PhotoService = {
         return `${API_URL}/image/${photoId}/raw`;
     },
 
-    // Get photo as base64 data URL for immediate display - FIXED
+    // Get photo as base64 data URL for immediate display
     getPhotoDataUrl: async (photoId) => {
         try {
             const response = await PhotoService.fetchPhotoById(photoId);
-            console.log("Fetched photo data:", response);
+            // console.log("Fetched photo data:", response);
             
             if (response?.data?.photo?.base64Data && response?.data?.photo?.contentType) {
                 return `data:${response.data.photo.contentType};base64,${response.data.photo.base64Data}`;

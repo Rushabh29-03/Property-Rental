@@ -24,7 +24,7 @@ const PropertyService = {
         } catch (error) {
             console.error(`Error getting property with ID ${propertyId}: `, error.response?.data);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             throw error;
         }
@@ -49,7 +49,7 @@ const PropertyService = {
         } catch (error) {
             console.error("Error adding property: ", error.response?.data);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             throw error;
         }
@@ -76,7 +76,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error editing property: ", error);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             throw error;
         }
@@ -102,7 +102,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error fetching facilities for property id: ", prId, error);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             throw error;
         }
@@ -127,7 +127,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error fetching all facilities: ", error);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             throw error;
         }
@@ -152,7 +152,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error adding facility to property: ", error);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             // Extract error message from response
             const errorMessage = error.response?.data || error.message || 'Failed to add facility';
@@ -180,7 +180,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React error removing facility from property: ", error);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             // Extract error message from response
             const errorMessage = error.response?.data?.errMessage || error.message || 'Failed to remove facility';
@@ -209,7 +209,7 @@ const PropertyService = {
         } catch (error) {
             console.error("React Error deleting property: ", error);
             if (error.response?.data?.tokenErrMessage) {
-                AuthService.logout();
+                AuthService.relogin();
             }
             throw error;
         }

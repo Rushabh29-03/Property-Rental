@@ -3,7 +3,7 @@ import { Environment } from "../environments/GlobalVariables";
 import AuthService from "./AuthService";
 
 
-const API_URL=Environment.apiUrl + '/user'; //localhost:8080
+const API_URL=Environment.apiUrl + '/user'; //localhost:8080/user
 
 const UserService = {
 
@@ -27,7 +27,7 @@ const UserService = {
         } catch (error) {
             console.error(`React error marking property: ${prId} as wishlist: `, error);
             if(error.response.data.tokenErrMessage){
-                AuthService.logout();
+                AuthService.relogin();
             }
         }
     },
@@ -53,7 +53,7 @@ const UserService = {
         } catch (error) {
             console.error(`React Error fetching wishlisted properties for user: ${currentUser.username}: `, error.response.data);
             if(error.response.data.tokenErrMessage){
-                AuthService.logout();
+                AuthService.relogin();
             }
         }
     },
@@ -78,7 +78,7 @@ const UserService = {
         } catch (error) {
             console.error(`React error removing property ${prId} from wishlist`);
             if(error.response.data.tokenErrMessage){
-                AuthService.logout();
+                AuthService.relogin();
             }
         }
     },

@@ -26,7 +26,7 @@ const OwnerService = {
         } catch (error) {
             console.error("Error getting property: ", error.response.data);
             if(error.response.data.tokenErrMessage){
-                AuthService.logout();
+                AuthService.relogin();
             }
             else {
                 return [];

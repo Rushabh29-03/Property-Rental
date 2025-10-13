@@ -216,4 +216,11 @@ public class Property {
         wishListedProperties.add(wishListedProperty);
         wishListedProperty.setProperty(this);
     }
+
+    public void markAsRented(RentedProperty rentedProperty){
+        if(rentedProperties==null)
+            rentedProperties = new ArrayList<>();
+        rentedProperties.add(rentedProperty);
+        rentedProperty.setProperty(this);
+    }
 }

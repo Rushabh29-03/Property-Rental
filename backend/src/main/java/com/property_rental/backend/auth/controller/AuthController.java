@@ -190,7 +190,7 @@ public class AuthController {
             }
 
             UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
-            this.doAuthenticate(userDetails.getUsername(), userDetails.getPassword());
+//            this.doAuthenticate(userDetails.getUsername(), userDetails.getPassword());
 
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 

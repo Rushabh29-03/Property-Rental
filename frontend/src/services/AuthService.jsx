@@ -88,15 +88,17 @@ const AuthService = {
         }
 
         try{
-            const response = await axios.post(`${API_URL}/re-login`, currentUser.username);
+            const response = await axios.post(`${API_URL}/re-login`, {userName : currentUser.username});
 
             if(response){
-                console.log(response.data);
-                return response;
+                // console.log(response.data);
+                AuthService.setCurrentUser(response.data);
+                window.location.reload();
+                // return response;
             }
         } catch(error){
             console.error('React error re-logging in: ', error);
-            AuthService.logout();
+            // AuthService.logout();
         }
     },
 

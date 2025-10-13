@@ -40,7 +40,7 @@ function AllProperties() {
     wishListData[property.propertyDto?.id] = true;
   });
 
-  // Load property photos
+  // !Load property photos
   const loadPropertyPhotos = async (propertyId) => {
     if (propertyPhotos[propertyId] || loadingPhotos.has(propertyId)) {
       return;
@@ -79,7 +79,7 @@ function AllProperties() {
     }
   };
 
-  // GET ALL PROPERTIES
+  // !GET ALL PROPERTIES
   const handleGetProperty = async () => {
     setLoading(true);
     setError(null);
@@ -102,14 +102,34 @@ function AllProperties() {
     }
   };
 
-  // GET USER'S WISHLISTED PROPERTIES
+  // !GET USER'S WISHLISTED PROPERTIES
   const getWishListed = async () => {
     try {
       const response = await UserService.getWishListedProperties();
-      setWishListedProperties(Array.isArray(response) ? response : []);
+      if (response) {
+        setWishListedProperties(Array.isArray(response.wishListedProperties) ? response.wishListedProperties : []);
+      } else throw error;
     } catch (error) {
       console.error(error);
       setWishListedProperties([])
+    }
+  };
+
+  // !HANDLE ADD WISHLIST
+  const handleAddWishlist = async (e, prId) => {
+    e.preventDefault();
+    const response = await UserService.addWishList(prId, wishListData);
+    if (response) {
+      getWishListed();
+    }
+  };
+
+  // !HANDLE REMOVE WISHLIST
+  const handleRemoveWishlist = async (e, prId) => {
+    e.preventDefault();
+    const response = await UserService.removeWishListedProperty(prId);
+    if (response) {
+      getWishListed();
     }
   };
 
@@ -295,7 +315,12 @@ function AllProperties() {
                   <div
                     key={property.id}
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                    onClick={() => handleNavigate(property.id)}
+                    onClick={(e) => {
+                      // Only navigate to property details if we're not clicking on wishlist heart
+                      if (!e.target.closest('#wishlistHeart')) {
+                        handleNavigate(property.id);
+                      }
+                    }}
                   >
                     {/* Property Image */}
                     <div className="h-48 bg-gray-200 relative">
@@ -354,17 +379,29 @@ function AllProperties() {
                       {/* Verification Badge */}
                       <div className="absolute top-2 left-2">
                         <span className={`px-2 py-1 text-xs rounded-full ${property.isVerified
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
                           }`}>
                           {property.isVerified ? 'Verified' : 'Pending'}
                         </span>
                       </div>
 
                       {/* Wishlist Badge */}
-                      {wishListData[property.id] && (
-                        <div className="absolute bottom-2 right-2">
-                          <div className="bg-red-500 text-white p-1 rounded-full">
+                      {wishListData[property.id] ? (
+                        <div className="absolute bottom-2 right-2" id='wishlistHeart'>
+                          <div
+                            onClick={(e) => handleRemoveWishlist(e, property.id)}
+                            className="bg-red-500 text-white p-1 rounded-full">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="absolute bottom-2 right-2" id='wishlistHeart'>
+                          <div
+                            onClick={(e) => handleAddWishlist(e, property.id)}
+                            className="bg-gray-500 text-white p-1 rounded-full">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                             </svg>

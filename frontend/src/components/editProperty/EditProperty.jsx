@@ -53,7 +53,7 @@ function EditProperty({ property, onClose, prId, onUpdate }) {
         return errors;
     };
 
-    // Handle edit property
+    // !HANDLE EDIT PROPERTY
     const handleEditProperty = async (e) => {
         e.preventDefault();
 

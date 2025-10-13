@@ -182,4 +182,12 @@ public class User {
         wishListedProperty.setUser(this);
     }
 
+    public void addRent(RentedProperty rentedProperty) {
+        if(rentedProperties==null)
+            rentedProperties = new ArrayList<>();
+
+        rentedProperties.add(rentedProperty);
+        rentedProperty.setUser(this);
+    }
+
 }

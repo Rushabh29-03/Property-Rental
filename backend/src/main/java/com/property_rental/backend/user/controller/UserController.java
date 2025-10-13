@@ -1,5 +1,10 @@
 package com.property_rental.backend.user.controller;
 
+import com.property_rental.backend.property.entities.Property;
+import com.property_rental.backend.rental.dtos.RentedDto;
+import com.property_rental.backend.rental.entities.RentedProperty;
+import com.property_rental.backend.rental.service.RentedService;
+import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.service.UserService;
 import com.property_rental.backend.wishlist.dtos.WishListedPropertyDto;
 import com.property_rental.backend.wishlist.entities.WishListedProperty;
@@ -23,13 +28,14 @@ public class UserController {
     private final UserService userService;
     private final PropertyService propertyService;
     private final WishListedPropertyService wishListedPropertyService;
+    private final RentedService rentedService;
 
-    public UserController(UserService userService, PropertyService propertyService, WishListedPropertyService wishListedPropertyService) {
+    public UserController(UserService userService, PropertyService propertyService, WishListedPropertyService wishListedPropertyService, RentedService rentedService) {
         this.userService = userService;
         this.propertyService = propertyService;
         this.wishListedPropertyService = wishListedPropertyService;
+        this.rentedService = rentedService;
     }
-
 
     // This endpoint is accessible to all authenticated users.
     // The SecurityConfig already ensures this, but using @PreAuthorize adds a layer of clarity.

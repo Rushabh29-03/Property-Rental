@@ -77,7 +77,7 @@ const PhotoUploadComponent = ({
         }));
     }, []);
 
-    // Handle file selection
+    // !Handle file selection
     const handleFileChange = async (files) => {
         const newFiles = Array.from(files);
         const currentFileCount = selectedFiles.length;
@@ -176,7 +176,7 @@ const PhotoUploadComponent = ({
         setErrors([]);
     };
 
-    // Upload files
+    // !Upload files
     const handleUpload = async (filesToUpload = selectedFiles) => {
         if (!propertyId) {
             setErrors(['Property ID is required for upload.']);

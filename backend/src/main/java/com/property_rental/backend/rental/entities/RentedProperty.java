@@ -12,8 +12,9 @@ import java.time.LocalDate;
 @Table(name = "rented_property")
 public class RentedProperty {
 
-    //    getters and setters
     //    create fields
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rented_pr_id")
@@ -51,12 +52,16 @@ public class RentedProperty {
     private int duration; //in months
 
 //        RENTED TO USERS
+    @Setter
+    @Getter
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     //    RENTED TO PROPERTY
+    @Setter
+    @Getter
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "property_id", nullable = false)
