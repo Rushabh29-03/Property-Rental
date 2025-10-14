@@ -85,5 +85,26 @@ public class OwnerController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @DeleteMapping("reject-rent-request")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<?> rejectRentRequest(@RequestBody Map<String, Integer> requestData) {
+        Map<String, Object> response = new HashMap<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            int userId = requestData.get("userId");
+            int propertyId = requestData.get("propertyId");
+
+            rentedService.rejectRentRequest(userId, propertyId);
+            response.put("message", "Rent request rejected successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 

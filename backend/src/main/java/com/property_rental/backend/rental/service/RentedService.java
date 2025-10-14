@@ -71,6 +71,16 @@ public class RentedService {
         return new RentedDto(rentedRepository.save(rentedProperty));
     }
 
+    @Transactional
+    public void rejectRentRequest(int userId, int propertyId) {
+        RentedProperty rentedProperty = rentedRepository.findByUserIdAndPropertyId(userId, propertyId).orElseThrow(
+                () -> new NoSuchElementException("No rent request found with userId: " + userId + " and propertyId: " + propertyId)
+        );
+
+        // Remove the rent request by deleting the entity
+        rentedRepository.delete(rentedProperty);
+    }
+
     public List<RentedDto> getRentedPropertiesByUserId(int userId) {
         return rentedRepository.findByUserId(userId);
     }
