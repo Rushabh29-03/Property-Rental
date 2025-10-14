@@ -4,7 +4,6 @@ import com.property_rental.backend.property.entities.Property;
 import com.property_rental.backend.property.service.PropertyService;
 import com.property_rental.backend.rental.dtos.RentedDto;
 import com.property_rental.backend.rental.entities.RentedProperty;
-import com.property_rental.backend.rental.models.RentRequest;
 import com.property_rental.backend.rental.repository.RentedRepository;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.service.UserService;
@@ -29,21 +28,22 @@ public class RentedService {
     }
 
     @Transactional
-    public RentedDto rentProperty(RentRequest rentRequest) throws NoSuchElementException {
+    public RentedDto rentProperty(RentedDto rentedDto) throws NoSuchElementException {
+        User user = userService.findUserByUserId(rentedDto.getUserId());
+        Property property = propertyService.findPropertyById(rentedDto.getPropertyId());
 
-        User user = userService.findUserByUserId(rentRequest.getUserId()); //both throws NoSuchElementException
-        Property property = propertyService.findPropertyById(rentRequest.getPropertyId());
+        RentedProperty rentedProperty = new RentedProperty(rentedDto);
 
-        try {
-            RentedProperty rentedProperty = new RentedProperty(rentRequest);
+//        adding rented-property to user and property
+        user.addRent(rentedProperty);
+        property.markAsRented(rentedProperty);
 
-            user.addRent(rentedProperty);
-            property.markAsRented(rentedProperty);
+//        calculating duration
+        rentedProperty.setDuration((rentedProperty.getEndDate().getYear() - rentedProperty.getStartDate().getYear()) * 12 +
+                (rentedProperty.getEndDate().getMonthValue() - rentedProperty.getStartDate().getMonthValue()) -
+                ((rentedProperty.getEndDate().getDayOfMonth()<rentedProperty.getStartDate().getDayOfMonth()) ? 1 : 0));
 
-            return new RentedDto(rentedRepository.save(rentedProperty));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new RentedDto(rentedRepository.save(rentedProperty));
     }
 
     @Transactional
@@ -64,9 +64,9 @@ public class RentedService {
         rentedProperty.setFinalSecurityDeposit(rentedDto.getFinalSecurityDeposit());
 
         rentedProperty.setStatus(true);
-        rentedProperty.setDuration((rentedProperty.getEndDate().getYear() - rentedProperty.getStartDate().getYear()) * 12 +
-                (rentedProperty.getEndDate().getMonthValue() - rentedProperty.getStartDate().getMonthValue()) -
-                ((rentedProperty.getEndDate().getDayOfMonth()<rentedProperty.getStartDate().getDayOfMonth()) ? 1 : 0));
+//        rentedProperty.setDuration((rentedProperty.getEndDate().getYear() - rentedProperty.getStartDate().getYear()) * 12 +
+//                (rentedProperty.getEndDate().getMonthValue() - rentedProperty.getStartDate().getMonthValue()) -
+//                ((rentedProperty.getEndDate().getDayOfMonth()<rentedProperty.getStartDate().getDayOfMonth()) ? 1 : 0));
 
         return new RentedDto(rentedRepository.save(rentedProperty));
     }

@@ -5,8 +5,6 @@ import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.property.repository.PropertyRepository;
 import com.property_rental.backend.property.service.PropertyService;
 import com.property_rental.backend.rental.dtos.RentedDto;
-import com.property_rental.backend.rental.entities.RentedProperty;
-import com.property_rental.backend.rental.models.RentRequest;
 import com.property_rental.backend.rental.service.RentedService;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.repository.UserRepository;
@@ -71,7 +69,7 @@ public class OwnerController {
 
     @PostMapping("/accept-rent-request")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<?> acceptRentRequest(@RequestBody RentedDto rentedDto){ //gets userId and propertyId as RequestBody
+    public ResponseEntity<?> acceptRentRequest(@RequestBody RentedDto rentedDto){ //gets userId and propertyId as RequestBody so no need to fetch
         Map<String, Object> response = new HashMap<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try {

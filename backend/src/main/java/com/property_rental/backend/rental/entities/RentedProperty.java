@@ -1,7 +1,7 @@
 package com.property_rental.backend.rental.entities;
 
 import com.property_rental.backend.property.entities.Property;
-import com.property_rental.backend.rental.models.RentRequest;
+import com.property_rental.backend.rental.dtos.RentedDto;
 import com.property_rental.backend.user.entities.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -85,9 +85,9 @@ public class RentedProperty {
         this.status = status;
     }
 
-    public RentedProperty(RentRequest rentRequest){
-        this.startDate = rentRequest.getStartDate();
-        this.endDate = rentRequest.getEndDate();
+    public RentedProperty(RentedDto rentedDto){
+        this.startDate = rentedDto.getStartDate();
+        this.endDate = rentedDto.getEndDate();
     }
 
     public void setStatus(boolean status) {

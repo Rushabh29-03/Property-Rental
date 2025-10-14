@@ -13,4 +13,5 @@ public interface RentedRepository extends JpaRepository<RentedProperty, Integer>
 
     List<RentedDto> findByUserId(int userId);
     Optional<RentedProperty> findByUserIdAndPropertyId(int userId, int propertyId);
+    List<RentedProperty> findByPropertyId(int propertyId);
 }
