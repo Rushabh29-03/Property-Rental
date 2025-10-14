@@ -4,6 +4,10 @@ import com.property_rental.backend.owner.service.OwnerService;
 import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.property.repository.PropertyRepository;
 import com.property_rental.backend.property.service.PropertyService;
+import com.property_rental.backend.rental.dtos.RentedDto;
+import com.property_rental.backend.rental.entities.RentedProperty;
+import com.property_rental.backend.rental.models.RentRequest;
+import com.property_rental.backend.rental.service.RentedService;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -24,15 +28,14 @@ public class OwnerController {
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
     private final PropertyService propertyService;
+    private final RentedService rentedService;
 
-    public OwnerController(OwnerService ownerService,
-                           UserRepository userRepository,
-                           PropertyRepository propertyRepository,
-                           PropertyService propertyService) {
+    public OwnerController(OwnerService ownerService, UserRepository userRepository, PropertyRepository propertyRepository, PropertyService propertyService, RentedService rentedService) {
         this.ownerService = ownerService;
         this.userRepository = userRepository;
         this.propertyRepository = propertyRepository;
         this.propertyService = propertyService;
+        this.rentedService = rentedService;
     }
 
     @ExceptionHandler(InternalError.class)
@@ -64,6 +67,25 @@ public class OwnerController {
            System.err.println("Internal server error while fetching property: "+e.getMessage());
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
+    }
+
+    @PostMapping("/accept-rent-request")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<?> acceptRentRequest(@RequestBody RentedDto rentedDto){ //gets userId and propertyId as RequestBody
+        Map<String, Object> response = new HashMap<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            RentedDto updatedDto = rentedService.acceptRentRequest(rentedDto);
+            response.put("message", "rent request accepted success");
+            response.put("updated rented property", updatedDto);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 

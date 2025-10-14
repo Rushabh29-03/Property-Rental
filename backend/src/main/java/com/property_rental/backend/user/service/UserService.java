@@ -101,7 +101,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User findUserByUserId(int userId){
-        return userRepository.findByUserId(userId).orElseThrow(
+        return userRepository.findById(userId).orElseThrow(
                 ()-> new NoSuchElementException("User not found with id: "+userId)
         );
     }

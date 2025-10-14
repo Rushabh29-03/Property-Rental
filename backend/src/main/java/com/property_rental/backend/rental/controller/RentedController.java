@@ -31,25 +31,6 @@ public class RentedController {
         this.rentedService = rentedService;
     }
 
-    @PostMapping("/rent-property/{propertyId}")
-    public ResponseEntity<?> rentProperty(@PathVariable int propertyId, @RequestBody RentedProperty rentedProperty){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Map<String, Object> response = new HashMap<>();
-        try {
-            RentedDto rentedDto = rentedService.rentProperty(propertyId, authentication.getName(), rentedProperty);
-            response.put("message", "property rented successfully");
-            response.put("rented-property", rentedDto);
-
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (UsernameNotFoundException | NoSuchElementException e) {
-            response.put("errMessage", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            response.put("errMessage", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/get-rented-properties")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> getRentedProperties(){

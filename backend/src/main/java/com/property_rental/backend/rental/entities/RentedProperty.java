@@ -1,6 +1,7 @@
 package com.property_rental.backend.rental.entities;
 
 import com.property_rental.backend.property.entities.Property;
+import com.property_rental.backend.rental.models.RentRequest;
 import com.property_rental.backend.user.entities.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -49,7 +50,11 @@ public class RentedProperty {
     @Setter
     @Getter
     @Column(name = "duration")
-    private int duration; //in months
+    private float duration; //in months
+
+    @Getter
+    @Column(name = "status")
+    private Boolean status=false;
 
 //        RENTED TO USERS
     @Setter
@@ -71,27 +76,37 @@ public class RentedProperty {
     public RentedProperty(){};
 
     //    constructor
-    public RentedProperty(LocalDate startDate, LocalDate endDate, double finalMonthlyRent, double finalSecurityDeposit) {
+    public RentedProperty(LocalDate startDate, LocalDate endDate, double finalMonthlyRent, double finalSecurityDeposit, float duration, boolean status) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.finalMonthlyRent = finalMonthlyRent;
         this.finalSecurityDeposit = finalSecurityDeposit;
-        this.duration = (endDate.getYear() - startDate.getYear()) * 12 +
-                (endDate.getMonthValue() - startDate.getMonthValue()) -
-                ((endDate.getDayOfMonth()<startDate.getDayOfMonth()) ? 1 : 0);
+        this.duration = duration;
+        this.status = status;
     }
 
+    public RentedProperty(RentRequest rentRequest){
+        this.startDate = rentRequest.getStartDate();
+        this.endDate = rentRequest.getEndDate();
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 
     //    toString()
     @Override
     public String toString() {
-        return "RentedProperties{" +
+        return "RentedProperty{" +
                 "id=" + id +
-                ", startDate='" + startDate + '\'' +
-                ", endDate='" + endDate + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 ", finalMonthlyRent=" + finalMonthlyRent +
                 ", finalSecurityDeposit=" + finalSecurityDeposit +
                 ", duration=" + duration +
+                ", status=" + status +
+                ", user=" + user +
+                ", property=" + property +
                 '}';
     }
 }

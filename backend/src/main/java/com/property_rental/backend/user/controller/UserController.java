@@ -3,6 +3,7 @@ package com.property_rental.backend.user.controller;
 import com.property_rental.backend.property.entities.Property;
 import com.property_rental.backend.rental.dtos.RentedDto;
 import com.property_rental.backend.rental.entities.RentedProperty;
+import com.property_rental.backend.rental.models.RentRequest;
 import com.property_rental.backend.rental.service.RentedService;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.service.UserService;
@@ -109,6 +110,27 @@ public class UserController {
             response.put("message", "Removed wishlist successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (UsernameNotFoundException | NoSuchElementException e){
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/rent-property/{propertyId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<?> rentProperty(@PathVariable int propertyId, @RequestBody RentRequest rentRequest) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if(propertyId!=rentRequest.getPropertyId()){
+                return ResponseEntity.badRequest().body(Map.of("errMessage", "Parameter property id is not equal to provided property id"));
+            }
+            RentedDto rentedDto = rentedService.rentProperty(rentRequest);
+            response.put("message", "property rent request sent successfully");
+            response.put("rentedProperty", rentedDto);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (UsernameNotFoundException | NoSuchElementException e) {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
