@@ -82,6 +82,32 @@ const UserService = {
             }
         }
     },
+
+    createRentRequest: async(rentRequestData)=>{
+        const currentUser = AuthService.getCurrentUser();
+        if(!currentUser || !currentUser.accessToken){
+            console.error("Authentication error: missing jwt token");
+            throw new error("User not authenticated");
+        }
+
+        console.log(`Attempting to create rent request`, rentRequestData);
+
+        try {
+            const response = await axios.post(`${API_URL}/rent-property`, rentRequestData, {
+                headers: {
+                    'Authorization': `Bearer ${currentUser.accessToken}`
+                }
+            });
+
+            console.log(response.data);
+            return response.data;
+        } catch (error) {
+            console.error("React error creating rent request: ", error);
+            if(error.response.data.tokenErrMessage){
+                AuthService.relogin();
+            }
+        }
+    },
 }
 
 export default UserService

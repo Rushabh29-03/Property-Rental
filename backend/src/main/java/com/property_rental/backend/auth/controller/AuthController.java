@@ -98,6 +98,7 @@ public class AuthController {
             }
 
             JwtResponse jwtResponse = JwtResponse.builder()
+                    .id(userService.findByUsername(userDetails.getUsername()).getId())
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .username(userDetails.getUsername())
@@ -146,6 +147,7 @@ public class AuthController {
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 
             JwtResponse jwtResponse = JwtResponse.builder()
+                    .id(userService.findByUsername(userDetails.getUsername()).getId())
                     .accessToken(accessToken)
                     .username(userDetails.getUsername())
                     .role(userDetails.getAuthorities().toArray()[0].toString())
@@ -195,6 +197,7 @@ public class AuthController {
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 
             JwtResponse jwtResponse = JwtResponse.builder()
+                    .id(userService.findByUsername(userDetails.getUsername()).getId())
                     .accessToken(accessToken)
                     .username(userDetails.getUsername())
                     .role(userDetails.getAuthorities().toArray()[0].toString())

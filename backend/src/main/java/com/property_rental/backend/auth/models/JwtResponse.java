@@ -12,7 +12,7 @@ import java.util.Collection;
 @Builder
 @ToString
 public class JwtResponse {
-
+    private int id;
     private String accessToken;
     private String refreshToken;
     private String username;

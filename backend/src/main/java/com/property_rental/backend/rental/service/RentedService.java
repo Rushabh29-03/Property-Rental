@@ -81,6 +81,10 @@ public class RentedService {
         rentedRepository.delete(rentedProperty);
     }
 
+    public int getRentRequestsCountByProperty(int propertyId) {
+        return rentedRepository.countPendingRequestsByPropertyId(propertyId);
+    }
+
     public List<RentedDto> getRentedPropertiesByUserId(int userId) {
         return rentedRepository.findByUserId(userId);
     }

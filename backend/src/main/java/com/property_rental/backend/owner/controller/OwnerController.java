@@ -106,5 +106,36 @@ public class OwnerController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/property/{propertyId}/rent-requests-count")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> getRentRequestsCount(@PathVariable int propertyId) {
+        Map<String, Object> response = new HashMap<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = userRepository.findByUserName(authentication.getName()).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + authentication.getName())
+        );
+
+        try {
+            // Verify that the property belongs to the authenticated user
+            boolean isOwner = user.getProperties().stream()
+                    .anyMatch(property -> property.getId() == propertyId);
+
+            if (!isOwner) {
+                response.put("errMessage", "You don't have permission to view requests for this property");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+
+            int count = rentedService.getRentRequestsCountByProperty(propertyId);
+            response.put("count", count);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }
 

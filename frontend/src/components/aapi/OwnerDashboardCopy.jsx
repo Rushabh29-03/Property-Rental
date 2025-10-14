@@ -1,13 +1,10 @@
-import AuthService from '../../services/AuthService';
-import { useState, useEffect } from 'react';
-import OwnerService from '../../services/OwnerService';
-import PropertyService from '../../services/PropertyService';
-import './OwnerDashboard.css'
-import { useNavigate } from 'react-router';
-import PhotoUploadComponent from '../photoUploadPage/PhotoUploadPage';
-import PhotoService from '../../services/PhotoService';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import AuthService from "../../services/AuthService";
+import OwnerService from "../../services/OwnerService";
+import PhotoService from "../../services/PhotoService";
 
-function OwnerDashboard() {
+function OwnerDashboardCopy() {
   const currentUser = AuthService.getCurrentUser();
   const navigate = useNavigate();
 
@@ -817,4 +814,4 @@ function OwnerDashboard() {
   );
 }
 
-export default OwnerDashboard;
+export default OwnerDashboardCopy;

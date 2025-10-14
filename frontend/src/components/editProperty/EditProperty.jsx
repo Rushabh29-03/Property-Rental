@@ -94,7 +94,7 @@ function EditProperty({ property, onClose, prId, onUpdate }) {
                     <h2 className="text-xl font-semibold text-gray-900">Edit Property</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                        className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
                     >
                         ×
                     </button>
@@ -299,7 +299,7 @@ function EditProperty({ property, onClose, prId, onUpdate }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="cursor-pointer px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
                             disabled={isSubmitting}
                         >
                             Cancel
@@ -307,7 +307,7 @@ function EditProperty({ property, onClose, prId, onUpdate }) {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`px-6 py-2 rounded-md font-medium transition-colors ${isSubmitting
+                            className={`px-6 py-2 rounded-md font-medium transition-colors cursor-pointer ${isSubmitting
                                 ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                                 : 'bg-indigo-600 text-white hover:bg-indigo-700'
                                 }`}
