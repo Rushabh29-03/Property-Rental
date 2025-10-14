@@ -387,7 +387,8 @@ function AllProperties() {
                       </div>
 
                       {/* Wishlist Badge */}
-                      {wishListData[property.id] ? (
+                      {role==='ROLE_USER' && (
+                        wishListData[property.id] ? (
                         <div className="absolute bottom-2 right-2" id='wishlistHeart'>
                           <div
                             onClick={(e) => handleRemoveWishlist(e, property.id)}
@@ -407,6 +408,7 @@ function AllProperties() {
                             </svg>
                           </div>
                         </div>
+                      )
                       )}
                     </div>
 

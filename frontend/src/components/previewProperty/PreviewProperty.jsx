@@ -388,6 +388,7 @@ function PreviewProperty() {
   // !USE-EFFECT 1 - fetching property
   useEffect(() => {
     const userId = AuthService.getCurrentUser()?.username;
+    window.scrollTo(0, 0);
     if (userId) {
       handleGetPropertyById(pr_id);
     } else {

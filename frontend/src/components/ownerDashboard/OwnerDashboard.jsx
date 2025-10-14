@@ -169,7 +169,7 @@ function OwnerDashboard() {
           [propertyId]: response.photos
         }));
 
-        console.log(`Loaded ${response.photos.length} photos metadata for property ${propertyId}`);
+        // console.log(`Loaded ${response.photos.length} photos metadata for property ${propertyId}`);
 
         // 2. Immediately load the first photo's actual data
         const firstPhoto = response.photos[0];
@@ -183,7 +183,7 @@ function OwnerDashboard() {
                 ...prev,
                 [firstPhoto.id]: dataUrl
               }));
-              console.log(`Loaded photo data for first photo ${firstPhoto.id}`);
+              // console.log(`Loaded photo data for first photo ${firstPhoto.id}`);
             }
           } catch (photoError) {
             console.error(`Error loading first photo ${firstPhoto.id}:`, photoError);
@@ -225,7 +225,7 @@ function OwnerDashboard() {
           ...prev,
           [photoId]: dataUrl
         }));
-        console.log(`Loaded photo data for photo ${photoId}`);
+        // console.log(`Loaded photo data for photo ${photoId}`);
       } else {
         console.warn(`Failed to load photo data for photo ${photoId}`);
       }

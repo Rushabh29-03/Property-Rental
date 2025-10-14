@@ -22,9 +22,12 @@ function UserWishListPage() {
 
   // Navigate to property details
   const handleNavigate = (prId) => {
-    navigate(`/property/${prId}`);
-  };
-
+    navigate(`/property/${prId}`, {
+            state:{
+                isWishListedProp : true
+            }
+    });
+  }
   // !GET WISHLISTED PROPERTIES
   const getWishListed = async () => {
     try {
@@ -154,9 +157,9 @@ function UserWishListPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Owner Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Wishlisted Properties</h1>
           <p className="mt-2 text-gray-600">
-            Manage your properties and listings
+            Manage your wishlisted properties
           </p>
         </div>
 
@@ -173,15 +176,15 @@ function UserWishListPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h4m6 0h4" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No properties yet</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
                 <p className="text-gray-500 mb-4">
-                  Get started by adding your first property listing.
+                  Get started by adding your first property to wishlist.
                 </p>
                 <button
-                  onClick={() => setShowAddForm(true)}
+                  onClick={() => navigate('/properties')}
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
                 >
-                  Add Your First Property
+                  Go to all properties.
                 </button>
               </div>
             ) : (
@@ -341,10 +344,10 @@ export default UserWishListPage
 
 //     // !HANDLE NAVIGATE
 //     const handleNavigate = (pr_id)=>{
-//         navigate(`/property/${pr_id}`, {
-//             state:{
-//                 isWishListedProp : true
-//             }
+        // navigate(`/property/${pr_id}`, {
+        //     state:{
+        //         isWishListedProp : true
+        //     }
 //         });
 //     }
 

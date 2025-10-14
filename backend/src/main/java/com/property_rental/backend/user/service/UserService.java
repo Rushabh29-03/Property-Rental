@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -97,5 +98,11 @@ public class UserService implements UserDetailsService {
                 ()-> new UsernameNotFoundException("User not found with username: "+username)
         );
         return user;
+    }
+
+    public User findUserByUserId(int userId){
+        return userRepository.findByUserId(userId).orElseThrow(
+                ()-> new NoSuchElementException("User not found with id: "+userId)
+        );
     }
 }
