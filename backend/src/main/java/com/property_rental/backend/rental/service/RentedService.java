@@ -2,6 +2,7 @@ package com.property_rental.backend.rental.service;
 
 import com.property_rental.backend.property.entities.Property;
 import com.property_rental.backend.property.service.PropertyService;
+import com.property_rental.backend.rental.dtos.RentRequestDto;
 import com.property_rental.backend.rental.dtos.RentedDto;
 import com.property_rental.backend.rental.entities.RentedProperty;
 import com.property_rental.backend.rental.repository.RentedRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -87,5 +89,16 @@ public class RentedService {
 
     public List<RentedDto> getRentedPropertiesByUserId(int userId) {
         return rentedRepository.findByUserId(userId);
+    }
+
+    public List<RentRequestDto> getPropertyRentRequestsByPropertyId(int propertyId) {
+        List<RentRequestDto> rentRequestDtos = new ArrayList<>();
+        for(RentedProperty i: rentedRepository.findByPropertyId(propertyId)) {
+            if(!i.getStatus()) {
+                rentRequestDtos.add(new RentRequestDto(i));
+            }
+        }
+
+        return rentRequestDtos;
     }
 }

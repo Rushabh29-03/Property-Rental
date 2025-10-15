@@ -8,6 +8,7 @@ import PreviewProperty from '../components/previewProperty/PreviewProperty';
 import UserWishListPage from '../components/userWishListPage/UserWishListPage';
 import RentRequest from '../components/aapi/RentRequestForm';
 import OwnerDashboardCopy from '../components/aapi/OwnerDashboardCopy';
+import ApiPreviewProperty from '../components/aapi/ApiPreviewProperty';
 
 
 const AppRoutes = () => {
@@ -33,7 +34,7 @@ const AppRoutes = () => {
       <Route path='/properties' element={<AllProperties />}/>
 
       {/* testing */}
-      <Route path='api/testing' element={<OwnerDashboardCopy />}/>
+      <Route path='api/testing' element={<RentRequest />}/>
     </Routes>
   );
 };

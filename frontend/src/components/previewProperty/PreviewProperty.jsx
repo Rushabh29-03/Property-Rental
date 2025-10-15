@@ -7,6 +7,7 @@ import UserService from '../../services/UserService';
 import PhotoService from '../../services/PhotoService';
 import EditProperty from '../editProperty/EditProperty';
 import PhotoUploadComponent from '../photoUploadPage/PhotoUploadPage';
+import OwnerService from '../../services/OwnerService';
 
 function PreviewProperty() {
   // Navigate and Location hooks
@@ -39,6 +40,7 @@ function PreviewProperty() {
   const [description, setDescription] = useState("");
   const [area, setArea] = useState(0.0);
   const [monthlyRent, setMonthlyRent] = useState(0.0);
+  const [securityDeposit, setSecurityDeposit] = useState(0.0)
   const [minStay, setMinStay] = useState(0);
   const [petsPolicy, setPetsPolicy] = useState(null);
   const [isSmokingAllowed, setIsSmokingAllowed] = useState(false);
@@ -49,6 +51,13 @@ function PreviewProperty() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const [showRentRequests, setShowRentRequests] = useState(false)
+  const [loadingRequests, setLoadingRequests] = useState(false)
+  const [rentRequests, setRentRequests] = useState([])
+
+  // Rent response state
+  const [finalMonthlyRent, setFinalMonthlyRent] = useState(monthlyRent)
+  const [finalSecurityDeposit, setFinalSecurityDeposit] = useState(0.0)
 
   // Facilities state
   const [facilities, setFacilities] = useState([])
@@ -59,7 +68,7 @@ function PreviewProperty() {
   const [facilityLoadingStates, setFacilityLoadingStates] = useState({})
 
   // Wishlist state
-  const [note, setNote] = useState("EE haloo");
+  const [note, setNote] = useState("");
   const isWishListed = location.state?.isWishListedProp;
 
   // CSS classes
@@ -71,6 +80,7 @@ function PreviewProperty() {
     "address": address,
     "area": area,
     "monthlyRent": monthlyRent,
+    "securityDeposit": securityDeposit,
     "minStay": minStay,
     "petsPolicy": petsPolicy,
     "smokingAllowed": isSmokingAllowed,
@@ -197,19 +207,80 @@ function PreviewProperty() {
   };
 
   // !EDIT PROPERTY RULES
-  const handleEditPropertyRules = async (e) => {
-    e.preventDefault();
-    console.log("Sending data: ", propertyRulesData);
+  // const handleEditPropertyRules = async (e) => {
+  //   e.preventDefault();
+  //   console.log("Sending data: ", propertyRulesData);
+  //   try {
+  //     const response = await PropertyService.editProperty(propertyRulesData, pr_id);
+  //     if (response) {
+  //       alert('Property updated');
+  //       // Refresh property data
+  //       await handleGetPropertyById(pr_id);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert('Failed to update property');
+  //   }
+  // };
+
+  // !HANDLE GET PROPERTY RENT REQUESTS
+  const handleGetRentRequests = async () => {
+    setLoadingRequests(true);
     try {
-      const response = await PropertyService.editProperty(propertyRulesData, pr_id);
+      const requests = await OwnerService.getPropertyRentRequests(pr_id);
+      setRentRequests(requests);
+      setShowRentRequests(true);
+    } catch (error) {
+      console.error('Error fetching rent requests:', error);
+      setRentRequests([]);
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  // !HANDLE ACCEPT RENT REQUEST
+  const handleAcceptRentRequest = async (request) => {
+    try {
+      const rentData = {
+        userId: request.userId,
+        propertyId: request.propertyId,
+        finalMonthlyRent: request.monthlyRent,
+        finalSecurityDeposit: request.securityDeposit
+      };
+
+      const response = await OwnerService.acceptRentRequest(rentData);
       if (response) {
-        alert('Property updated');
-        // Refresh property data
-        await handleGetPropertyById(pr_id);
+        alert('Rent request accepted successfully!');
+        // Refresh rent requests
+        await handleGetRentRequests();
       }
     } catch (error) {
-      console.error(error);
-      alert('Failed to update property');
+      console.error('Error accepting rent request:', error);
+      alert('Failed to accept rent request. Please try again.');
+    }
+  };
+
+  // !HANDLE REJECT RENT REQUEST
+  const handleRejectRentRequest = async (request) => {
+    if (!window.confirm('Are you sure you want to reject this rent request?')) {
+      return;
+    }
+
+    try {
+      const requestData = {
+        userId: request.userId,
+        propertyId: request.propertyId
+      };
+
+      const response = await OwnerService.rejectRentRequest(requestData);
+      if (response) {
+        alert('Rent request rejected successfully!');
+        // Refresh rent requests
+        await handleGetRentRequests();
+      }
+    } catch (error) {
+      console.error('Error rejecting rent request:', error);
+      alert('Failed to reject rent request. Please try again.');
     }
   };
 
@@ -523,7 +594,7 @@ function PreviewProperty() {
   return (
     <div id="preview-property-body" className="min-h-screen bg-gray-50">
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 
-        ${showEditModal || showPhotoUpload || showFacilityModal ? 'blur-md' : ''}`}>
+        ${showEditModal || showPhotoUpload || showFacilityModal || showRentRequestModal ? 'blur-md' : ''}`}>
         <button
           onClick={() => navigate(-1)}
           className="mb-4 text-indigo-600 hover:text-indigo-800 flex items-center cursor-pointer"
@@ -806,38 +877,119 @@ function PreviewProperty() {
 
             {/* Owner/Admin Actions */}
             {(role === 'ROLE_OWNER' || role === 'ROLE_ADMIN') && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Management</h3>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => setShowEditModal(true)}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Edit Property
-                  </button>
-                  <button
-                    onClick={() => setShowPhotoUpload(true)}
-                    className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors"
-                  >
-                    Upload Photos
-                  </button>
-                  {role === 'ROLE_ADMIN' && (
+              <>
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Management</h3>
+                  <div className="space-y-3">
                     <button
-                      onClick={handleToggleVerify}
-                      className={`w-full py-2 px-4 rounded-md transition-colors ${verified ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'
-                        } text-white`}
+                      onClick={() => setShowEditModal(true)}
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
                     >
-                      {verified ? 'Mark as Unverified' : 'Mark as Verified'}
+                      Edit Property
                     </button>
-                  )}
-                  <button
-                    onClick={handleDeleteProperty}
-                    className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
-                  >
-                    Delete Property
-                  </button>
+                    <button
+                      onClick={() => setShowPhotoUpload(true)}
+                      className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors"
+                    >
+                      Upload Photos
+                    </button>
+                    {role === 'ROLE_ADMIN' && (
+                      <button
+                        onClick={handleToggleVerify}
+                        className={`w-full py-2 px-4 rounded-md transition-colors ${verified ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'
+                          } text-white`}
+                      >
+                        {verified ? 'Mark as Unverified' : 'Mark as Verified'}
+                      </button>
+                    )}
+                    <button
+                      onClick={handleDeleteProperty}
+                      className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+                    >
+                      Delete Property
+                    </button>
+                    <button
+                      onClick={handleGetRentRequests}
+                      disabled={loadingRequests}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                    >
+                      {loadingRequests ? 'Loading...' : 'View Rent Requests'}
+                    </button>
+                  </div>
                 </div>
-              </div>
+                {showRentRequests && (
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Rent Requests</h3>
+                      <button
+                        onClick={() => setShowRentRequests(false)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {rentRequests.length === 0 ? (
+                      <p className="text-gray-500 text-center py-8">No pending rent requests</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {rentRequests.map((request, index) => (
+                          <div key={index} className="border rounded-lg p-4">
+                            {/* <h4 className="font-bold text-gray-900">{request.propertyAddress}</h4> */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm text-gray-600">Requested by: {request.userName}</p>
+                                <p className="text-sm text-gray-600">Email: {request.userEmail}</p>
+                                <p className="text-sm text-gray-600">
+                                  Duration: {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex flex-col justify-between">
+                                <div>
+                                  <p className="text-sm text-gray-600">
+                                    Monthly Rent: 
+                                  </p>
+                                  <p className="text-sm text-gray-600">Monthly Rent: ₹
+                                    <input className={`${inputClassName} w-11`} 
+                                      type="number" 
+                                      defaultValue={request.monthlyRent}
+                                      onChange={(e)=>request.monthlyRent = e.target.value}  
+                                    />
+                                  </p>
+                                  <p className="text-sm text-gray-600">Security Deposit: ₹
+                                    <input className={`${inputClassName} w-11`} 
+                                      type="number" 
+                                      defaultValue={request.securityDeposit}
+                                      onChange={(e)=>request.securityDeposit = e.target.value}  
+                                    />
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex space-x-2 mt-4">
+                                <button
+                                  onClick={() => handleAcceptRentRequest(request)}
+                                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() => handleRejectRentRequest(request)}
+                                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -845,8 +997,8 @@ function PreviewProperty() {
 
       {/* Rent Request Modal */}
       {showRentRequestModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white outline-2 rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Send Rent Request</h3>
             <form onSubmit={handleSendRentRequest}>
               <div className="space-y-4">
@@ -937,6 +1089,7 @@ function PreviewProperty() {
         <EditProperty
           property={selectedProperty}
           onClose={() => setShowEditModal(false)}
+          prId={pr_id}
           onUpdate={handlePropertyUpdate}
         />
       )}

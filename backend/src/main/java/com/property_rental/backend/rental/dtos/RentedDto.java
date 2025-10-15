@@ -21,9 +21,12 @@ public class RentedDto {
     private double finalMonthlyRent;
     private double finalSecurityDeposit;
     private float duration;
+    private Boolean status;
 
     public RentedDto(RentedProperty rentedProperty) {
         this.id = rentedProperty.getId();
+        this.userId = rentedProperty.getUser().getId();
+        this.propertyId = rentedProperty.getProperty().getId();
         this.startDate = rentedProperty.getStartDate();
         this.endDate = rentedProperty.getEndDate();
         this.finalMonthlyRent = rentedProperty.getFinalMonthlyRent();
@@ -31,5 +34,6 @@ public class RentedDto {
         this.duration = rentedProperty.getDuration()!=0 ? rentedProperty.getDuration() : (rentedProperty.getEndDate().getYear() - rentedProperty.getStartDate().getYear()) * 12 +
                 (rentedProperty.getEndDate().getMonthValue() - rentedProperty.getStartDate().getMonthValue()) -
                 ((rentedProperty.getEndDate().getDayOfMonth()<rentedProperty.getStartDate().getDayOfMonth()) ? 1 : 0);
+        this.status = rentedProperty.getStatus();
     }
 }

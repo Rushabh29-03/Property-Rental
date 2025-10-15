@@ -4,10 +4,12 @@ import com.property_rental.backend.owner.service.OwnerService;
 import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.property.repository.PropertyRepository;
 import com.property_rental.backend.property.service.PropertyService;
+import com.property_rental.backend.rental.dtos.RentRequestDto;
 import com.property_rental.backend.rental.dtos.RentedDto;
 import com.property_rental.backend.rental.service.RentedService;
 import com.property_rental.backend.user.entities.User;
 import com.property_rental.backend.user.repository.UserRepository;
+import com.property_rental.backend.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,13 +29,16 @@ public class OwnerController {
     private final PropertyRepository propertyRepository;
     private final PropertyService propertyService;
     private final RentedService rentedService;
+    private final UserService userService;
 
-    public OwnerController(OwnerService ownerService, UserRepository userRepository, PropertyRepository propertyRepository, PropertyService propertyService, RentedService rentedService) {
+    public OwnerController(OwnerService ownerService, UserRepository userRepository, PropertyRepository propertyRepository, PropertyService propertyService, RentedService rentedService, UserService userService) {
+
         this.ownerService = ownerService;
         this.userRepository = userRepository;
         this.propertyRepository = propertyRepository;
         this.propertyService = propertyService;
         this.rentedService = rentedService;
+        this.userService = userService;
     }
 
     @ExceptionHandler(InternalError.class)
@@ -41,8 +46,6 @@ public class OwnerController {
     public Map<String, String> exceptionHandler(){
         return Collections.singletonMap("errMessage", "invalid invalid");
     }
-
-
 
     // This endpoint is only accessible to users with either OWNER or ADMIN roles.
     @GetMapping("/properties")
@@ -86,14 +89,13 @@ public class OwnerController {
         }
     }
 
-    @DeleteMapping("reject-rent-request")
+    @DeleteMapping("/reject-rent-request")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<?> rejectRentRequest(@RequestBody Map<String, Integer> requestData) {
+    public ResponseEntity<?> rejectRentRequest(@RequestBody RentedDto rentedDto) {
         Map<String, Object> response = new HashMap<>();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try {
-            int userId = requestData.get("userId");
-            int propertyId = requestData.get("propertyId");
+            int userId = rentedDto.getUserId();
+            int propertyId = rentedDto.getPropertyId();
 
             rentedService.rejectRentRequest(userId, propertyId);
             response.put("message", "Rent request rejected successfully");
@@ -113,20 +115,7 @@ public class OwnerController {
         Map<String, Object> response = new HashMap<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        User user = userRepository.findByUserName(authentication.getName()).orElseThrow(
-                () -> new UsernameNotFoundException("User not found with username: " + authentication.getName())
-        );
-
         try {
-            // Verify that the property belongs to the authenticated user
-            boolean isOwner = user.getProperties().stream()
-                    .anyMatch(property -> property.getId() == propertyId);
-
-            if (!isOwner) {
-                response.put("errMessage", "You don't have permission to view requests for this property");
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-            }
-
             int count = rentedService.getRentRequestsCountByProperty(propertyId);
             response.put("count", count);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -136,6 +125,32 @@ public class OwnerController {
         }
     }
 
+    @GetMapping("/property/{propertyId}/rent-requests")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    public ResponseEntity<?> getPropertyRentRequest(@PathVariable int propertyId) {
+        Map<String, Object> response = new HashMap<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        try {
+            List<RentRequestDto> rentRequestDtos = rentedService.getPropertyRentRequestsByPropertyId(propertyId);
+            response.put("message", "requests fetch success");
+            response.put("rentRequests", rentRequestDtos);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+//    @GetMapping("/rent-requests")
+//    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+//    public ResponseEntity<?> getAllRentRequests() {
+//
+//    }
 }
 
