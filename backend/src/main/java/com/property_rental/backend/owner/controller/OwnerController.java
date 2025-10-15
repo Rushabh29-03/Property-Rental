@@ -70,13 +70,14 @@ public class OwnerController {
        }
     }
 
+//    ACCEPT RENT REQUEST
     @PostMapping("/accept-rent-request")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<?> acceptRentRequest(@RequestBody RentedDto rentedDto){ //gets userId and propertyId as RequestBody so no need to fetch
+    public ResponseEntity<?> acceptRentRequest(@RequestBody RentRequestDto rentRequestDto){ //gets userId and propertyId as RequestBody so no need to fetch
         Map<String, Object> response = new HashMap<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try {
-            RentedDto updatedDto = rentedService.acceptRentRequest(rentedDto);
+            RentedDto updatedDto = rentedService.acceptRentRequest(rentRequestDto);
             response.put("message", "rent request accepted success");
             response.put("updated rented property", updatedDto);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -89,15 +90,15 @@ public class OwnerController {
         }
     }
 
+//    REJECT RENT REQUEST
     @DeleteMapping("/reject-rent-request")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-    public ResponseEntity<?> rejectRentRequest(@RequestBody RentedDto rentedDto) {
+    public ResponseEntity<?> rejectRentRequest(@RequestBody RentRequestDto rentRequestDto) {
         Map<String, Object> response = new HashMap<>();
         try {
-            int userId = rentedDto.getUserId();
-            int propertyId = rentedDto.getPropertyId();
+            int requestId = rentRequestDto.getRequestId();
 
-            rentedService.rejectRentRequest(userId, propertyId);
+            rentedService.rejectRentRequest(requestId);
             response.put("message", "Rent request rejected successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NoSuchElementException e) {
@@ -109,6 +110,7 @@ public class OwnerController {
         }
     }
 
+//    PROPERTY SPECIFIC REQUEST COUNTS
     @GetMapping("/property/{propertyId}/rent-requests-count")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> getRentRequestsCount(@PathVariable int propertyId) {
@@ -125,6 +127,8 @@ public class OwnerController {
         }
     }
 
+
+//    PROPERTY SPECIFIC REQUESTS
     @GetMapping("/property/{propertyId}/rent-requests")
     @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<?> getPropertyRentRequest(@PathVariable int propertyId) {
@@ -145,12 +149,5 @@ public class OwnerController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-//    @GetMapping("/rent-requests")
-//    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
-//    public ResponseEntity<?> getAllRentRequests() {
-//
-//    }
 }
 

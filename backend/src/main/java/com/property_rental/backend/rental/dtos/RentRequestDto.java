@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Builder
 @ToString
 public class RentRequestDto {
+    private int requestId;
     private int userId;
     private int propertyId;
     private String propertyAddress;
@@ -19,11 +20,12 @@ public class RentRequestDto {
     private String userEmail;
     private LocalDate startDate;
     private LocalDate endDate;
-    private double monthlyRent;
-    private double securityDeposit;
+    private double finalMonthlyRent;
+    private double finalSecurityDeposit;
     private float duration;
 
     public RentRequestDto (RentedProperty rentedProperty) {
+        this.requestId = rentedProperty.getId();
         this.userId = rentedProperty.getUser().getId();
         this.propertyId = rentedProperty.getProperty().getId();
         this.propertyAddress = rentedProperty.getProperty().getDescription();
@@ -31,8 +33,8 @@ public class RentRequestDto {
         this.userEmail = rentedProperty.getUser().getEmail();
         this.startDate = rentedProperty.getStartDate();
         this.endDate = rentedProperty.getEndDate();
-        this.monthlyRent = rentedProperty.getProperty().getMonthlyRent();
-        this.securityDeposit = rentedProperty.getProperty().getSecurityDepositAmount();
+        this.finalMonthlyRent = rentedProperty.getProperty().getMonthlyRent();
+        this.finalSecurityDeposit = rentedProperty.getProperty().getSecurityDepositAmount();
         this.duration = rentedProperty.getDuration();
     }
 }

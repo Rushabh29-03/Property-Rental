@@ -14,9 +14,11 @@ import java.util.Optional;
 public interface RentedRepository extends JpaRepository<RentedProperty, Integer> {
 
     List<RentedDto> findByUserId(int userId);
-    Optional<RentedProperty> findByUserIdAndPropertyId(int userId, int propertyId);
+
     List<RentedProperty> findByPropertyId(int propertyId);
 
     @Query("SELECT COUNT(r) FROM RentedProperty r WHERE r.property.id = :propertyId AND r.status = false")
     int countPendingRequestsByPropertyId(@Param("propertyId") int propertyId);
+
+    List<RentedDto> findByUserIdAndPropertyId(int userId, int propertyId);
 }

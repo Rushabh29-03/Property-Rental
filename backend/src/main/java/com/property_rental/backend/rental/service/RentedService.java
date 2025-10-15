@@ -49,21 +49,26 @@ public class RentedService {
     }
 
     @Transactional
-    public RentedDto acceptRentRequest(RentedDto rentedDto) {
+    public RentedDto acceptRentRequest(RentRequestDto rentRequestDto) {
 
-        int userId = rentedDto.getUserId();
-        int propertyId = rentedDto.getPropertyId();
+        int requestId = rentRequestDto.getRequestId();
+        int userId = rentRequestDto.getUserId();
+        int propertyId = rentRequestDto.getPropertyId();
 
-        RentedProperty rentedProperty = rentedRepository.findByUserIdAndPropertyId(userId, propertyId).orElseThrow(
+        RentedProperty rentedProperty = rentedRepository.findById(requestId).orElseThrow(
                 ()-> new NoSuchElementException("No rented property with userId: "+userId+" and propertyId: "+propertyId)
         );
+
+//        RentedProperty rentedProperty = rentedRepository.findByUserIdAndPropertyId(userId, propertyId).orElseThrow(
+//                ()-> new NoSuchElementException("No rented property with userId: "+userId+" and propertyId: "+propertyId)
+//        );
 
         System.out.println("****************************");
         System.out.println(rentedProperty);
         System.out.println("****************************");
 
-        rentedProperty.setFinalMonthlyRent(rentedDto.getFinalMonthlyRent());
-        rentedProperty.setFinalSecurityDeposit(rentedDto.getFinalSecurityDeposit());
+        rentedProperty.setFinalMonthlyRent(rentRequestDto.getFinalMonthlyRent());
+        rentedProperty.setFinalSecurityDeposit(rentRequestDto.getFinalSecurityDeposit());
 
         rentedProperty.setStatus(true);
 //        rentedProperty.setDuration((rentedProperty.getEndDate().getYear() - rentedProperty.getStartDate().getYear()) * 12 +
@@ -74,15 +79,16 @@ public class RentedService {
     }
 
     @Transactional
-    public void rejectRentRequest(int userId, int propertyId) {
-        RentedProperty rentedProperty = rentedRepository.findByUserIdAndPropertyId(userId, propertyId).orElseThrow(
-                () -> new NoSuchElementException("No rent request found with userId: " + userId + " and propertyId: " + propertyId)
+    public void rejectRentRequest(int requestId) {
+        RentedProperty rentedProperty = rentedRepository.findById(requestId).orElseThrow(
+                () -> new NoSuchElementException("No rent request found with requestId: " + requestId)
         );
 
         // Remove the rent request by deleting the entity
         rentedRepository.delete(rentedProperty);
     }
 
+//    USED BY OWNER
     public int getRentRequestsCountByProperty(int propertyId) {
         return rentedRepository.countPendingRequestsByPropertyId(propertyId);
     }
@@ -91,6 +97,7 @@ public class RentedService {
         return rentedRepository.findByUserId(userId);
     }
 
+//    USED BY OWNER
     public List<RentRequestDto> getPropertyRentRequestsByPropertyId(int propertyId) {
         List<RentRequestDto> rentRequestDtos = new ArrayList<>();
         for(RentedProperty i: rentedRepository.findByPropertyId(propertyId)) {
@@ -100,5 +107,10 @@ public class RentedService {
         }
 
         return rentRequestDtos;
+    }
+
+//    USED BY USER
+    public List<RentedDto> getRequestedProperties(int userId, int propertyId) {
+        return rentedRepository.findByUserIdAndPropertyId(userId, propertyId);
     }
 }

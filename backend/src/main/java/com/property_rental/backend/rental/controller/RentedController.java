@@ -31,7 +31,8 @@ public class RentedController {
         this.rentedService = rentedService;
     }
 
-    @GetMapping("/get-rented-properties")
+//    GET ALL RENTED PROPERTIES FOR USER
+    @GetMapping("/get-all-rented-properties")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> getRentedProperties(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

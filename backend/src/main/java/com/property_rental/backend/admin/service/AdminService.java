@@ -7,6 +7,7 @@ import com.property_rental.backend.property.dtos.PropertyDto;
 import com.property_rental.backend.property.entities.Property;
 import com.property_rental.backend.property.repository.PropertyRepository;
 import com.property_rental.backend.admin.entities.Admin;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,7 @@ public class AdminService {
     }
 
     @Transactional
-    public void addRefreshTokenToAdmin(String username, String refreshToken) {
+    public Admin addRefreshTokenToAdmin(String username, String refreshToken) {
         Admin admin = adminRepository.findByUserName(username).orElseThrow(
                 ()-> new UsernameNotFoundException("Admin not found in admin table")
         );
@@ -44,7 +45,7 @@ public class AdminService {
         admin.setRefreshToken(refreshToken);
         admin.setExpiryDate(jwtHelper.getExpirationDateFromToken(refreshToken).toInstant());
 
-        adminRepository.save(admin);
+        return adminRepository.save(admin);
     }
 
     public Admin getRefreshTokenFromAdmin(String username) {

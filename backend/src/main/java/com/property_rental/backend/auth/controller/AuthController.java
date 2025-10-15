@@ -72,6 +72,9 @@ public class AuthController {
 
         try {
 //            this.doAuthenticate(request.getUserName(), request.getPassword());
+//            if(request.getUserName().equals("jordan")) {
+//
+//            }
 
             // Load the user details to generate a token.
             UserDetails userDetails = userService.loadUserByUsername(request.getUserName()); //throws UsernameNotFoundException
@@ -86,24 +89,32 @@ public class AuthController {
             // Generate the JWT tokens.
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
             String refreshToken = this.jwtHelper.generateRefreshToken(userDetails);
+            JwtResponse jwtResponse = new JwtResponse();
 
 //            add refresh token to database, overwrite if already available
 //            isAdmin?, save token to admin table
             if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
-                adminService.addRefreshTokenToAdmin(userDetails.getUsername(), refreshToken);
+                Admin admin = adminService.addRefreshTokenToAdmin(userDetails.getUsername(), refreshToken);
+                jwtResponse = JwtResponse.builder()
+                        .id(admin.getId())
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .username(userDetails.getUsername())
+                        .role(userDetails.getAuthorities().toArray()[0].toString())
+                        .build();
             }
 
             else {
                 refreshTokenService.addRefreshToken(request.getUserName(), refreshToken); // throws NoSuchElementException
+                jwtResponse = JwtResponse.builder()
+                        .id(userService.findByUsername(userDetails.getUsername()).getId())
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .username(userDetails.getUsername())
+                        .role(userDetails.getAuthorities().toArray()[0].toString())
+                        .build();
             }
 
-            JwtResponse jwtResponse = JwtResponse.builder()
-                    .id(userService.findByUsername(userDetails.getUsername()).getId())
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .username(userDetails.getUsername())
-                    .role(userDetails.getAuthorities().toArray()[0].toString())
-                    .build();
 
             return new ResponseEntity<>(jwtResponse, HttpStatus.CREATED);
         } catch (UsernameNotFoundException | NoSuchElementException e) {
@@ -124,11 +135,8 @@ public class AuthController {
             this.doAuthenticate(request.getUserName(), request.getPassword());
 
             UserDetails userDetails = userService.loadUserByUsername(request.getUserName());
-
-//            check if admin
-//            if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
-//
-//            }
+            JwtResponse jwtResponse = new JwtResponse();
+            String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 
 //            check if admin
             if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
@@ -136,22 +144,25 @@ public class AuthController {
                 if(admin.isRefreshTokenExpired()){
                     throw new JwtException("Admins refresh token is expired, generate again");
                 }
+                jwtResponse = JwtResponse.builder()
+                        .id(admin.getId())
+                        .accessToken(accessToken)
+                        .username(userDetails.getUsername())
+                        .role(userDetails.getAuthorities().toArray()[0].toString())
+                        .build();
             }
             else { //not admin
                 RefreshTokenDto refreshTokenDto = refreshTokenService.getTokenByUserName(request.getUserName());  // throws UsernameNotFoundException
                 if(refreshTokenDto.isExpired()){
                     throw new JwtException("Refresh token expired, generate again");
                 }
+                jwtResponse = JwtResponse.builder()
+                        .id(userService.findByUsername(userDetails.getUsername()).getId())
+                        .accessToken(accessToken)
+                        .username(userDetails.getUsername())
+                        .role(userDetails.getAuthorities().toArray()[0].toString())
+                        .build();
             }
-
-            String accessToken = this.jwtHelper.generateAccessToken(userDetails);
-
-            JwtResponse jwtResponse = JwtResponse.builder()
-                    .id(userService.findByUsername(userDetails.getUsername()).getId())
-                    .accessToken(accessToken)
-                    .username(userDetails.getUsername())
-                    .role(userDetails.getAuthorities().toArray()[0].toString())
-                    .build();
 
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
@@ -196,12 +207,27 @@ public class AuthController {
 
             String accessToken = this.jwtHelper.generateAccessToken(userDetails);
 
-            JwtResponse jwtResponse = JwtResponse.builder()
-                    .id(userService.findByUsername(userDetails.getUsername()).getId())
-                    .accessToken(accessToken)
-                    .username(userDetails.getUsername())
-                    .role(userDetails.getAuthorities().toArray()[0].toString())
-                    .build();
+            JwtResponse jwtResponse = new JwtResponse();
+
+            if(userDetails.getAuthorities().toArray()[0].toString().equals("ROLE_ADMIN")){
+                Admin admin = adminService.getRefreshTokenFromAdmin(userDetails.getUsername());
+                jwtResponse = JwtResponse.builder()
+                        .id(admin.getId())
+                        .accessToken(accessToken)
+                        .username(userDetails.getUsername())
+                        .role(userDetails.getAuthorities().toArray()[0].toString())
+                        .build();
+            }
+
+            else {
+                refreshTokenService.getTokenByUserName(request.getUserName()); // throws NoSuchElementException
+                jwtResponse = JwtResponse.builder()
+                        .id(userService.findByUsername(userDetails.getUsername()).getId())
+                        .accessToken(accessToken)
+                        .username(userDetails.getUsername())
+                        .role(userDetails.getAuthorities().toArray()[0].toString())
+                        .build();
+            }
 
             return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
         } catch (UsernameNotFoundException e){

@@ -52,6 +52,7 @@ public class UserController {
         return Collections.singletonMap("errMessage", "JWT RefreshToken is expired, please login again.");
     }
 
+//    MARK PROPERTY WISHLIST
     @PostMapping("/wishListProperty/{propertyId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> markPropertyAsWishList(@PathVariable int propertyId, @RequestBody WishListedProperty wishListedProperty) {
@@ -76,6 +77,7 @@ public class UserController {
         }
     }
 
+//    GET WISH LISTED PROPERTIES
     @GetMapping("/getWishListedProperties")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getWishListedProperties(){
@@ -97,6 +99,7 @@ public class UserController {
         }
     }
 
+//    UNMARK WISHLISTED PROPERTY
     @DeleteMapping("/removeWishListProperty/{propertyId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> removeWishListProperty(@PathVariable int propertyId) {
@@ -117,6 +120,7 @@ public class UserController {
         }
     }
 
+//    CREATE RENT REQUEST
     @PostMapping("/rent-property")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> addRentRequest(@RequestBody RentedDto rentedDto) {
@@ -126,6 +130,29 @@ public class UserController {
             response.put("message", "rent request sent success");
             response.put("rent request", addedDto);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (NoSuchElementException e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            response.put("errMessage", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+//    GET RENT REQUESTS OF USER IN PROPERTY
+    @GetMapping("/get-property-rent-requests/{propertyId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<?> getPropertyRentRequests(@PathVariable int propertyId) {
+        Map<String, Object> response = new HashMap<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            User user = userService.findByUsername(authentication.getName());
+            List<RentedDto> rentedDtoList = rentedService.getRequestedProperties(user.getId(), propertyId);
+            response.put("message", "rent requests fetched for user: "+user.getId() + ", property: "+propertyId);
+            response.put("rentedList", rentedDtoList);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             response.put("errMessage", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

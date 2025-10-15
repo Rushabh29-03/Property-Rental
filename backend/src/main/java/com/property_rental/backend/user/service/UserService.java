@@ -5,6 +5,7 @@ import com.property_rental.backend.admin.repository.AdminRepository;
 import com.property_rental.backend.user.repository.UserRepository;
 import com.property_rental.backend.admin.entities.Admin;
 import com.property_rental.backend.user.entities.User;
+import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -95,7 +96,7 @@ public class UserService implements UserDetailsService {
 
     public User findByUsername(String username){
         User user = userRepository.findByUserName(username).orElseThrow(
-                ()-> new UsernameNotFoundException("User not found with username: "+username)
+                ()-> new UsernameNotFoundException("User hahahhaha not found with username: "+username)
         );
         return user;
     }

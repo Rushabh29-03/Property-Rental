@@ -15,6 +15,8 @@ function PreviewProperty() {
   const location = useLocation();
   const { pr_id } = useParams();
   const role = AuthService.getCurrentUser()?.role;
+  console.log(role);
+
 
   // Property state
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -54,6 +56,9 @@ function PreviewProperty() {
   const [showRentRequests, setShowRentRequests] = useState(false)
   const [loadingRequests, setLoadingRequests] = useState(false)
   const [rentRequests, setRentRequests] = useState([])
+
+  // User requests state
+  const [userRequests, setUserRequests] = useState([])
 
   // Rent response state
   const [finalMonthlyRent, setFinalMonthlyRent] = useState(monthlyRent)
@@ -206,23 +211,6 @@ function PreviewProperty() {
     }
   };
 
-  // !EDIT PROPERTY RULES
-  // const handleEditPropertyRules = async (e) => {
-  //   e.preventDefault();
-  //   console.log("Sending data: ", propertyRulesData);
-  //   try {
-  //     const response = await PropertyService.editProperty(propertyRulesData, pr_id);
-  //     if (response) {
-  //       alert('Property updated');
-  //       // Refresh property data
-  //       await handleGetPropertyById(pr_id);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     alert('Failed to update property');
-  //   }
-  // };
-
   // !HANDLE GET PROPERTY RENT REQUESTS
   const handleGetRentRequests = async () => {
     setLoadingRequests(true);
@@ -242,10 +230,11 @@ function PreviewProperty() {
   const handleAcceptRentRequest = async (request) => {
     try {
       const rentData = {
+        requestId: request.requestId,
         userId: request.userId,
         propertyId: request.propertyId,
-        finalMonthlyRent: request.monthlyRent,
-        finalSecurityDeposit: request.securityDeposit
+        finalMonthlyRent: request.finalMonthlyRent,
+        finalSecurityDeposit: request.finalSecurityDeposit
       };
 
       const response = await OwnerService.acceptRentRequest(rentData);
@@ -268,8 +257,7 @@ function PreviewProperty() {
 
     try {
       const requestData = {
-        userId: request.userId,
-        propertyId: request.propertyId
+        requestId: request.requestId,
       };
 
       const response = await OwnerService.rejectRentRequest(requestData);
@@ -283,6 +271,19 @@ function PreviewProperty() {
       alert('Failed to reject rent request. Please try again.');
     }
   };
+
+  // !GET USER REQUESTED-RENT-PROPERTIES
+  const handleGetUserRentRequestsByPropertyId = async () => {
+    try {
+      const response = await UserService.getRentedProperties(pr_id);
+
+      if (response) {
+        setUserRequests(response.rentedList || [])
+      }
+    } catch (error) {
+      console.error('Error getting user requests: ', error);
+    }
+  }
 
   // !DELETE PROPERTY
   const handleDeleteProperty = () => {
@@ -470,7 +471,7 @@ function PreviewProperty() {
     setShowFacilityModal(true)
   }
 
-  // !Check if facility is already added to property
+  // Check if facility is already added to property
   const isFacilityAdded = (facilityName) => {
     return facilities.some(f => f.facName.toLowerCase() === facilityName.toLowerCase())
   }
@@ -563,6 +564,11 @@ function PreviewProperty() {
       setVerified(selectedProperty.isVerified || false);
     }
   }, [selectedProperty]);
+
+  // !USE-EFFECT 4 - load user property specific requests
+  useEffect(() => {
+    handleGetUserRentRequestsByPropertyId();
+  }, [])
 
   // Handle loading state
   if (loading) {
@@ -875,6 +881,37 @@ function PreviewProperty() {
               </div>
             )}
 
+            {(role === 'ROLE_USER' && userRequests && userRequests.length > 0) && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                {userRequests.map((request, index) => (
+
+                  <div key={index} className={`${request.status.toLocaleString() === 'true' ? 'bg-green-100' : 'bg-yellow-100'} border rounded-lg p-4 mb-2`}>
+                    <p className="text-sm text-center">Requested On: --date--</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+
+                        <p className="text-sm text-gray-600">
+                          Duration: {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex flex-col justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            Monthly Rent:
+                          </p>
+                          <p className="text-sm text-gray-600">Monthly Rent: ₹{request.finalMonthlyRent}
+                          </p>
+                          <p className="text-sm text-gray-600">Security Deposit: ₹{request.finalSecurityDeposit}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div>{request.status.toLocaleString() === 'true' ? 'Accepted' : 'Pending'}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Owner/Admin Actions */}
             {(role === 'ROLE_OWNER' || role === 'ROLE_ADMIN') && (
               <>
@@ -949,20 +986,20 @@ function PreviewProperty() {
                               <div className="flex flex-col justify-between">
                                 <div>
                                   <p className="text-sm text-gray-600">
-                                    Monthly Rent: 
+                                    Monthly Rent:
                                   </p>
                                   <p className="text-sm text-gray-600">Monthly Rent: ₹
-                                    <input className={`${inputClassName} w-11`} 
-                                      type="number" 
-                                      defaultValue={request.monthlyRent}
-                                      onChange={(e)=>request.monthlyRent = e.target.value}  
+                                    <input className={`${inputClassName} w-11`}
+                                      type="number"
+                                      defaultValue={request.finalMonthlyRent}
+                                      onChange={(e) => request.finalMonthlyRent = e.target.value}
                                     />
                                   </p>
                                   <p className="text-sm text-gray-600">Security Deposit: ₹
-                                    <input className={`${inputClassName} w-11`} 
-                                      type="number" 
-                                      defaultValue={request.securityDeposit}
-                                      onChange={(e)=>request.securityDeposit = e.target.value}  
+                                    <input className={`${inputClassName} w-11`}
+                                      type="number"
+                                      defaultValue={request.finalSecurityDeposit}
+                                      onChange={(e) => request.finalSecurityDeposit = e.target.value}
                                     />
                                   </p>
                                 </div>
