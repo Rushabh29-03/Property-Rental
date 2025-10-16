@@ -567,7 +567,9 @@ function PreviewProperty() {
 
   // !USE-EFFECT 4 - load user property specific requests
   useEffect(() => {
-    handleGetUserRentRequestsByPropertyId();
+    if(role==='ROLE_USER'){
+      handleGetUserRentRequestsByPropertyId();
+    }
   }, [])
 
   // Handle loading state
