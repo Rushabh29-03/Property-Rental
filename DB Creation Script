@@ -88,6 +88,7 @@ create table if not exists rented_property(
 			else 0
 		end
 	) stored,
+	status boolean,
 
 	CONSTRAINT fk_rented_property
         foreign key (property_id)
@@ -160,6 +161,7 @@ create table if not exists photos(
 	pr_id int not null, --FK
 	filename varchar(255),
 	data BYTEA,
+	content_type varchar(255),
 	is_main boolean not null default false,
 
 	CONSTRAINT fk_photo_property
