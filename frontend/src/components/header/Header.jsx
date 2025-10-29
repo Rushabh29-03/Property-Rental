@@ -12,10 +12,8 @@ function Header() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    AuthService.logout();
-    navigate('/login'); // Redirect to the login page after logout
-    // Force a page reload or state update if necessary (depending on setup)
-    // window.location.reload(); 
+    AuthService.logout(navigate);
+    // navigate('/login'); // Redirect to the login page after logout
   };
   return (
     <>
@@ -31,6 +29,10 @@ function Header() {
         <nav className="navbar-links">
           {/* Public Links */}
           <Link to="/">Home</Link>
+
+          {!isLoggedIn && (
+            <Link to='/properties'>All Properties</Link>
+          )}
 
           {/* user specific link */}
           {isLoggedIn && !isOwner &&(

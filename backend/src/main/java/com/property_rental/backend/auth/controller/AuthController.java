@@ -243,6 +243,8 @@ public class AuthController {
     public ResponseEntity<String> registerAdmin(@RequestBody Admin admin){
         try {
             Admin registeredAdmin = adminService.registerAdmin(admin);
+            JwtRequest jwtRequest = JwtRequest.builder().userName(registeredAdmin.getUserName()).build();
+            this.getNewRefreshToken(jwtRequest);
             return new ResponseEntity<>("Admin registered successfully with username: "+registeredAdmin.getUserName(), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>("Admin registration failed: "+e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -263,6 +265,7 @@ public class AuthController {
 
             JwtRequest jwtRequest = JwtRequest.builder().userName(user.getUserName()).build();
             this.getNewRefreshToken(jwtRequest);
+
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 //            return new ResponseEntity<>("User registered successfully with username: " + registeredUser.getUserName(), HttpStatus.CREATED);
         } catch (Exception e) {

@@ -106,11 +106,8 @@ const AuthService = {
         console.log("fetching all properties");
         
         try {
-            const response = await axios.get(API_URL+"/allProperties", {
-                headers: {
-                    'Authorization': `Bearer ${AuthService.getCurrentUser().accessToken}`
-                }
-            });
+            const response = await axios.get(API_URL+"/allProperties");
+            
             return response.data;
         } catch (error) {
             console.error("Error fetching all properties", error.response.data);
