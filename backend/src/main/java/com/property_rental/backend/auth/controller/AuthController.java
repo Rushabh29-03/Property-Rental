@@ -67,7 +67,7 @@ public class AuthController {
     // =================================================================
 
     @PostMapping("/generate-refresh-token")
-    public ResponseEntity<?> getNewRefreshToken(@RequestBody  JwtRequest request) {
+    public ResponseEntity<?> getNewRefreshToken(@RequestBody  JwtRequest request) { //takes only username in parameter
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -260,6 +260,9 @@ public class AuthController {
 
             response.replace("message", "User registered successfully!!!");
             response.replace("canProceed", true);
+
+            JwtRequest jwtRequest = JwtRequest.builder().userName(user.getUserName()).build();
+            this.getNewRefreshToken(jwtRequest);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 //            return new ResponseEntity<>("User registered successfully with username: " + registeredUser.getUserName(), HttpStatus.CREATED);
         } catch (Exception e) {
