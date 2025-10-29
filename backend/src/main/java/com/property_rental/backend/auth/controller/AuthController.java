@@ -280,6 +280,11 @@ public class AuthController {
     public ResponseEntity<List<PropertyDto>> getAllProperties(){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication.getAuthorities().toArray()[0].toString().equals("ROLE_ANONYMOUS")) {
+            List<PropertyDto> propertyDtoList=propertyService.allProperties();
+            return new ResponseEntity<>(propertyDtoList, HttpStatus.OK);
+        }
         String username = authentication.getName();
         UserDetails user=userService.loadUserByUsername(username);
 
