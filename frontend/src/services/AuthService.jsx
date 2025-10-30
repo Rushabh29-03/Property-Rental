@@ -3,32 +3,32 @@ import { Environment } from '../environments/GlobalVariables';
 
 const API_URL = Environment.apiUrl + "/auth"
 
-const AuthService = {    
+const AuthService = {
 
-    logout: (navigate)=>{
+    logout: (navigate) => {
         localStorage.removeItem('role');
         localStorage.removeItem('user');
 
-        if(navigate){
+        if (navigate) {
             navigate('/login')
-        } else{
-            window.location.href='/login';
+        } else {
+            window.location.href = '/login';
         }
     },
 
-    getCurrentUser: ()=>{
+    getCurrentUser: () => {
         const user = localStorage.getItem('user');
         return user ? JSON.parse(user) : null;
     },
 
-    setCurrentUser: (data)=>{
-        if(data!=null){
+    setCurrentUser: (data) => {
+        if (data != null) {
             localStorage.setItem('user', JSON.stringify(data));
             localStorage.setItem('role', JSON.stringify(data.role));
         }
     },
 
-    signIn: async (username, password)=>{
+    signIn: async (username, password) => {
 
         console.log("Attempting sign-in...");
 
@@ -36,40 +36,66 @@ const AuthService = {
             // Await the POST request
             const response = await axios.post(API_URL + "/login",
                 {
-                    userName: username, 
+                    userName: username,
                     password: password
                 });
 
             // ! INVALID CREDENTIALS HANDLER
-            if(response.data.errMessage){
+            if (response.data.errMessage) {
                 throw new Error
-                (response.data.errMessage);
+                    (response.data.errMessage);
             }
 
-            else if (response.data.accessToken) { 
+            else if (response.data.accessToken) {
                 AuthService.setCurrentUser(response.data);
-                
+
             }
             console.log(response.data);
             return response.data; // Return the data
-            
+
         } catch (error) {
             console.error("Sign-in error:", error);
             alert(error.response.data.errMessage);
         }
     },
 
-    signUp: async (userData, navigate)=>{
+    /**
+   * Google OAuth2 Sign-In
+   * Sends Google ID token to backend for authentication
+   */
+    googleSignIn: async (idToken) => {
+        console.log("Attempting Google sign-in...");
+        try {
+            const response = await axios.post(API_URL + "/google/login", {
+                idToken: idToken
+            });
+
+            if (response.data.errMessage) {
+                throw new Error(response.data.errMessage);
+            } else if (response.data.accessToken) {
+                AuthService.setCurrentUser(response.data);
+                console.log("Google sign-in successful:", response.data);
+                return response.data;
+            }
+        } catch (error) {
+            console.error("Google sign-in error:", error);
+            const errorMessage = error.response?.data?.errMessage || error.message || "Google sign-in failed";
+            alert(errorMessage);
+            throw error;
+        }
+    },
+
+    signUp: async (userData, navigate) => {
         console.log("Attempting sign-up...");
         AuthService.setCurrentUser(null);
 
-        const response=await axios.post(API_URL+"/register/user", userData);
+        const response = await axios.post(API_URL + "/register/user", userData);
 
         try {
-            if(! response.data.canProceed){
+            if (!response.data.canProceed) {
                 console.log(response.data.detailError);
             }
-            else{
+            else {
                 console.log("Sing-up response data: ", response.data);
                 AuthService.setCurrentUser(response.data)
                 await AuthService.signIn(userData.userName, userData.password);
@@ -80,34 +106,34 @@ const AuthService = {
         }
     },
 
-    relogin: async()=>{
+    relogin: async () => {
         const currentUser = AuthService.getCurrentUser();
-        if(!currentUser){
+        if (!currentUser) {
             console.log("User not found");
             return;
         }
 
-        try{
-            const response = await axios.post(`${API_URL}/re-login`, {userName : currentUser.username});
+        try {
+            const response = await axios.post(`${API_URL}/re-login`, { userName: currentUser.username });
 
-            if(response){
+            if (response) {
                 // console.log(response.data);
                 AuthService.setCurrentUser(response.data);
                 window.location.reload();
                 // return response;
             }
-        } catch(error){
+        } catch (error) {
             console.error('React error re-logging in: ', error);
             // AuthService.logout();
         }
     },
 
-    getAllProperties: async()=>{
+    getAllProperties: async () => {
         console.log("fetching all properties");
-        
+
         try {
-            const response = await axios.get(API_URL+"/allProperties");
-            
+            const response = await axios.get(API_URL + "/allProperties");
+
             return response.data;
         } catch (error) {
             console.error("Error fetching all properties", error.response.data);
