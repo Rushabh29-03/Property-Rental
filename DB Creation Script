@@ -2,11 +2,14 @@
 
 create table if not exists admin(
 	admin_id serial primary key,
-	username varchar(20) not null unique,
+	username varchar(50) not null unique,
 	password varchar(255) not null,
 	refresh_token varchar(255),
 	expiry_date timestamp
 );
+
+-- alter table admin
+-- alter column username type varchar(50);
 
 -- alter table admin
 -- add column refresh_token varchar(255);
@@ -19,7 +22,7 @@ create table if not exists admin(
 
 create table if not exists users(
 	user_id serial primary key,
-	username varchar(20) unique not null,
+	username varchar(50) unique not null,
 	password varchar(255) not null,
 	email varchar(100) unique not null,
 	first_name varchar(50) not null,
@@ -28,6 +31,9 @@ create table if not exists users(
 	is_owner boolean default false,
 	created_at timestamp
 );
+
+-- alter table users
+-- alter column username type varchar(50);
 
 -- alter table users
 -- alter column created_at set default current_timestamp;
